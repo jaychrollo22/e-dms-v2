@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{asset('skydash/vendors/simple-line-icons/css/simple-line-icons.css')}}">
     <link rel="stylesheet" href="{{asset('skydash/vendors/css/vendor.bundle.base.css')}}">
     <link rel="stylesheet" href="{{asset('skydash/css/vertical-layout-light/style.css')}}">
-    <link rel="shortcut icon" href="{{asset('skydash/images/favicon.png')}}" />
+    <link rel="shortcut icon" href="{{asset('img/app_icon.png')}}" />
 </head>
 
 <body>
@@ -25,12 +25,16 @@
             </div>
         </div>
     </div>
+
+    <script src="{{ asset('js/app.js') }}"></script>
+
     <script src="{{asset('skydash/vendors/js/vendor.bundle.base.js')}}"></script>
     <script src="{{asset('skydash/js/off-canvas.js')}}"></script>
     <script src="{{asset('skydash/js/hoverable-collapse.js')}}"></script>
     <script src="{{asset('skydash/js/template.js')}}"></script>
     <script src="{{asset('skydash/js/settings.js')}}"></script>
     <script src="{{asset('skydash/js/todolist.js')}}"></script>
+
 
 </body>
 

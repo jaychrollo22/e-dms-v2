@@ -15,8 +15,8 @@ class CreateDocumentationRequestAttachmentsTable extends Migration
     {
         Schema::create('documentation_request_attachments', function (Blueprint $table) {
             $table->id();
-            $table->bigint('documentation_request_id');
-            $table->strinng('file_path');
+            $table->bigInteger('documentation_request_id');
+            $table->string('file_path');
             $table->timestamps();
         });
     }

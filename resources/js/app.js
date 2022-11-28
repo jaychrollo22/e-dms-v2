@@ -19,7 +19,14 @@ window.Vue = require('vue');
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+// Common Components
+Vue.component('table-pagination', require('./components/Common/TablePagination.vue').default);
+
+
+Vue.component('settings', require('./components/Settings/Index.vue').default);
+Vue.component('companies', require('./components/Companies/Index.vue').default);
+Vue.component('departments', require('./components/Departments/Index.vue').default);
+Vue.component('roles', require('./components/Roles/Index.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

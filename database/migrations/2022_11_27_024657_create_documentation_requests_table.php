@@ -15,9 +15,9 @@ class CreateDocumentationRequestsTable extends Migration
     {
         Schema::create('documentation_requests', function (Blueprint $table) {
             $table->id();
-            $table->bigint('department');
+            $table->bigInteger('department');
             $table->string('dicr_number');
-            $table->bigint('requestor');
+            $table->bigInteger('requestor');
             $table->date('requested_date');
             $table->string('title');
             $table->date('proposed_effective_date');

@@ -15,8 +15,8 @@ class CreateUserImmediateHeadsTable extends Migration
     {
         Schema::create('user_immediate_heads', function (Blueprint $table) {
             $table->id();
-            $table->bigint('user_id');
-            $table->bigint('immediate_head');
+            $table->bigInteger('user_id');
+            $table->bigInteger('immediate_head');
             $table->timestamps();
         });
     }

@@ -44,11 +44,11 @@
             </a>
             <div class="collapse" id="ui-basic">
                 <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="/">Application</a></li>
-                    <li class="nav-item"> <a class="nav-link" href="/">Users</a></li>
-                    <li class="nav-item"> <a class="nav-link" href="/">Roles</a></li>
-                    <li class="nav-item"> <a class="nav-link" href="/">Companies</a></li>
-                    <li class="nav-item"> <a class="nav-link" href="/">Departments</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="/settings">Application</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="/users">Users</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="/roles">Roles</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="/companies">Companies</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="/departments">Departments</a></li>
                 </ul>
             </div>
         </li>

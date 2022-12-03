@@ -21,7 +21,14 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-
+//Document Uploads
+Route::get('/document-uploads', 'DocumentUploadController@index')->name('document-uploads');
+Route::group(['prefix' => 'document-uploads'], function () {
+    Route::get('/all', 'DocumentUploadController@indexData');
+    Route::post('/store', 'DocumentUploadController@store');
+    Route::post('/store-revision', 'DocumentUploadController@storeRevision');
+    Route::post('/update', 'DocumentUploadController@update');
+});
 
 //Settings
 Route::get('/settings', 'SettingController@index')->name('settings');
@@ -30,6 +37,7 @@ Route::post('/settings-store', 'SettingController@store');
 
 //Companies
 Route::get('/companies', 'CompanyController@index')->name('companies');
+Route::get('/companies-options', 'CompanyController@companies');
 Route::group(['prefix' => 'companies'], function () {
     Route::get('/all', 'CompanyController@indexData');
     Route::post('/store', 'CompanyController@store');
@@ -38,6 +46,7 @@ Route::group(['prefix' => 'companies'], function () {
 
 //Departments
 Route::get('/departments', 'DepartmentController@index')->name('departments');
+Route::get('/departments-options', 'DepartmentController@departments');
 Route::group(['prefix' => 'departments'], function () {
     Route::get('/all', 'DepartmentController@indexData');
     Route::post('/store', 'DepartmentController@store');
@@ -46,9 +55,42 @@ Route::group(['prefix' => 'departments'], function () {
 
 //Roles
 Route::get('/roles', 'RoleController@index')->name('roles');
+Route::get('/roles-options', 'RoleController@roles');
 Route::group(['prefix' => 'roles'], function () {
     Route::get('/all', 'RoleController@indexData');
     Route::post('/store', 'RoleController@store');
     Route::post('/update', 'RoleController@update');
+});
+
+
+//Users
+Route::get('/users', 'UserController@index')->name('users');
+Route::get('/user-options', 'UserController@userOptions');
+Route::get('/immediate-heads', 'UserController@immediateHeads');
+Route::group(['prefix' => 'users'], function () {
+    Route::get('/all', 'UserController@indexData');
+    Route::post('/store', 'UserController@store');
+    Route::post('/update', 'UserController@update');
+    Route::post('/change-password', 'UserController@changePassword');
+});
+Route::get('/user-profile', 'UserController@userProfile')->name('user-profile');
+
+
+//Document Categories
+Route::get('/document-categories', 'DocumentCategoryController@index')->name('document-categories');
+Route::get('/document-category-options', 'DocumentCategoryController@document_categories');
+Route::group(['prefix' => 'document-categories'], function () {
+    Route::get('/all', 'DocumentCategoryController@indexData');
+    Route::post('/store', 'DocumentCategoryController@store');
+    Route::post('/update', 'DocumentCategoryController@update');
+});
+
+//Tags
+Route::get('/tags', 'TagController@index')->name('tags');
+Route::get('/tag-options', 'TagController@tags');
+Route::group(['prefix' => 'tags'], function () {
+    Route::get('/all', 'TagController@indexData');
+    Route::post('/store', 'TagController@store');
+    Route::post('/update', 'TagController@update');
 });
 

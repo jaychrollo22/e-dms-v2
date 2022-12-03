@@ -4,60 +4,63 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Department;
+use App\DocumentCategory;
 use DB;
 
-class DepartmentController extends Controller
+class DocumentCategoryController extends Controller
 {
     /**
-     * Create a new controller instance.
+     * Display a listing of the resource.
      *
-     * @return void
+     * @return \Illuminate\Http\Response
      */
-    public function __construct()
+    public function index()
     {
-        $this->middleware('auth');
-    }
-
-    public function index(){
-        return view('pages.departments.index');
+        return view('pages.document_categories.index');
     }
 
     public function indexData(Request $request){
 
         $limit = $request->limit;
 
-        $department = Department::orderBy('department','ASC');
+        $document_category = DocumentCategory::with('tag_info')->orderBy('category_description','ASC');
 
         if(isset($request->search)){
-            $department->where('department', 'LIKE', '%' . $request->search . '%');
+            $document_category->where('category_description', 'LIKE', '%' . $request->search . '%');
         }
 
-        return $department->paginate($limit);
+        return $document_category->paginate($limit);
     }
 
-    public function departments(){
-        return Department::select('id','department')->orderBy('department','ASC')->get();
+    public function document_categories(){
+        return DocumentCategory::select('id','category_description')->orderBy('category_description','ASC')->get();
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request)
     {
         $this->validate($request, [
-            'department' => 'required',
+            'category_description' => 'required',
             'status' => 'required',
         ]);
         DB::beginTransaction();
         try {
             $data = $request->all();
-            $department = Department::where('id',$data['id'])->first();
-            if($department){
+            $document_category = DocumentCategory::where('id',$data['id'])->first();
+            if($document_category){
                 unset($data['id']);
-                $department->update($data);
+                $document_category->update($data);
                 DB::commit();
-                $department = Department::where('id',$department->id)->first();
+                $document_category = DocumentCategory::with('tag_info')->where('id',$document_category->id)->first();
                 return $status_data = [
                     'status'=>'success',
-                    'department'=>$department,
+                    'document_category'=>$document_category,
                 ];
             }else{
                 return $data = [
@@ -74,17 +77,17 @@ class DepartmentController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'department' => 'required',
+            'category_description' => 'required',
             'status' => 'required',
         ]);
         DB::beginTransaction();
         try {
             $data = $request->all();
-            if($department = Department::create($data)){
+            if($document_category = DocumentCategory::create($data)){
                 DB::commit();
                 return $status_data = [
                     'status'=>'success',
-                    'department'=>$department,
+                    'document_category'=>$document_category,
                 ];
             }else{
                 return $data = [

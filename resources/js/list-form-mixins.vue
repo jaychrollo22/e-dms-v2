@@ -4,7 +4,7 @@ export default {
 		return {
 			//pagination =====
 			pagination: {},
-			page_limit: 5,
+			page_limit: 10,
 			currentPageToGo: 1,
 
 			//list ===========

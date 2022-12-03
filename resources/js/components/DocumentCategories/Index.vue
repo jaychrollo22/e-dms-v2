@@ -5,17 +5,17 @@
                 <div class="col-12 grid-margin stretch-card">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="card-title">Departments</h4>
+                            <h4 class="card-title">Document Category</h4>
 
                             <div class="d-flex flex-wrap justify-content-end">
-                                <button class="btn btn-primary" @click="addDepartment">New</button>
+                                <button class="btn btn-primary" @click="addDocumentCategory">New</button>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <input type="text" class="form-control w-400px" @keyup="searchKeyUp"
-                                            v-model="filterData.search" placeholder="Search Department">
+                                            v-model="filterData.search" placeholder="Search Document Category">
                                     </div>
                                 </div>
                             </div>
@@ -25,7 +25,10 @@
                                     <thead>
                                         <tr>
                                             <th class="pt-1">
-                                                Department
+                                                Document Category
+                                            </th>
+                                            <th class="pt-1">
+                                                Tag
                                             </th>
                                             <th class="pt-1">
                                                 Status
@@ -36,17 +39,20 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(department, index) in items" :key="index">
+                                        <tr v-for="(category, index) in items" :key="index">
                                             <td>
-                                                {{ department.department }}
+                                                {{ category.category_description }}
                                             </td>
                                             <td>
-                                                {{ department.status }}
+                                                {{ category.tag_info ? category.tag_info.description : "" }}
+                                            </td>
+                                            <td>
+                                                {{ category.status }}
                                             </td>
                                             <td>
                                                 <button type="button"
                                                     class="btn btn-inverse-primary btn-rounded btn-icon"
-                                                    title="Edit Department" @click="editDepartment(department)">
+                                                    title="Edit Category" @click="editDocumentCategory(category)">
                                                     <i class="ti-pencil"></i>
                                                 </button>
                                             </td>
@@ -63,25 +69,37 @@
             </div>
         </div>
 
-        <div class="modal fade" id="department-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-            aria-hidden="true" data-backdrop="static">
+        <div class="modal fade" id="document-category-modal" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-md" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="col-12 modal-title text-center">{{ action }} Department</h5>
+                        <h5 class="col-12 modal-title text-center">{{ action }} Document Category</h5>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="">Department</label>
-                                    <input type="text" class="form-control" placeholder="Department"
-                                        v-model="department.department">
-                                    <span class="text-danger" v-if="errors.department">{{ errors.department[0] }}</span>
+                                    <label for="">Document Category</label>
+                                    <input type="text" class="form-control" placeholder="Document Category"
+                                        v-model="document_category.category_description">
+                                    <span class="text-danger"
+                                        v-if="errors.category_description">{{ errors.category_description[0] }}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Tag</label>
+                                    <select class="form-control" v-model="document_category.tag">
+                                        <option value="">Choose tag</option>
+                                        <option v-for="(tag, index) in tags" :key="index" :value="tag.id">
+                                            {{ tag.description }}
+                                        </option>
+
+                                    </select>
+                                    <span class="text-danger" v-if="errors.tag">{{ errors.tag[0] }}</span>
                                 </div>
                                 <div class="form-group">
                                     <label for="">Status</label>
-                                    <select v-model="department.status" class="form-control">
+                                    <select class="form-control" v-model="document_category.status">
                                         <option value="">Choose Status</option>
                                         <option value="Active">Active</option>
                                         <option value="Inactive">Inactive</option>
@@ -92,7 +110,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary btn-md" @click="saveDepartment">Save</button>
+                        <button class="btn btn-primary btn-md" @click="saveDocumentCategory">Save</button>
                     </div>
                 </div>
             </div>
@@ -108,45 +126,50 @@ export default {
     mixins: [listFormMixins],
     data() {
         return {
-            endpoint: '/departments',
-            department: {
+            endpoint: '/document-categories',
+            document_category: {
                 id: '',
-                department: '',
-                status: '',
+                category_description: '',
+                tag: '',
+                status: ''
             },
             action: '',
             errors: [],
+            tags: [],
         }
     },
     created() {
         this.fetchList();
+        this.fetchTags();
     },
     methods: {
-        addDepartment() {
+        addDocumentCategory() {
             this.clearFields();
             this.action = 'Add';
-            $('#department-modal').modal('show');
+            $('#document-category-modal').modal('show');
         },
         clearFields() {
             let v = this;
             v.errors = [];
-            v.department.id = '';
-            v.department.department = '';
-            v.department.status = '';
+            v.document_category.id = '';
+            v.document_category.category_description = '';
+            v.document_category.tag = '';
+            v.document_category.status = '';
         },
-        editDepartment(department) {
+        editDocumentCategory(document_category) {
             let v = this;
             v.errors = [];
-            v.department.id = department.id;
-            v.department.department = department.department;
-            v.department.status = department.status;
+            v.document_category.id = document_category.id;
+            v.document_category.category_description = document_category.category_description;
+            v.document_category.tag = document_category.tag;
+            v.document_category.status = document_category.status;
             v.action = 'Update';
-            $('#department-modal').modal('show');
+            $('#document-category-modal').modal('show');
         },
-        saveDepartment() {
+        saveDocumentCategory() {
             let v = this;
             Swal.fire({
-                title: 'Are you sure you want to save this department?',
+                title: 'Are you sure you want to save this Document Category?',
                 icon: 'question',
                 showDenyButton: true,
                 confirmButtonText: `Yes`,
@@ -154,27 +177,28 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
                     let formData = new FormData();
-                    var postURL = `/departments/store`;
+                    var postURL = `/document-categories/store`;
                     if (v.action == "Update") {
-                        formData.append('id', v.department.id ? v.department.id : "");
-                        postURL = `/departments/update`;
+                        formData.append('id', v.document_category.id ? v.document_category.id : "");
+                        postURL = `/document-categories/update`;
                     }
-                    formData.append('department', v.department.department ? v.department.department : "");
-                    formData.append('status', v.department.status ? v.department.status : "");
+                    formData.append('category_description', v.document_category.category_description ? v.document_category.category_description : "");
+                    formData.append('tag', v.document_category.tag ? v.document_category.tag : "");
+                    formData.append('status', v.document_category.status ? v.document_category.status : "");
 
                     axios.post(postURL, formData)
                         .then(response => {
                             if (response.data.status == "success") {
                                 if (v.action == 'Update') {
-                                    var index = this.items.findIndex(item => item.id == v.department.id);
-                                    this.items.splice(index, 1, response.data.department);
+                                    var index = this.items.findIndex(item => item.id == v.document_category.id);
+                                    this.items.splice(index, 1, response.data.document_category);
                                 } else {
                                     this.fetchList();
                                 }
 
-                                Swal.fire('Deparment has been saved!', '', 'success');
+                                Swal.fire('Document Category has been saved!', '', 'success');
 
-                                $('#department-modal').modal('hide');
+                                $('#document-category-modal').modal('hide');
 
                                 this.clearFields();
 
@@ -188,6 +212,18 @@ export default {
                 }
             })
         },
+
+        fetchTags() {
+            let v = this;
+            v.tags = [];
+            axios.get('/tag-options')
+                .then(response => {
+                    v.tags = response.data;
+                })
+                .catch(error => {
+                    v.errors = error.response.data.error;
+                })
+        }
     },
 }
 </script>

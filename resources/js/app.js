@@ -23,10 +23,19 @@ window.Vue = require('vue');
 Vue.component('table-pagination', require('./components/Common/TablePagination.vue').default);
 
 
+Vue.component('document-uploads', require('./components/DocumentUploads/Index.vue').default);
+
+
+Vue.component('user-profile', require('./components/Users/UserProfile.vue').default);
+
+//Settings
+Vue.component('users', require('./components/Users/Index.vue').default);
 Vue.component('settings', require('./components/Settings/Index.vue').default);
 Vue.component('companies', require('./components/Companies/Index.vue').default);
 Vue.component('departments', require('./components/Departments/Index.vue').default);
 Vue.component('roles', require('./components/Roles/Index.vue').default);
+Vue.component('document-categories', require('./components/DocumentCategories/Index.vue').default);
+Vue.component('tags', require('./components/Tags/Index.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

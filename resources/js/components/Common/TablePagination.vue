@@ -27,25 +27,6 @@
                             class="ti-angle-right"></i></button></li>
             </ul>
         </nav>
-
-        <!-- <div class="d-flex flex-wrap py-2">
-            <a class="btn btn-icon btn-sm btn-light mr-2 my-1" @click="goToPage(pagination.first_page_url)"><i
-                    class="ki ki-bold-double-arrow-back icon-xs"></i></a>
-            <a class="btn btn-icon btn-sm btn-light mr-2 my-1" @click="goToPage(pagination.prev_page_url)"><i
-                    class="ki ki-bold-arrow-back icon-xs"></i></a>
-
-            <a class="btn btn-icon btn-sm border-0 btn-light mr-2 my-1" v-for="(count, index) in 5" :key="index"
-                v-if="!pagination.total">{{ count }}</a>
-
-            <a class="btn btn-icon btn-sm border-0 btn-light mr-2 my-1"
-                :class="{ 'btn-hover-primary active': range == pagination.current_page }"
-                v-for="(range, index) in pagination.range" :key="index" @click="goToPage(range)">{{ range }}</a>
-
-            <a class="btn btn-icon btn-sm btn-light mr-2 my-1" @click="goToPage(pagination.next_page_url)"><i
-                    class="ki ki-bold-arrow-next icon-xs"></i></a>
-            <a class="btn btn-icon btn-sm btn-light mr-2 my-1" @click="goToPage(pagination.last_page_url)"><i
-                    class="ki ki-bold-double-arrow-next icon-xs"></i></a>
-        </div> -->
     </div>
 </template>
 

@@ -36,6 +36,36 @@ class CompanyController extends Controller
         return $company->paginate($limit);
     }
 
+    public function companies(){
+        return Company::select('id','company_name')->orderBy('company_name','ASC')->get();
+    }
+
+    public function store(Request $request)
+    {
+        $this->validate($request, [
+            'company_code' => 'required',
+            'company_name' => 'required',
+        ]);
+        DB::beginTransaction();
+        try {
+            $data = $request->all();
+            if($company = Company::create($data)){
+                DB::commit();
+                return $status_data = [
+                    'status'=>'success',
+                    'company'=>$company,
+                ];
+            }else{
+                return $data = [
+                    'status'=>'error'
+                ];
+            }
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
     public function update(Request $request)
     {
         $this->validate($request, [

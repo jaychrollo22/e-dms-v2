@@ -5,17 +5,12 @@
                 <div class="col-12 grid-margin stretch-card">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="card-title">Companies</h4>
-
-                            <div class="d-flex flex-wrap justify-content-end">
-                                <button class="btn btn-primary" @click="addCompany">New</button>
-                            </div>
-
+                            <h4 class="card-title">Tags</h4>
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <input type="text" class="form-control w-400px" @keyup="searchKeyUp"
-                                            v-model="filterData.search" placeholder="Search Company">
+                                            v-model="filterData.search" placeholder="Search Tags">
                                     </div>
                                 </div>
                             </div>
@@ -25,10 +20,7 @@
                                     <thead>
                                         <tr>
                                             <th class="pt-1">
-                                                Code
-                                            </th>
-                                            <th class="pt-1">
-                                                Company
+                                                Tags
                                             </th>
                                             <th class="pt-1">
                                                 Action
@@ -36,17 +28,14 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(company, index) in items" :key="index">
+                                        <tr v-for="(tag, index) in items" :key="index">
                                             <td>
-                                                {{ company.company_code }}
-                                            </td>
-                                            <td>
-                                                {{ company.company_name }}
+                                                {{ tag.description }}
                                             </td>
                                             <td>
                                                 <button type="button"
                                                     class="btn btn-inverse-primary btn-rounded btn-icon"
-                                                    title="Edit Company" @click="editCompany(company)">
+                                                    title="Edit Category" @click="editTag(tag)">
                                                     <i class="ti-pencil"></i>
                                                 </button>
                                             </td>
@@ -63,37 +52,27 @@
             </div>
         </div>
 
-        <div class="modal fade" id="company-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        <div class="modal fade" id="tag-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-md" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="col-12 modal-title text-center">{{ action }} Company</h5>
+                        <h5 class="col-12 modal-title text-center">{{ action }} Tag</h5>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="">Company Code</label>
-                                    <input type="text" class="form-control" placeholder="Company Code"
-                                        v-model="company.company_code">
+                                    <label for="">Tag</label>
+                                    <input type="text" class="form-control" placeholder="Tag" v-model="tag.description">
                                     <span class="text-danger"
-                                        v-if="errors.company_code">{{ errors.company_code[0] }}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="">Company Name</label>
-                                    <input type="text" class="form-control" placeholder="Company Name"
-                                        v-model="company.company_name">
-                                    <span class="text-danger"
-                                        v-if="errors.company_name">{{ errors.company_name[0] }}</span>
+                                        v-if="errors.description">{{ errors.description[0] }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary btn-md" @click="saveCompany">Save</button>
+                        <button class="btn btn-primary btn-md" @click="saveTag">Save</button>
                     </div>
                 </div>
             </div>
@@ -109,12 +88,10 @@ export default {
     mixins: [listFormMixins],
     data() {
         return {
-            endpoint: '/companies',
-
-            company: {
+            endpoint: '/tags',
+            tag: {
                 id: '',
-                company_code: '',
-                company_name: '',
+                description: '',
             },
             action: '',
             errors: [],
@@ -124,31 +101,18 @@ export default {
         this.fetchList();
     },
     methods: {
-        addCompany() {
-            this.clearFields();
-            this.action = 'Add';
-            $('#company-modal').modal('show');
-        },
-        clearFields() {
+        editTag(tag) {
             let v = this;
             v.errors = [];
-            v.company.id = '';
-            v.company.company_code = '';
-            v.company.company_name = '';
-        },
-        editCompany(company) {
-            let v = this;
-            v.errors = [];
-            v.company.id = company.id;
-            v.company.company_code = company.company_code;
-            v.company.company_name = company.company_name;
+            v.tag.id = tag.id;
+            v.tag.description = tag.description;
             v.action = 'Update';
-            $('#company-modal').modal('show');
+            $('#tag-modal').modal('show');
         },
-        saveCompany() {
+        saveTag() {
             let v = this;
             Swal.fire({
-                title: 'Are you sure you want to save this company?',
+                title: 'Are you sure you want to save this Tag?',
                 icon: 'question',
                 showDenyButton: true,
                 confirmButtonText: `Yes`,
@@ -156,32 +120,29 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
                     let formData = new FormData();
-                    var postURL = `/companies/store`;
+                    var postURL = `/tags/store`;
                     if (v.action == "Update") {
-                        formData.append('id', v.company.id ? v.company.id : "");
-                        postURL = `/companies/update`;
+                        formData.append('id', v.tag.id ? v.tag.id : "");
+                        postURL = `/tags/update`;
                     }
-                    formData.append('company_code', v.company.company_code ? v.company.company_code : "");
-                    formData.append('company_name', v.company.company_name ? v.company.company_name : "");
+                    formData.append('description', v.tag.description ? v.tag.description : "");
 
                     axios.post(postURL, formData)
                         .then(response => {
                             if (response.data.status == "success") {
                                 if (v.action == 'Update') {
-                                    var index = this.items.findIndex(item => item.id == v.company.id);
-                                    this.items.splice(index, 1, response.data.company);
+                                    var index = this.items.findIndex(item => item.id == v.tag.id);
+                                    this.items.splice(index, 1, response.data.tag);
                                 } else {
                                     this.fetchList();
                                 }
 
-                                Swal.fire('company has been saved!', '', 'success');
+                                Swal.fire('Document Category has been saved!', '', 'success');
 
-                                $('#company-modal').modal('hide');
+                                $('#tag-modal').modal('hide');
 
-                                v.company.id = '';
-                                v.company.company_code = '';
-                                v.company.company_name = '';
-
+                                v.tag.id = '';
+                                v.tag.description = '';
                             } else {
                                 Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
                             }

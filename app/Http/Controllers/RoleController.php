@@ -35,6 +35,10 @@ class RoleController extends Controller
         return $role->paginate($limit);
     }
 
+    public function roles(){
+        return Role::select('id','name')->orderBy('name','ASC')->get();
+    }
+
     public function update(Request $request)
     {
         $this->validate($request, [

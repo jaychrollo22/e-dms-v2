@@ -85,7 +85,7 @@
                                                 </button>
                                                 <button type="button"
                                                     class="btn btn-inverse-success btn-rounded btn-icon"
-                                                    title="Assign Users" @click="usersDocumentUpload(document)">
+                                                    title="Assign Users" @click="assignUser(document)">
                                                     <i class="ti-user"></i>
                                                 </button>
                                             </td>
@@ -101,7 +101,7 @@
             </div>
         </div>
 
-
+        <!-- Document Upload -->
         <div class="modal fade" id="document-upload-modal" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-md modal-document-upload" role="document">
@@ -214,6 +214,7 @@
             </div>
         </div>
 
+        <!-- View Document -->
         <div class="modal fade" id="document-view-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-md modal-document-view" role="document">
@@ -397,6 +398,119 @@
             </div>
         </div>
 
+        <!-- Assign User         -->
+
+        <div class="modal fade" id="assign-user-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog modal-md modal-document-view" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="col-12 modal-title">{{ view_document.title }} | Assign Users</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="Search User"
+                                        v-model="filter.search_user">
+                                    <span class="text-danger"
+                                        v-if="errors.search_user">{{ errors.search_user[0] }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <multiselect v-model="filter.company" :options="companies"
+                                        placeholder="Select Company" label="company_name" track-by="id"></multiselect>
+                                    <span class="text-danger" v-if="errors.company">{{ errors.company[0] }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <multiselect v-model="filter.department" :options="departments"
+                                        placeholder="Select Department" label="department" track-by="id"></multiselect>
+                                    <span class="text-danger" v-if="errors.department">{{ errors.department[0] }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-md btn-primary" @click="filterUser">Apply Filter</button>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="form-check">
+                                                        <label class="form-check-label">
+                                                            <input type="checkbox" class="form-check-input"
+                                                                true-value="1" false-value="0" id="select-all"
+                                                                v-model="isSelectAll" @change="selectAllUsers">
+                                                            Select
+                                                            <i class="input-helper"></i>
+                                                        </label>
+                                                    </div>
+                                                </th>
+                                                <th class="pt-1">
+                                                    Name
+                                                </th>
+                                                <th class="pt-1">
+                                                    Department
+                                                </th>
+                                                <th class="pt-1">
+                                                    Company
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody v-if="(filterUsers.length > 0)">
+                                            <tr v-for="(user, i) in filterUsers" :key="i">
+                                                <td>
+                                                    <div class="form-check">
+                                                        <label class="form-check-label">
+                                                            <input type="checkbox" class="form-check-input"
+                                                                v-if="showCheckUser(user)" true-value="1"
+                                                                false-value="0" :id="user.id" :value="user.id"
+                                                                v-model="bulkCheckSelectedIds">
+                                                            <input type="checkbox" class="form-check-input" v-else
+                                                                disabled checked>
+                                                            <i class="input-helper"></i>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <small>{{ user.name }}</small>
+                                                </td>
+                                                <td>
+                                                    <small>{{ user.department ? user.department.department_info.department : "" }}</small>
+                                                </td>
+                                                <td>
+                                                    <small>{{ user.company ? user.company.company_info.company_name : "" }}</small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="row mb-3 mt-3 ml-1" v-if="filteredQueues.length">
+                                    <div class="col-6">
+                                        <button :disabled="!showPreviousLink()" class="btn btn-default btn-sm btn-fill"
+                                            v-on:click="setPage(currentPage - 1)"> Previous </button>
+                                        <span class="text-dark">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+                                        <button :disabled="!showNextLink()" class="btn btn-default btn-sm btn-fill"
+                                            v-on:click="setPage(currentPage + 1)"> Next </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary btn-md" @click="saveAssignUser"
+                            :disabled="saveDisable">{{ saveDisable ? 'Saving...' : 'Save' }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </div>
 </template>
 <style src="vue-multiselect/dist/vue-multiselect.min.css">
@@ -443,6 +557,20 @@ export default {
             saveDisable: false,
 
             view_document: '',
+
+            filter: {
+                search_user: '',
+                company: '',
+                department: '',
+            },
+
+            filterUsers: [],
+            currentPage: 0,
+            itemsPerPage: 10,
+            showAssignUser: true,
+
+            isSelectAll: 0,
+            bulkCheckSelectedIds: [],
         }
     },
     created() {
@@ -453,6 +581,109 @@ export default {
         this.fetchUsers();
     },
     methods: {
+        showCheckUser(item) {
+            let v = this;
+            if (v.view_document.users) {
+                var user_check = Object.values(v.view_document.users).filter(user => {
+                    if (item.id == user.user_id && user.status == '1') {
+                        return user;
+                    }
+                });
+
+                if (user_check.length > 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+
+            } else {
+                return true;
+            }
+
+        },
+        saveAssignUser() {
+            let v = this;
+            v.saveDisable = true;
+            Swal.fire({
+                text: "Are you sure you want to save this document users?",
+                icon: "question",
+                showCancelButton: true,
+                buttonsStyling: false,
+                confirmButtonText: "Yes, Save",
+                cancelButtonText: "No, cancel",
+                customClass: {
+                    confirmButton: "btn font-weight-bold btn-primary",
+                    cancelButton: "btn font-weight-bold btn-default"
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let formData = new FormData();
+                    var postURL = `/document-uploads/store-user`;
+                    formData.append('id', v.view_document.id ? v.view_document.id : "");
+                    formData.append('user_ids', v.bulkCheckSelectedIds.length > 0 ? JSON.stringify(v.bulkCheckSelectedIds) : "");
+
+                    axios.post(postURL, formData)
+                        .then(response => {
+                            if (response.data.status == "success") {
+                                Swal.fire('Users (' + response.data.count + ') has been assigned! ', '', 'success');
+                                v.saveDisable = false;
+                                this.view_document = response.data.document_upload;
+                                var index = this.items.findIndex(item => item.id == v.view_document.id);
+                                this.items.splice(index, 1, response.data.document_upload);
+                                this.filterUser();
+
+                            } else {
+                                Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
+                                v.saveDisable = false;
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                text: 'Sorry, looks like there are some errors detected, please try again..',
+                                icon: "error",
+                                confirmButtonText: "Ok, got it!"
+                            }).then(okay => {
+                                v.saveDisable = false;
+                                v.errors = error.response.data.errors;
+                            });
+
+                        })
+                }
+            })
+        },
+        selectAllUsers() {
+            let v = this;
+            if (v.isSelectAll == 1) {
+                v.bulkCheckSelectedIds = [];
+                v.filterUsers.forEach(function (item) {
+                    if (v.showCheckUser(item)) {
+                        v.bulkCheckSelectedIds.push(item.id);
+                    }
+                });
+            } else {
+                v.bulkCheckSelectedIds = [];
+            }
+        },
+        filterUser() {
+            let v = this;
+            v.filterUsers = [];
+            v.showAssignUser = false;
+            var company = v.filter.company ? v.filter.company.id : "";
+            var department = v.filter.department ? v.filter.department.id : "";
+            var search_user = v.filter.search_user ? v.filter.search_user : "";
+            axios.get('/user-options?company=' + company + '&department=' + department + '&search_user=' + search_user)
+                .then(response => {
+                    v.filterUsers = response.data;
+                })
+                .catch(error => {
+                    v.errors = error.response.data.error;
+                })
+        },
+        assignUser(document) {
+            this.filterUser();
+            this.view_document = document;
+            $('#assign-user-modal').modal('show');
+        },
         saveDocumentRevision(file_type) {
             let v = this;
             v.saveDisable = true;
@@ -490,6 +721,10 @@ export default {
                                 Swal.fire('Document has been changed!', '', 'success');
                                 v.saveDisable = false;
                                 this.view_document = response.data.document_upload;
+
+                                var index = this.items.findIndex(item => item.id == v.view_document.id);
+                                this.items.splice(index, 1, response.data.document_upload);
+
                                 document.getElementById('attachment_raw_file').value = null;
                                 document.getElementById('attachment_fillable_copy').value = null;
                                 document.getElementById('attachment_signed_copy').value = null;
@@ -700,8 +935,44 @@ export default {
                 return;
             this.attachment_signed_copy = files[0];
         },
+        setPage(pageNumber) {
+            this.currentPage = pageNumber;
+        },
+        resetStartRow() {
+            this.currentPage = 0;
+        },
+        showPreviousLink() {
+            return this.currentPage == 0 ? false : true;
+        },
+        showNextLink() {
+            return this.currentPage == (this.totalPages - 1) ? false : true;
+        },
+    },
+    computed: {
+        filteredUsers() {
+            let self = this;
+            return Object.values(self.filterUsers).filter(user => {
+                return user.name.toLowerCase().includes(this.filter.search_user.toLowerCase())
+            });
+        },
+        totalPages() {
+            return Math.ceil(Object.values(this.filteredUsers).length / this.itemsPerPage)
+        },
+        filteredQueues() {
+            var index = this.currentPage * this.itemsPerPage;
+            var queues_array = this.filteredUsers.slice(index, index + this.itemsPerPage);
 
-    }
+            if (this.currentPage >= this.totalPages) {
+                this.currentPage = this.totalPages - 1
+            }
+
+            if (this.currentPage == -1) {
+                this.currentPage = 0;
+            }
+
+            return queues_array;
+        },
+    },
 }
 </script>
 

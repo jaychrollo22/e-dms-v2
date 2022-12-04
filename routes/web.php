@@ -27,6 +27,8 @@ Route::group(['prefix' => 'document-uploads'], function () {
     Route::get('/all', 'DocumentUploadController@indexData');
     Route::post('/store', 'DocumentUploadController@store');
     Route::post('/store-revision', 'DocumentUploadController@storeRevision');
+    Route::post('/store-user', 'DocumentUploadController@storeUser');
+    Route::post('/delete-user', 'DocumentUploadController@deleteUser');
     Route::post('/update', 'DocumentUploadController@update');
 });
 

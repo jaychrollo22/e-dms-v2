@@ -52,10 +52,31 @@ class UserController extends Controller
 
     public function userOptions(Request $request){
 
+        $department = isset($request->department) ? $request->department : "";
+        $company = isset($request->company) ? $request->company : "";
+        
         $user = User::select('id','name')
+                    ->with('department.department_info','company.company_info')
                     ->where('status','Active')
+                    ->when($department,function($q) use($department){
+                        $q->whereHas('department',function($w) use($department){
+                            $w->where('department_id',$department);
+                        });
+                    })
+                    ->when($company,function($q) use($company){
+                        $q->whereHas('company',function($w) use($company){
+                            $w->where('company_id',$company);
+                        });
+                    })
                     ->orderBy('name','ASC')
                     ->get();
+        
+        if(isset($request->search_user)){
+            if($request->search_user){
+                $user = $user->where('name', 'LIKE', '%' . $request->search_user . '%');
+            }
+        }
+
         return $user;
 
     }

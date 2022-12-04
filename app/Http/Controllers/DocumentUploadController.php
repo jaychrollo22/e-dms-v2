@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\DocumentUpload;
 use App\DocumentUploadRevision;
+use App\DocumentUploadUser;
 use DB;
 use Storage;
 
@@ -28,7 +29,7 @@ class DocumentUploadController extends Controller
 
         $limit = $request->limit;
 
-        $document_uploads = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions')->orderBy('created_at','DESC');
+        $document_uploads = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->orderBy('created_at','DESC');
 
         if(isset($request->search)){
             $document_uploads->where('title', 'LIKE', '%' . $request->search . '%');
@@ -166,7 +167,7 @@ class DocumentUploadController extends Controller
 
                     DB::commit();
 
-                    $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions')->where('id',$document_upload->id)->first();
+                    $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
                     
                     return $response = [
                         'status'=>'success',
@@ -205,7 +206,7 @@ class DocumentUploadController extends Controller
                 unset($data['id']);
                 $document_upload->update($data);
                 DB::commit();
-                $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions')->where('id',$document_upload->id)->first();
+                $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
                 return $status_data = [
                     'status'=>'success',
                     'document_upload'=>$document_upload,
@@ -215,6 +216,52 @@ class DocumentUploadController extends Controller
                     'status'=>'error'
                 ];
             }
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
+
+    public function storeUser(Request $request){
+
+        DB::beginTransaction();
+        try {
+            
+            $user_ids = json_decode($request->user_ids);
+            $document_upload = DocumentUpload::where('id',$request->id)->first();
+
+            if($user_ids && $document_upload){
+                $count = 0;
+                foreach($user_ids as $user_id){
+                    $document_upload_user = [
+                        'document_upload_id'=>$request->id,
+                        'user_id'=>$user_id,
+                        'status'=>'1',
+                    ];
+                    $check = DocumentUploadUser::where('document_upload_id',$request->id)
+                                                ->where('user_id',$user_id)
+                                                ->first();
+                    if($check){
+                        $check->update($document_upload_user);
+                        $count++;
+                    }else{
+                        DocumentUploadUser::create($document_upload_user);
+                        $count++;
+                    }
+                }
+
+                DB::commit();
+
+                $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
+                    
+                return $response = [
+                    'status'=>'success',
+                    'count'=> $count,
+                    'document_upload'=>$document_upload,
+                ];
+            }
+
         }
         catch (Exception $e) {
             DB::rollBack();

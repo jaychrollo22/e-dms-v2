@@ -7,7 +7,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/">
+            <a class="nav-link" href="/document-requests">
                 <i class="icon-folder menu-icon"></i>
                 <span class="menu-title">Requests</span>
             </a>
@@ -19,30 +19,24 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/">
+            <a class="nav-link" href="/document-copy-requests">
                 <i class="icon-folder menu-icon"></i>
                 <span class="menu-title">Copy Requests</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/">
-                <i class="icon-folder menu-icon"></i>
-                <span class="menu-title">Obsolence</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/">
+            <a class="nav-link" href="/access-requests">
                 <i class="icon-key menu-icon"></i>
                 <span class="menu-title">Access Request</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
+            <a class="nav-link" data-bs-toggle="collapse" href="#settings" aria-expanded="false" aria-controls="settings">
                 <i class="icon-cog menu-icon"></i>
                 <span class="menu-title">Settings</span>
                 <i class="menu-arrow"></i>
             </a>
-            <div class="collapse" id="ui-basic">
+            <div class="collapse" id="settings">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"> <a class="nav-link" href="/settings">Application</a></li>
                     <li class="nav-item"> <a class="nav-link" href="/companies">Companies</a></li>

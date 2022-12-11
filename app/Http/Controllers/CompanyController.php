@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Company;
 use DB;
+use Storage;
 class CompanyController extends Controller
 {
     /**
@@ -49,6 +50,15 @@ class CompanyController extends Controller
         DB::beginTransaction();
         try {
             $data = $request->all();
+
+            if($request->file('stamp')){
+                $stamp = $request->file('stamp');   
+                $original_filename = $stamp->getClientOriginalName();
+                $filename = $original_filename;
+                $data['stamp'] = $filename;
+                Storage::disk('public')->putFileAs('stamps', $stamp , $filename);
+            }
+
             if($company = Company::create($data)){
                 DB::commit();
                 return $status_data = [
@@ -78,6 +88,16 @@ class CompanyController extends Controller
             $company = Company::where('id',$data['id'])->first();
             if($company){
                 unset($data['id']);
+
+                if($request->file('stamp')){
+                    $stamp = $request->file('stamp');   
+                    $original_filename = $stamp->getClientOriginalName();
+                    $filename = $original_filename;
+                    $data['stamp'] = $filename;
+                    Storage::disk('public')->putFileAs('stamps', $stamp , $filename);
+                }
+    
+
                 $company->update($data);
                 DB::commit();
                 $company = Company::where('id',$company->id)->first();

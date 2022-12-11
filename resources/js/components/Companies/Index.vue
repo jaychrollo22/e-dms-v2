@@ -31,6 +31,9 @@
                                                 Company
                                             </th>
                                             <th class="pt-1">
+                                                Stamp
+                                            </th>
+                                            <th class="pt-1">
                                                 Action
                                             </th>
                                         </tr>
@@ -42,6 +45,10 @@
                                             </td>
                                             <td>
                                                 {{ company.company_name }}
+                                            </td>
+                                            <td>
+                                                <a v-if="company.stamp" :href="'storage/stamps/' + company.stamp"
+                                                    target="_blank"><i class="ti-settings"></i></a>
                                             </td>
                                             <td>
                                                 <button type="button"
@@ -90,6 +97,14 @@
                                         v-if="errors.company_name">{{ errors.company_name[0] }}</span>
                                 </div>
                             </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Stamp</label>
+                                    <input v-on:change="stampHandleFileUpload()" type="file" accept="image/*" id="stamp"
+                                        ref="file" class="form-control">
+                                    <span class="text-danger" v-if="errors.stamp">{{ errors.stamp[0] }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -118,6 +133,9 @@ export default {
             },
             action: '',
             errors: [],
+
+            stamp: '',
+            stamp_src: '',
         }
     },
     created() {
@@ -164,6 +182,10 @@ export default {
                     formData.append('company_code', v.company.company_code ? v.company.company_code : "");
                     formData.append('company_name', v.company.company_name ? v.company.company_name : "");
 
+
+                    formData.append('stamp', v.stamp ? v.stamp : "");
+
+
                     axios.post(postURL, formData)
                         .then(response => {
                             if (response.data.status == "success") {
@@ -181,6 +203,7 @@ export default {
                                 v.company.id = '';
                                 v.company.company_code = '';
                                 v.company.company_name = '';
+                                v.stamp = '';
 
                             } else {
                                 Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
@@ -191,6 +214,11 @@ export default {
                         })
                 }
             })
+        },
+        stampHandleFileUpload() {
+            var photo = document.getElementById("stamp");
+            this.stamp_src = window.URL.createObjectURL(photo.files[0]);
+            this.stamp = photo.files[0];
         },
     },
 }

@@ -22,11 +22,23 @@ window.Vue = require('vue');
 // Common Components
 Vue.component('table-pagination', require('./components/Common/TablePagination.vue').default);
 
+//Document Requests
+Vue.component('document-requests', require('./components/DocumentRequests/Index.vue').default);
+Vue.component('document-request-create', require('./components/DocumentRequests/Create.vue').default);
 
+//Document Copy Requests
+Vue.component('document-copy-requests', require('./components/DocumentCopyRequests/Index.vue').default);
+Vue.component('document-copy-request-create', require('./components/DocumentCopyRequests/Create.vue').default);
+
+//Document Uploads
 Vue.component('document-uploads', require('./components/DocumentUploads/Index.vue').default);
 
-
+//User Profile
 Vue.component('user-profile', require('./components/Users/UserProfile.vue').default);
+
+//Access Requests
+Vue.component('access-requests', require('./components/AccessRequests/Index.vue').default);
+Vue.component('access-requests-create', require('./components/AccessRequests/Create.vue').default);
 
 //Settings
 Vue.component('users', require('./components/Users/Index.vue').default);

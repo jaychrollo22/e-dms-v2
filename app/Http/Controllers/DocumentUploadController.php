@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\DocumentUpload;
 use App\DocumentUploadRevision;
 use App\DocumentUploadUser;
+use App\User;
+use Auth;
 use DB;
 use Storage;
 
@@ -36,6 +38,15 @@ class DocumentUploadController extends Controller
         }
 
         return $document_uploads->paginate($limit);
+    }
+
+    public function documentUploadRequestCopyOptions(){
+        $user = User::with('company')->where('id',Auth::user()->id)->first();
+        return DocumentUpload::select('id','control_code','title')
+                                ->where('company',$user->company->company_id)
+                                ->orderBy('title','ASC')
+                                ->get();
+
     }
 
     public function store(Request $request)

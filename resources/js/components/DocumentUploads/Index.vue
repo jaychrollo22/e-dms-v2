@@ -8,7 +8,7 @@
                             <h4 class="card-title">Document Uploads</h4>
 
                             <div class="d-flex flex-wrap justify-content-end">
-                                <button class="btn btn-primary" @click="addDocumentUpload">Add</button>
+                                <button class="btn btn-primary" @click="addDocumentUpload">Upload</button>
                             </div>
 
                             <div class="row">
@@ -45,6 +45,9 @@
                                             <th class="pt-1">
                                                 Effective Date
                                             </th>
+                                            <th class="pt-1">
+                                                Status
+                                            </th>
                                             <th class="pt-1 text-center">
                                                 Action
                                             </th>
@@ -72,6 +75,11 @@
                                             </td>
                                             <td>
                                                 {{ document.effective_date }}
+                                            </td>
+                                            <td>
+                                                <div :class="getStatus(document.status)">
+                                                    {{ document.status }}
+                                                </div>
                                             </td>
                                             <td class="text-center">
                                                 <button type="button"
@@ -158,7 +166,7 @@
                             </div>
 
                             <div class="col-md-12" v-if="(document_upload.document_category && action == 'Add')">
-                                <div class="form-group" v-if="document_upload.document_category.id != '6'">
+                                <div class="form-group">
                                     <label>Document Attachment</label>
                                     <input @change="uploadRawFile" name="attachment_raw_file" type="file"
                                         accept="application/*" id="attachment_raw_file" class="form-control">
@@ -172,7 +180,7 @@
                                     <span class="text-danger"
                                         v-if="errors.attachment_fillable_copy">{{ errors.attachment_fillable_copy[0] }}</span>
                                 </div>
-                                <div class="form-group" v-if="document_upload.document_category.id == '6'">
+                                <div class="form-group">
                                     <label>Document Attachment (Signed Copy)</label>
                                     <input @change="uploadSignedCopy" name="attachment_signed_copy" type="file"
                                         accept="application/*" id="attachment_signed_copy" class="form-control">
@@ -223,10 +231,10 @@
                         <h5 class="col-12 modal-title">{{ view_document.title }}</h5>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
+                        <div class="row" v-if="view_document">
                             <div class="col-3">
                                 <ul class="nav nav-tabs nav-tabs-vertical" role="tablist">
-                                    <li class="nav-item" v-if="view_document.document_category != '6'">
+                                    <li class="nav-item">
                                         <a class="nav-link" id="raw-file-tab-vertical" data-bs-toggle="tab"
                                             href="#raw-file" role="tab" aria-controls="raw-file" aria-selected="true">
                                             <i class="ti-file text-info mr-2"></i>
@@ -241,7 +249,7 @@
                                             Fillable Copy
                                         </a>
                                     </li>
-                                    <li class="nav-item" v-if="view_document.document_category == '6'">
+                                    <li class="nav-item">
                                         <a class="nav-link" id="signed-copy-tab-vertical" data-bs-toggle="tab"
                                             href="#signed-copy" role="tab" aria-controls="signed-copy"
                                             aria-selected="false">
@@ -261,8 +269,8 @@
                             </div>
                             <div class="col-9">
                                 <div class="tab-content tab-content-vertical">
-                                    <div :class="view_document.document_category != '6' ? 'tab-pane fade show active' : 'tab-pane fade'"
-                                        id="raw-file" role="tabpanel" aria-labelledby="raw-file-tab-vertical">
+                                    <div :class="'tab-pane fade show active'" id="raw-file" role="tabpanel"
+                                        aria-labelledby="raw-file-tab-vertical">
                                         <h5>Document Attachment (Raw File)</h5>
                                         <div v-if="view_document.attachment_raw_file">
                                             <iframe id="frame-raw-file"
@@ -291,7 +299,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div :class="view_document.document_category == '6' ? 'tab-pane fade show active' : 'tab-pane fade'"
+                                    <div :class="view_document.document_category == '6' ? 'tab-pane fade' : 'tab-pane fade'"
                                         class="tab-pane fade" id="fillable-copy" role="tabpanel"
                                         aria-labelledby="fillable-copy-tab-vertical">
                                         <h5>Document Attachment (Fillable Copy)</h5>
@@ -398,8 +406,7 @@
             </div>
         </div>
 
-        <!-- Assign User         -->
-
+        <!-- Assign User -->
         <div class="modal fade" id="assign-user-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-md modal-document-view" role="document">
@@ -454,15 +461,15 @@
                                                     Name
                                                 </th>
                                                 <th class="pt-1">
-                                                    Department
+                                                    Company
                                                 </th>
                                                 <th class="pt-1">
-                                                    Company
+                                                    Department
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody v-if="(filterUsers.length > 0)">
-                                            <tr v-for="(user, i) in filterUsers" :key="i">
+                                            <tr v-for="(user, i) in filteredQueues" :key="i">
                                                 <td>
                                                     <div class="form-check">
                                                         <label class="form-check-label">
@@ -480,10 +487,10 @@
                                                     <small>{{ user.name }}</small>
                                                 </td>
                                                 <td>
-                                                    <small>{{ user.department ? user.department.department_info.department : "" }}</small>
+                                                    <small>{{ user.company ? user.company.company_info.company_name : "" }}</small>
                                                 </td>
                                                 <td>
-                                                    <small>{{ user.company ? user.company.company_info.company_name : "" }}</small>
+                                                    <small>{{ user.department ? user.department.department_info.department : "" }}</small>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -581,6 +588,13 @@ export default {
         this.fetchUsers();
     },
     methods: {
+        getStatus(status) {
+            if (status == 'Pending') {
+                return 'badge badge-primary';
+            } else if (status == 'Approved') {
+                return 'badge badge-success';
+            }
+        },
         showCheckUser(item) {
             let v = this;
             if (v.view_document.users) {
@@ -680,6 +694,7 @@ export default {
                 })
         },
         assignUser(document) {
+            this.bulkCheckSelectedIds = [];
             this.filterUser();
             this.view_document = document;
             $('#assign-user-modal').modal('show');
@@ -758,6 +773,7 @@ export default {
             }
         },
         viewDocumentUpload(document) {
+            this.view_document = '';
             this.view_document = document;
             $('#document-view-modal').modal('show');
         },

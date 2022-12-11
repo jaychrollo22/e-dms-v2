@@ -17,12 +17,39 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
+Route::group(['prefix' => 'access-requests'], function () {
+    Route::get('/create', 'AccessRequestController@create');
+    Route::post('/store', 'AccessRequestController@store');
+});
+
+Route::get('/companies-options', 'CompanyController@companies');
+Route::get('/departments-options', 'DepartmentController@departments');
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
+//Document Requests
+Route::get('/document-requests', 'DocumentRequestController@index')->name('document-requests');
+Route::group(['prefix' => 'document-requests'], function () {
+    Route::get('/all', 'DocumentRequestController@indexData');
+    Route::get('/create', 'DocumentRequestController@create');
+    Route::post('/store', 'DocumentRequestController@store');
+    Route::post('/update', 'DocumentRequestController@update');
+});
+
+//Document Copy Requests
+Route::get('/document-copy-requests', 'DocumentCopyRequestController@index')->name('document-copy-requests');
+Route::group(['prefix' => 'document-copy-requests'], function () {
+    Route::get('/all', 'DocumentCopyRequestController@indexData');
+    Route::get('/create', 'DocumentCopyRequestController@create');
+    Route::post('/store', 'DocumentCopyRequestController@store');
+    Route::post('/update', 'DocumentCopyRequestController@update');
+});
+
 //Document Uploads
 Route::get('/document-uploads', 'DocumentUploadController@index')->name('document-uploads');
+Route::get('/document-uploads-request-copy-options', 'DocumentUploadController@documentUploadRequestCopyOptions');
 Route::group(['prefix' => 'document-uploads'], function () {
     Route::get('/all', 'DocumentUploadController@indexData');
     Route::post('/store', 'DocumentUploadController@store');
@@ -32,6 +59,14 @@ Route::group(['prefix' => 'document-uploads'], function () {
     Route::post('/update', 'DocumentUploadController@update');
 });
 
+//Access Requests
+Route::get('/access-requests', 'AccessRequestController@index')->name('access-requests');
+Route::group(['prefix' => 'access-requests'], function () {
+    Route::get('/all', 'AccessRequestController@indexData');
+    Route::post('/update', 'AccessRequestController@update');
+});
+
+
 //Settings
 Route::get('/settings', 'SettingController@index')->name('settings');
 Route::get('/settings-data', 'SettingController@settingsData');
@@ -39,7 +74,6 @@ Route::post('/settings-store', 'SettingController@store');
 
 //Companies
 Route::get('/companies', 'CompanyController@index')->name('companies');
-Route::get('/companies-options', 'CompanyController@companies');
 Route::group(['prefix' => 'companies'], function () {
     Route::get('/all', 'CompanyController@indexData');
     Route::post('/store', 'CompanyController@store');
@@ -48,7 +82,6 @@ Route::group(['prefix' => 'companies'], function () {
 
 //Departments
 Route::get('/departments', 'DepartmentController@index')->name('departments');
-Route::get('/departments-options', 'DepartmentController@departments');
 Route::group(['prefix' => 'departments'], function () {
     Route::get('/all', 'DepartmentController@indexData');
     Route::post('/store', 'DepartmentController@store');

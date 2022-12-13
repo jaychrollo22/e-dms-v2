@@ -29,7 +29,8 @@ class DocumentRequestController extends Controller
         $document_requests = DocumentationRequest::with('requestor_info','company_info','department_info')->orderBy('created_at','DESC');
 
         if(isset($request->search)){
-            $document_requests->where('title', 'LIKE', '%' . $request->search . '%');
+            $document_requests->where('title', 'LIKE', '%' . $request->search . '%')
+                                ->orWhere('dicr_number', 'LIKE', '%' . $request->search . '%');
         }
 
         return $document_requests->paginate($limit);
@@ -74,6 +75,7 @@ class DocumentRequestController extends Controller
             $data['department'] =$user->department->department_info->id;
             $data['requestor'] = Auth::user()->id;
             $data['requested_date'] = date('Y-m-d');
+            $data['status'] = 'Pending';
 
             if($request->file('attachment_file')){
                 $attachment_raw_file = $request->file('attachment_file');   

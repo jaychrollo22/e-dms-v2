@@ -212,7 +212,8 @@ export default {
             document_requests: [],
             document_copy_request: "",
             disableFields: true,
-            errors: []
+            errors: [],
+            saveDisable: false
         }
     },
     created() {
@@ -282,6 +283,8 @@ export default {
 
                         })
 
+                } else {
+                    v.saveDisable = false;
                 }
             })
         }

@@ -25,6 +25,9 @@
                                     <thead>
                                         <tr>
                                             <th class="pt-1">
+                                                Document Category Code
+                                            </th>
+                                            <th class="pt-1">
                                                 Document Category
                                             </th>
                                             <th class="pt-1">
@@ -40,6 +43,9 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(category, index) in items" :key="index">
+                                            <td>
+                                                {{ category.code }}
+                                            </td>
                                             <td>
                                                 {{ category.category_description }}
                                             </td>
@@ -79,6 +85,13 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="">Document Category Code</label>
+                                    <input type="text" class="form-control" placeholder="Code"
+                                        v-model="document_category.code">
+                                    <span class="text-danger"
+                                        v-if="errors.category_description">{{ errors.category_description[0] }}</span>
+                                </div>
                                 <div class="form-group">
                                     <label for="">Document Category</label>
                                     <input type="text" class="form-control" placeholder="Document Category"
@@ -129,6 +142,7 @@ export default {
             endpoint: '/document-categories',
             document_category: {
                 id: '',
+                code: '',
                 category_description: '',
                 tag: '',
                 status: ''
@@ -152,6 +166,7 @@ export default {
             let v = this;
             v.errors = [];
             v.document_category.id = '';
+            v.document_category.code = '';
             v.document_category.category_description = '';
             v.document_category.tag = '';
             v.document_category.status = '';
@@ -160,6 +175,7 @@ export default {
             let v = this;
             v.errors = [];
             v.document_category.id = document_category.id;
+            v.document_category.code = document_category.code;
             v.document_category.category_description = document_category.category_description;
             v.document_category.tag = document_category.tag;
             v.document_category.status = document_category.status;
@@ -182,6 +198,7 @@ export default {
                         formData.append('id', v.document_category.id ? v.document_category.id : "");
                         postURL = `/document-categories/update`;
                     }
+                    formData.append('code', v.document_category.code ? v.document_category.code : "");
                     formData.append('category_description', v.document_category.category_description ? v.document_category.category_description : "");
                     formData.append('tag', v.document_category.tag ? v.document_category.tag : "");
                     formData.append('status', v.document_category.status ? v.document_category.status : "");

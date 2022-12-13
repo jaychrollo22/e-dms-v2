@@ -44,6 +44,9 @@
                                                 Type of Request
                                             </th>
                                             <th class="pt-1">
+                                                Status
+                                            </th>
+                                            <th class="pt-1">
                                                 Action
                                             </th>
                                         </tr>
@@ -71,6 +74,11 @@
                                             <td>
                                                 <div :class="getTypeStyle(request.type_of_request)">
                                                     {{ request.type_of_request }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div :class="getStatusStyle(request.status)">
+                                                    {{ request.status }}
                                                 </div>
                                             </td>
                                             <td class="text-center">
@@ -232,7 +240,7 @@
                                 <div class="col-md-12">
                                     <iframe id="frame-raw-file"
                                         v-if="validateFileFormat(document_request.attachment_file)"
-                                        :src="('storage/document_requests/' + document_request.attachment_file + '#toolbar=0&navpanes=0&scrollbar=0')"
+                                        :src="('storage/document_requests/' + document_request.attachment_file)"
                                         frameborder="1" width="100%" height="700px"></iframe>
                                     <a v-else :href="('storage/document_requests/' + document_request.attachment_file)"
                                         class="btn btn-outline-info btn-icon-text">View Attachment
@@ -277,6 +285,15 @@ export default {
                 return 'badge badge-danger';
             } else if (type == 'Discontinuance') {
                 return 'badge badge-warning';
+            }
+        },
+        getStatusStyle(type) {
+            if (type == 'Pending') {
+                return 'badge badge-info';
+            } else if (type == 'Approved') {
+                return 'badge badge-success';
+            } else if (type == 'Disapproved') {
+                return 'badge badge-danger';
             }
         },
         validateFileFormat(document) {

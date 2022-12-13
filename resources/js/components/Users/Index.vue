@@ -15,7 +15,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <input type="text" class="form-control w-400px" @keyup="searchKeyUp"
-                                            v-model="filterData.search" placeholder="Search Role">
+                                            v-model="filterData.search" placeholder="Search User">
                                     </div>
                                 </div>
                             </div>

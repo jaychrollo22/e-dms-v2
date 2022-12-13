@@ -121,6 +121,14 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
+                                    <label for="">Control Code</label>
+                                    <input type="text" class="form-control" placeholder="Control Code"
+                                        v-model="document_upload.control_code">
+                                    <span class="text-danger" v-if="errors.title">{{ errors.control_code[0] }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
                                     <label for="">Title</label>
                                     <input type="text" class="form-control" placeholder="Title"
                                         v-model="document_upload.title">
@@ -167,7 +175,7 @@
 
                             <div class="col-md-12" v-if="(document_upload.document_category && action == 'Add')">
                                 <div class="form-group">
-                                    <label>Document Attachment</label>
+                                    <label>Document Attachment (Raw)</label>
                                     <input @change="uploadRawFile" name="attachment_raw_file" type="file"
                                         accept="application/*" id="attachment_raw_file" class="form-control">
                                     <span class="text-danger"
@@ -349,16 +357,27 @@
                                         </div>
 
                                         <div class="row mt-5">
-                                            <label>Upload Revision Attachment</label>
-                                            <div class="col-md-9">
-
-                                                <input @change="uploadSignedCopy" name="attachment_signed_copy"
-                                                    type="file" accept="application/*" id="attachment_signed_copy"
+                                            <div class="col-md-6">
+                                                <label>Upload Revision Attachment <a
+                                                        :href="'storage/document_uploads/' + view_document.attachment_signed_copy_revision"
+                                                        target="_blank"
+                                                        class="badge badge-pill badge-success">View</a></label>
+                                                <input @change="uploadSignedCopyRevision"
+                                                    name="attachment_signed_copy_revision" type="file"
+                                                    accept="application/*" id="attachment_signed_copy_revision"
                                                     class="form-control">
+
                                                 <span class="text-danger"
-                                                    v-if="errors.attachment_signed_copy">{{ errors.attachment_signed_copy[0] }}</span>
+                                                    v-if="errors.attachment_signed_copy_revision">{{ errors.attachment_signed_copy_revision[0] }}</span>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-6">
+                                                <label>Revision Implementation Date</label>
+                                                <div class="form-group">
+                                                    <input class="form-control" type="date"
+                                                        v-model="view_document.implementation_date">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
                                                 <button @click="saveDocumentRevision('Signed Copy')"
                                                     class="btn btn-primary btn-md">Save Changes</button>
                                             </div>
@@ -537,6 +556,7 @@ export default {
             endpoint: '/document-uploads',
             document_upload: {
                 id: '',
+                control_code: '',
                 title: '',
                 effective_date: '',
                 document_category: '',
@@ -560,6 +580,8 @@ export default {
             attachment_raw_file: '',
             attachment_fillable_copy: '',
             attachment_signed_copy: '',
+            attachment_signed_copy_revision: '',
+            implementation_date: '',
 
             saveDisable: false,
 
@@ -728,30 +750,38 @@ export default {
                         formData.append('attachment_fillable_copy', v.attachment_fillable_copy ? v.attachment_fillable_copy : "");
                     }
                     if (file_type == 'Signed Copy') {
-                        formData.append('attachment_signed_copy', v.attachment_signed_copy ? v.attachment_signed_copy : "");
+                        formData.append('attachment_signed_copy_revision', v.attachment_signed_copy_revision ? v.attachment_signed_copy_revision : "");
+                        formData.append('implementation_date', v.view_document.implementation_date ? v.view_document.implementation_date : "");
                     }
                     axios.post(postURL, formData)
                         .then(response => {
+
                             if (response.data.status == "success") {
-                                Swal.fire('Document has been changed!', '', 'success');
                                 v.saveDisable = false;
-                                this.view_document = response.data.document_upload;
+
+                                Swal.fire('Document has been changed!', '', 'success');
+
 
                                 var index = this.items.findIndex(item => item.id == v.view_document.id);
                                 this.items.splice(index, 1, response.data.document_upload);
 
+                                this.view_document = response.data.document_upload;
+
                                 document.getElementById('attachment_raw_file').value = null;
                                 document.getElementById('attachment_fillable_copy').value = null;
-                                document.getElementById('attachment_signed_copy').value = null;
+                                document.getElementById('attachment_signed_copy_revision').value = null;
+
                                 this.attachment_raw_file = '';
                                 this.attachment_fillable_copy = '';
-                                this.attachment_signed_copy = '';
+                                this.attachment_signed_copy_revision = '';
+                                this.implementation_date = '';
                             } else {
                                 Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
                                 v.saveDisable = false;
                             }
                         })
                         .catch(error => {
+                            console.log(error);
                             Swal.fire({
                                 text: 'Sorry, looks like there are some errors detected, please try again..',
                                 icon: "error",
@@ -775,6 +805,7 @@ export default {
         viewDocumentUpload(document) {
             this.view_document = '';
             this.view_document = document;
+
             $('#document-view-modal').modal('show');
         },
         usersDocumentUpload() {
@@ -784,6 +815,7 @@ export default {
             this.clearFields();
             this.action = 'Edit';
             this.document_upload.id = document_upload.id;
+            this.document_upload.control_code = document_upload.control_code;
             this.document_upload.title = document_upload.title;
             this.document_upload.effective_date = document_upload.effective_date;
             this.document_upload.assign_stamp = document_upload.assign_stamp;
@@ -802,6 +834,7 @@ export default {
             let v = this;
             v.errors = [];
             v.document_upload.id = '';
+            v.document_upload.control_code = '';
             v.document_upload.title = '';
             v.document_upload.effective_date = '';
             v.document_upload.document_category = '';
@@ -838,6 +871,7 @@ export default {
                         postURL = `/document-uploads/update`;
                     }
 
+                    formData.append('control_code', v.document_upload.control_code ? v.document_upload.control_code : "");
                     formData.append('title', v.document_upload.title ? v.document_upload.title : "");
                     formData.append('effective_date', v.document_upload.effective_date ? v.document_upload.effective_date : "");
                     formData.append('document_category', v.document_upload.document_category ? v.document_upload.document_category.id : "");
@@ -950,6 +984,12 @@ export default {
             if (!files.length)
                 return;
             this.attachment_signed_copy = files[0];
+        },
+        uploadSignedCopyRevision(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            this.attachment_signed_copy_revision = files[0];
         },
         setPage(pageNumber) {
             this.currentPage = pageNumber;

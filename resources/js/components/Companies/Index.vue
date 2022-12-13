@@ -25,7 +25,7 @@
                                     <thead>
                                         <tr>
                                             <th class="pt-1">
-                                                Code
+                                                Company Code
                                             </th>
                                             <th class="pt-1">
                                                 Company

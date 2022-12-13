@@ -60,6 +60,11 @@
                 </select>
             </div>
         </div>
+        <div class="form-group">
+            <label for="name">Remarks</label>
+            <textarea v-model="access_request.remarks" class="form-control" cols="30" rows="5"
+                placeholder="Please Indicate (Immediate Superior/Remarks)"></textarea>
+        </div>
 
         <div class="my-3">
             <button class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" @click="saveUserAccess"
@@ -79,6 +84,7 @@ export default {
                 email: '',
                 company: '',
                 department: '',
+                remarks: '',
             },
             departments: [],
             companies: [],
@@ -96,6 +102,7 @@ export default {
             this.access_request.email = '';
             this.access_request.department = '';
             this.access_request.company = '';
+            this.access_request.remarks = '';
         },
         saveUserAccess() {
             let v = this;
@@ -120,6 +127,7 @@ export default {
                     formData.append('email', v.access_request.email ? v.access_request.email : "");
                     formData.append('company', v.access_request.company ? v.access_request.company : "");
                     formData.append('department', v.access_request.department ? v.access_request.department : "");
+                    formData.append('remarks', v.access_request.remarks ? v.access_request.remarks : "");
 
                     axios.post(`/access-requests/store`, formData)
                         .then(response => {

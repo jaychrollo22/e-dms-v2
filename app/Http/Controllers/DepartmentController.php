@@ -9,20 +9,9 @@ use DB;
 
 class DepartmentController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index(){
         return view('pages.departments.index');
     }
-
     public function indexData(Request $request){
 
         $limit = $request->limit;

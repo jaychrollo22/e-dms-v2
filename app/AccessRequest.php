@@ -11,6 +11,10 @@ class AccessRequest extends Model implements Auditable
 
     use \OwenIt\Auditing\Auditable;
 
+    public function immediate_head_info(){
+        return $this->belongsTo('App\User','immediate_head','id')->select('id','name');
+    }
+
     public function company_info(){
         return $this->belongsTo('App\Company','company','id')->select('id','company_name');
     }

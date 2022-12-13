@@ -163,12 +163,12 @@ class DocumentUploadController extends Controller
                         Storage::disk('public')->putFileAs('document_uploads', $attachment_fillable_copy , $filename);
                     }
         
-                    if($request->file('attachment_signed_copy')){
-                        $attachment_signed_copy = $request->file('attachment_signed_copy');   
-                        $original_filename = $attachment_signed_copy->getClientOriginalName();
+                    if($request->file('attachment_signed_copy_revision')){
+                        $attachment_signed_copy_revision = $request->file('attachment_signed_copy_revision');   
+                        $original_filename = $attachment_signed_copy_revision->getClientOriginalName();
                         $filename = 'SC-' . $revision_signed_copy_count . '-' . date('Ymd') . '_'. $original_filename;
-                        $data['attachment_signed_copy'] = $filename;
-                        Storage::disk('public')->putFileAs('document_uploads', $attachment_signed_copy , $filename);
+                        $data['attachment_signed_copy_revision'] = $filename;
+                        Storage::disk('public')->putFileAs('document_uploads', $attachment_signed_copy_revision , $filename);
                     }
                     
                     unset($data['id']);

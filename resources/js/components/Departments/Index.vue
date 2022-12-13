@@ -25,6 +25,9 @@
                                     <thead>
                                         <tr>
                                             <th class="pt-1">
+                                                Department Code
+                                            </th>
+                                            <th class="pt-1">
                                                 Department
                                             </th>
                                             <th class="pt-1">
@@ -37,6 +40,9 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(department, index) in items" :key="index">
+                                            <td>
+                                                {{ department.code }}
+                                            </td>
                                             <td>
                                                 {{ department.department }}
                                             </td>
@@ -73,6 +79,12 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="">Department Code</label>
+                                    <input type="text" class="form-control" placeholder="Department Code"
+                                        v-model="department.code">
+                                    <span class="text-danger" v-if="errors.code">{{ errors.code[0] }}</span>
+                                </div>
                                 <div class="form-group">
                                     <label for="">Department</label>
                                     <input type="text" class="form-control" placeholder="Department"
@@ -111,6 +123,7 @@ export default {
             endpoint: '/departments',
             department: {
                 id: '',
+                code: '',
                 department: '',
                 status: '',
             },
@@ -131,6 +144,7 @@ export default {
             let v = this;
             v.errors = [];
             v.department.id = '';
+            v.department.code = '';
             v.department.department = '';
             v.department.status = '';
         },
@@ -138,6 +152,7 @@ export default {
             let v = this;
             v.errors = [];
             v.department.id = department.id;
+            v.department.code = department.code;
             v.department.department = department.department;
             v.department.status = department.status;
             v.action = 'Update';
@@ -159,6 +174,7 @@ export default {
                         formData.append('id', v.department.id ? v.department.id : "");
                         postURL = `/departments/update`;
                     }
+                    formData.append('code', v.department.code ? v.department.code : "");
                     formData.append('department', v.department.department ? v.department.department : "");
                     formData.append('status', v.department.status ? v.department.status : "");
 

@@ -54,9 +54,13 @@ Route::group(['prefix' => 'document-uploads'], function () {
     Route::get('/all', 'DocumentUploadController@indexData');
     Route::post('/store', 'DocumentUploadController@store');
     Route::post('/store-revision', 'DocumentUploadController@storeRevision');
+    Route::get('/get-users', 'DocumentUploadController@getUsers');
     Route::post('/store-user', 'DocumentUploadController@storeUser');
+    Route::post('/remove-user', 'DocumentUploadController@removeUser');
     Route::post('/delete-user', 'DocumentUploadController@deleteUser');
     Route::post('/update', 'DocumentUploadController@update');
+    Route::post('/save-document-upload-user-print', 'DocumentUploadController@saveDocumentUploadUserPrint');
+    Route::post('/save-document-upload-user-download', 'DocumentUploadController@saveDocumentUploadUserDownload');
 });
 
 //Access Requests

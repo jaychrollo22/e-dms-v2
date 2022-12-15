@@ -31,6 +31,9 @@
                                                 Company
                                             </th>
                                             <th class="pt-1">
+                                                Control Code Series No.
+                                            </th>
+                                            <th class="pt-1">
                                                 Stamp
                                             </th>
                                             <th class="pt-1">
@@ -45,6 +48,9 @@
                                             </td>
                                             <td>
                                                 {{ company.company_name }}
+                                            </td>
+                                            <td>
+                                                {{ company.control_code_series_number }}
                                             </td>
                                             <td>
                                                 <a v-if="company.stamp" :href="'storage/stamps/' + company.stamp"
@@ -99,6 +105,15 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
+                                    <label for="">Control Code Series No.</label>
+                                    <input type="number" class="form-control" placeholder="Control Code Series No."
+                                        v-model="company.control_code_series_number">
+                                    <span class="text-danger"
+                                        v-if="errors.control_code_series_number">{{ errors.control_code_series_number[0] }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
                                     <label>Stamp</label>
                                     <input v-on:change="stampHandleFileUpload()" type="file" accept="image/*" id="stamp"
                                         ref="file" class="form-control">
@@ -130,6 +145,7 @@ export default {
                 id: '',
                 company_code: '',
                 company_name: '',
+                control_code_series_number: '',
             },
             action: '',
             errors: [],
@@ -153,6 +169,7 @@ export default {
             v.company.id = '';
             v.company.company_code = '';
             v.company.company_name = '';
+            v.company.control_code_series_number = '';
         },
         editCompany(company) {
             let v = this;
@@ -160,6 +177,7 @@ export default {
             v.company.id = company.id;
             v.company.company_code = company.company_code;
             v.company.company_name = company.company_name;
+            v.company.control_code_series_number = company.control_code_series_number;
             v.action = 'Update';
             $('#company-modal').modal('show');
         },
@@ -181,6 +199,7 @@ export default {
                     }
                     formData.append('company_code', v.company.company_code ? v.company.company_code : "");
                     formData.append('company_name', v.company.company_name ? v.company.company_name : "");
+                    formData.append('control_code_series_number', v.company.control_code_series_number ? v.company.control_code_series_number : "");
 
 
                     formData.append('stamp', v.stamp ? v.stamp : "");

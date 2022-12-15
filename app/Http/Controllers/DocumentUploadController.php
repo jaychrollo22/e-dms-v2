@@ -31,7 +31,15 @@ class DocumentUploadController extends Controller
 
         $limit = $request->limit;
 
-        $document_uploads = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->orderBy('created_at','DESC');
+        $document_uploads = DocumentUpload::with(
+                                                'company_info',
+                                                'department_info',
+                                                'document_category_info.tag_info',
+                                                'process_owner_info',
+                                                'revisions',
+                                                'users.user_info'
+                                                )
+                                                ->orderBy('created_at','DESC');
 
         if(isset($request->search)){
             $document_uploads->where('title', 'LIKE', '%' . $request->search . '%');
@@ -234,6 +242,14 @@ class DocumentUploadController extends Controller
         } 
     }
 
+    public function getUsers(Request $request){
+        return $document_uploads = DocumentUploadUser::with('user_info.department.department_info','user_info.company.company_info')
+                                            ->where('document_upload_id',$request->id)
+                                            ->where('status','1')
+                                            ->orderBy('created_at','DESC')
+                                            ->get();
+    }
+
     public function storeUser(Request $request){
 
         DB::beginTransaction();
@@ -278,5 +294,106 @@ class DocumentUploadController extends Controller
             DB::rollBack();
             return 'error';
         } 
+    }
+
+    public function removeUser(Request $request){
+
+        DB::beginTransaction();
+        try {
+            
+            $user_ids = json_decode($request->user_ids);
+            $document_upload = DocumentUpload::where('id',$request->id)->first();
+
+            if($user_ids && $document_upload){
+                $count = 0;
+                foreach($user_ids as $user_id){
+                    
+                    $document_upload_user = [
+                        'status'=>'0',
+                    ];
+
+                    $check = DocumentUploadUser::where('document_upload_id',$request->id)
+                                                ->where('user_id',$user_id)
+                                                ->first();
+                    if($check){
+                        $check->update($document_upload_user);
+                        $count++;
+                    }
+                }
+
+                DB::commit();
+
+                $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
+                    
+                return $response = [
+                    'status'=>'success',
+                    'count'=> $count,
+                    'document_upload'=>$document_upload,
+                ];
+            }
+
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
+
+    public function saveDocumentUploadUserPrint(Request $request){
+
+        DB::beginTransaction();
+        try {
+
+            $document_upload_user = DocumentUploadUser::with('user_info.department.department_info','user_info.company.company_info')->where('id',$request->id)->first();
+
+            if($document_upload_user){
+
+                $data['can_print'] = $document_upload_user->can_print == '1' ? 0 : 1;
+
+                $document_upload_user->update($data);
+                DB::commit();
+
+                return $response = [
+                    'status'=>'saved',
+                    'document_upload_user'=>$document_upload_user
+                ];
+
+            }
+
+        }catch (Exception $e) {
+            DB::rollBack();
+            return $reponse = [
+                'status'=>'error'
+            ];
+        }
+    }
+
+    public function saveDocumentUploadUserDownload(Request $request){
+
+        DB::beginTransaction();
+        try {
+
+            $document_upload_user = DocumentUploadUser::with('user_info.department.department_info','user_info.company.company_info')->where('id',$request->id)->first();
+
+            if($document_upload_user){
+
+                $data['can_download'] = $document_upload_user->can_download == '1' ? 0 : 1;
+
+                $document_upload_user->update($data);
+                DB::commit();
+
+                return $response = [
+                    'status'=>'saved',
+                    'document_upload_user'=>$document_upload_user
+                ];
+
+            }
+
+        }catch (Exception $e) {
+            DB::rollBack();
+            return $reponse = [
+                'status'=>'error'
+            ];
+        }
     }
 }

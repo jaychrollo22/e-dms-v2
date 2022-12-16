@@ -803,7 +803,6 @@ export default {
                         return user;
                     }
                 });
-
                 if (user_check.length > 0) {
                     return false;
                 } else {
@@ -845,9 +844,10 @@ export default {
                                 var index = this.items.findIndex(item => item.id == v.view_document.id);
                                 this.items.splice(index, 1, response.data.document_upload);
                                 this.getAssignedUsers();
-                                this.filterUser();
+                                this.filterUser(); //
+
                                 this.bulkCheckSelectedIds = [];
-                                this.isSelectAll = [];
+                                this.isSelectAll = 0;
 
                             } else {
                                 Swal.fire('Error: Cannot changed. Please try again.', '', 'error');

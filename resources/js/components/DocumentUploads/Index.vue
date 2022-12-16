@@ -506,14 +506,15 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody v-if="(filterUsers.length > 0)">
-                                                    <tr v-for="(user, i) in filteredQueues" :key="i">
+                                                    <tr v-for="(filter_user, i) in filteredQueues" :key="i">
                                                         <td width="20" align="center">
                                                             <div class="form-check">
                                                                 <label class="form-check-label">
                                                                     <input type="checkbox" class="form-check-input"
-                                                                        v-if="showCheckUser(user)" true-value="1"
-                                                                        false-value="0" :id="user.id + '-select'"
-                                                                        :value="user.id" v-model="bulkCheckSelectedIds">
+                                                                        v-if="showCheckUser(filter_user)" true-value="1"
+                                                                        false-value="0" :id="filter_user.id + '-select'"
+                                                                        :value="filter_user.id"
+                                                                        v-model="bulkCheckSelectedIds">
                                                                     <input type="checkbox" class="form-check-input"
                                                                         title="Selected" v-else disabled checked>
                                                                     <i class="input-helper"></i>
@@ -521,10 +522,10 @@
                                                             </div>
                                                         </td>
                                                         <td>
-                                                            <strong>{{ user.name }}</strong> <br>
-                                                            <small>{{ user.company ? user.company.company_info.company_name : "" }}</small>
+                                                            <strong>{{ filter_user.name }}</strong> <br>
+                                                            <small>{{ filter_user.company ? filter_user.company.company_info.company_name : "" }}</small>
                                                             <br>
-                                                            <small>{{ user.department ? user.department.department_info.department : "" }}</small>
+                                                            <small>{{ filter_user.department ? filter_user.department.department_info.department : "" }}</small>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -578,12 +579,13 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody v-if="(assignedUsers.length > 0)">
-                                                    <tr v-for="(user, i) in assignedQueues" :key="i">
+                                                    <tr v-for="(assigned_user, i) in assignedQueues" :key="i">
                                                         <td align="center">
                                                             <div class="form-check">
                                                                 <label class="form-check-label">
                                                                     <input type="checkbox" title="Selected"
-                                                                        :id="user.id + '-remove'" :value="user.user_id"
+                                                                        :id="assigned_user.id + '-remove'"
+                                                                        :value="assigned_user.id"
                                                                         v-model="bulkRemoveSelectedIds"
                                                                         class="form-check-input">
                                                                     <i class="input-helper"></i>
@@ -591,30 +593,33 @@
                                                             </div>
                                                         </td>
                                                         <td>
-                                                            <strong>{{ user.user_info.name }}</strong> <br>
-                                                            <small>{{ user.user_info.company ? user.user_info.company.company_info.company_name : "" }}</small>
+                                                            <strong>{{ assigned_user.user_info.name }}</strong> <br>
+                                                            <small>{{ assigned_user.user_info.company ? assigned_user.user_info.company.company_info.company_name : "" }}</small>
                                                             <br>
-                                                            <small>{{ user.user_info.department ? user.user_info.department.department_info.department : "" }}</small>
+                                                            <small>{{ assigned_user.user_info.department ? assigned_user.user_info.department.department_info.department : "" }}</small>
                                                         </td>
                                                         <td class="text-center">
-                                                            <button v-if="user.can_print == '1'" type="button"
+                                                            <button v-if="assigned_user.can_print == '1'" type="button"
                                                                 class="btn btn-inverse-success btn-rounded btn-icon"
-                                                                title="Disable Print" @click="canPrint(user)">
+                                                                title="Disable Print" @click="canPrint(assigned_user)">
                                                                 <i class="ti-printer"></i>
                                                             </button>
                                                             <button v-else type="button"
                                                                 class="btn btn-inverse-secondary btn-rounded btn-icon"
-                                                                title="Enable Print" @click="canPrint(user)">
+                                                                title="Enable Print" @click="canPrint(assigned_user)">
                                                                 <i class="ti-printer"></i>
                                                             </button>
-                                                            <button v-if="user.can_download == '1'" type="button"
+                                                            <button v-if="assigned_user.can_download == '1'"
+                                                                type="button"
                                                                 class="btn btn-inverse-primary btn-rounded btn-icon"
-                                                                title="Disable Download" @click="canDownload(user)">
+                                                                title="Disable Download"
+                                                                @click="canDownload(assigned_user)">
                                                                 <i class="ti-cloud-down"></i>
                                                             </button>
                                                             <button v-else type="button"
                                                                 class="btn btn-inverse-secondary btn-rounded btn-icon"
-                                                                title="Enable Download" @click="canDownload(user)">
+                                                                title="Enable Download"
+                                                                @click="canDownload(assigned_user)">
                                                                 <i class="ti-cloud-down"></i>
                                                             </button>
                                                         </td>
@@ -884,7 +889,7 @@ export default {
                     let formData = new FormData();
                     var postURL = `/document-uploads/remove-user`;
                     formData.append('id', v.view_document.id ? v.view_document.id : "");
-                    formData.append('user_ids', v.bulkRemoveSelectedIds.length > 0 ? JSON.stringify(v.bulkRemoveSelectedIds) : "");
+                    formData.append('document_user_ids', v.bulkRemoveSelectedIds.length > 0 ? JSON.stringify(v.bulkRemoveSelectedIds) : "");
 
                     axios.post(postURL, formData)
                         .then(response => {
@@ -892,17 +897,22 @@ export default {
                                 Swal.fire('Users (' + response.data.count + ') has been removed! ', '', 'success');
                                 v.saveDisable = false;
                                 this.view_document = response.data.document_upload;
-                                this.getAssignedUsers();
                                 this.filterUser();
-                                this.bulkRemoveSelectedIds = [];
-                                this.isRemoveAll = [];
 
+                                v.bulkRemoveSelectedIds.forEach(function (item) {
+                                    var index = v.documentUploadUsers.findIndex(item2 => item2.id == item);
+                                    v.documentUploadUsers.splice(index, 1);
+                                });
+
+                                v.bulkRemoveSelectedIds = [];
+                                v.isRemoveAll = 0;
                             } else {
                                 Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
                                 v.saveDisable = false;
                             }
                         })
                         .catch(error => {
+                            console.log(error);
                             Swal.fire({
                                 text: 'Sorry, looks like there are some errors detected, please try again..',
                                 icon: "error",
@@ -920,8 +930,8 @@ export default {
         },
         selectAllUsers() {
             let v = this;
+            v.bulkCheckSelectedIds = [];
             if (v.isSelectAll == 1) {
-                v.bulkCheckSelectedIds = [];
                 v.filterUsers.forEach(function (item) {
                     if (v.showCheckUser(item)) {
                         v.bulkCheckSelectedIds.push(item.id);
@@ -933,13 +943,13 @@ export default {
         },
         removeAllUsers() {
             let v = this;
-            if (v.isRemoveAll == 1) {
+            if (v.isRemoveAll == '1') {
                 v.bulkRemoveSelectedIds = [];
                 v.documentUploadUsers.forEach(function (item) {
-                    v.bulkRemoveSelectedIds.push(item.user_id);
+                    v.bulkRemoveSelectedIds.push(item.id);
                 });
-            } else {
-                v.bulkCheckSelectedIds = [];
+            } else if (v.isRemoveAll == '0') {
+                v.bulkRemoveSelectedIds = [];
             }
         },
         filterUser() {

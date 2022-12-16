@@ -301,20 +301,18 @@ class DocumentUploadController extends Controller
         DB::beginTransaction();
         try {
             
-            $user_ids = json_decode($request->user_ids);
+            $document_user_ids = json_decode($request->document_user_ids);
             $document_upload = DocumentUpload::where('id',$request->id)->first();
 
-            if($user_ids && $document_upload){
+            if($document_user_ids && $document_upload){
                 $count = 0;
-                foreach($user_ids as $user_id){
+                foreach($document_user_ids as $document_user_id){
                     
                     $document_upload_user = [
                         'status'=>'0',
                     ];
 
-                    $check = DocumentUploadUser::where('document_upload_id',$request->id)
-                                                ->where('user_id',$user_id)
-                                                ->first();
+                    $check = DocumentUploadUser::where('id',$document_user_id)->first();
                     if($check){
                         $check->update($document_upload_user);
                         $count++;

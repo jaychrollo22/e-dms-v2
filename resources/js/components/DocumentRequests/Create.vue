@@ -139,7 +139,18 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12">
-                                    <div class="form-group">
+                                    <div class="form-group"
+                                        v-if="document_request.type_of_request == 'Revision' || document_request.type_of_request == 'Discontinuance' || document_request.type_of_request == 'Obsolete'">
+                                        <label for="">Select Document</label>
+                                        <multiselect v-model="document_request.document_upload_id"
+                                            :options="document_uploads" placeholder="Select Document" label="title"
+                                            track-by="id">
+                                        </multiselect>
+                                        <span class="text-danger"
+                                            v-if="errors.attachment_file">{{ errors.attachment_file[0] }}</span>
+                                    </div>
+                                    <div class="form-group"
+                                        v-if="document_request.type_of_request == 'New' || document_request.type_of_request == 'Revision'">
                                         <label for="">Attachment - Draft</label>
                                         <input @change="uploadAttachment" name="attachment_file" type="file"
                                             accept="application/*" id="attachment_file" class="form-control">
@@ -183,10 +194,26 @@ export default {
             errors: [],
             saveDisable: false,
 
-            attachment_file: ''
+            attachment_file: '',
+
+            document_uploads: [],
         }
     },
+    created() {
+        this.getDocumentUploads();
+    },
     methods: {
+        getDocumentUploads() {
+            let v = this;
+            v.document_uploads = [];
+            axios.get('/document-uploads-request-options')
+                .then(response => {
+                    v.document_uploads = response.data;
+                })
+                .catch(error => {
+                    v.errors = error.response.data.error;
+                })
+        },
         clearFields() {
             this.document_request.title = '';
             this.document_request.proposed_effective_date = '';
@@ -194,8 +221,6 @@ export default {
             this.document_request.type_of_documented_information = '';
             this.document_request.type_of_documented_information_others = '';
             this.document_request.description_purpose_of_documentation = '';
-
-            document.getElementById('attachment_file').value = '';
             this.attachment_file = '';
         },
         uploadAttachment(e) {
@@ -229,21 +254,23 @@ export default {
                     formData.append('type_of_documented_information', v.document_request.type_of_documented_information ? v.document_request.type_of_documented_information : "");
                     formData.append('type_of_documented_information_others', v.document_request.type_of_documented_information_others ? v.document_request.type_of_documented_information_others : "");
                     formData.append('description_purpose_of_documentation', v.document_request.description_purpose_of_documentation ? v.document_request.description_purpose_of_documentation : "");
+                    formData.append('document_upload_id', v.document_request.document_upload_id ? v.document_request.document_upload_id.id : "");
 
                     formData.append('attachment_file', v.attachment_file ? v.attachment_file : "");
 
                     axios.post(`/document-requests/store`, formData)
                         .then(response => {
                             if (response.data.status == "success") {
-                                Swal.fire('Document request has been saved!', '', 'success');
-                                v.saveDisable = false;
-                                this.clearFields();
+                                Swal.fire('Document request has been saved!', '', 'success').then(function () {
+                                    window.location.href = '/user-document-requests';
+                                });
                             } else {
                                 Swal.fire('Error: Cannot saved. Please try again.', '', 'error');
                                 v.saveDisable = false;
                             }
                         })
                         .catch(error => {
+                            console.log(error);
                             Swal.fire({
                                 text: 'Sorry, looks like there are some errors detected, please try again..',
                                 icon: "error",

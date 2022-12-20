@@ -137,9 +137,9 @@ export default {
                     axios.post(`/document-copy-requests/store`, formData)
                         .then(response => {
                             if (response.data.status == "success") {
-                                Swal.fire('Document copy request has been saved!', '', 'success');
-                                v.saveDisable = false;
-                                this.clearFields();
+                                Swal.fire('Document copy request has been saved!', '', 'success').then(function () {
+                                    window.location.href = '/user-document-copy-requests';
+                                });
                             } else {
                                 Swal.fire('Error: Cannot saved. Please try again.', '', 'error');
                                 v.saveDisable = false;

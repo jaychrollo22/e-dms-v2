@@ -6,10 +6,13 @@ use Illuminate\Http\Request;
 use App\DocumentUpload;
 use App\DocumentUploadRevision;
 use App\DocumentUploadUser;
+use App\DocumentCopyRequest;
 use App\User;
 use Auth;
 use DB;
 use Storage;
+
+use setasign\Fpdi\Fpdi;
 
 class DocumentUploadController extends Controller
 {
@@ -25,6 +28,9 @@ class DocumentUploadController extends Controller
 
     public function index(){
         return view('pages.document_uploads.index');
+    }
+    public function userIndex(){
+        return view('pages.document_uploads.user_index');
     }
 
     public function indexData(Request $request){
@@ -42,7 +48,32 @@ class DocumentUploadController extends Controller
                                                 ->orderBy('created_at','DESC');
 
         if(isset($request->search)){
-            $document_uploads->where('title', 'LIKE', '%' . $request->search . '%');
+            $document_uploads->where('title', 'LIKE', '%' . $request->search . '%')
+                                ->orWhere('control_code', 'LIKE', '%' . $request->search . '%');
+        }
+
+        return $document_uploads->paginate($limit);
+    }
+    public function userIndexData(Request $request){
+
+        $limit = $request->limit;
+
+        $document_uploads = DocumentUploadUser::with(
+                                                'document_upload_info.company_info',
+                                                'document_upload_info.department_info',
+                                                'document_upload_info.document_category_info.tag_info',
+                                                'document_upload_info.process_owner_info',
+                                                'document_upload_info.revisions',
+                                                'user_info'
+                                                )
+                                                ->where('user_id',Auth::user()->id)
+                                                ->where('status','1')
+                                                ->orderBy('created_at','DESC');
+
+        if(isset($request->search)){
+            $document_uploads->whereHas('document_upload_info',function($q) use($request){
+                return $q->where('title', 'LIKE', '%' . $request->search . '%')->orWhere('control_code', 'LIKE', '%' . $request->search . '%');
+            });                 
         }
 
         return $document_uploads->paginate($limit);
@@ -50,8 +81,30 @@ class DocumentUploadController extends Controller
 
     public function documentUploadRequestCopyOptions(){
         $user = User::with('company')->where('id',Auth::user()->id)->first();
+
+        $pending_document_copy_request = DocumentCopyRequest::select('document_upload_id')
+                                                                ->where('requestor',$user->id)
+                                                                ->where('is_expired',0)
+                                                                ->get();
+        $ids = [];
+        if($pending_document_copy_request){
+            foreach($pending_document_copy_request as $k => $item){
+                $ids[$k] = $item->document_upload_id;
+            }
+        }
+
         return DocumentUpload::select('id','control_code','title')
                                 ->where('company',$user->company->company_id)
+                                ->whereNotIn('id',$ids)
+                                ->orderBy('title','ASC')
+                                ->get();
+
+    }
+    public function documentUploadRequestOptions(){
+        $user = User::with('company')->where('id',Auth::user()->id)->first();
+        return DocumentUpload::select('id','control_code','title')
+                                ->where('company',$user->company->company_id)
+                                ->where('status','Approved')
                                 ->orderBy('title','ASC')
                                 ->get();
 
@@ -97,6 +150,7 @@ class DocumentUploadController extends Controller
                 Storage::disk('public')->putFileAs('document_uploads', $attachment_signed_copy , $filename);
             }
 
+            $data['status'] = 'Pending'; // Validate if DCO Holdings, Default in pending
 
             if($document_upload = DocumentUpload::create($data)){
                 DB::commit();
@@ -181,6 +235,8 @@ class DocumentUploadController extends Controller
                     
                     unset($data['id']);
                     unset($data['file_type']);
+                    
+                    $data['status'] = 'Pending'; // Validate if DCO Holdings, Default in pending
 
                     $document_upload->update($data);
 
@@ -216,6 +272,37 @@ class DocumentUploadController extends Controller
             'document_category' => 'required',
             'company' => 'required',
             'department' => 'required',
+        ]);
+        DB::beginTransaction();
+        try {
+            $data = $request->all();
+            $document_upload = DocumentUpload::where('id',$data['id'])->first();
+            if($document_upload){
+                unset($data['id']);
+                $document_upload->update($data);
+                DB::commit();
+                $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
+                return $status_data = [
+                    'status'=>'success',
+                    'document_upload'=>$document_upload,
+                ];
+            }else{
+                return $data = [
+                    'status'=>'error'
+                ];
+            }
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
+
+    public function updateApproval(Request $request)
+    {
+        $this->validate($request, [
+            'status' => 'required',
+            'status_remarks' => 'required',
         ]);
         DB::beginTransaction();
         try {
@@ -337,6 +424,88 @@ class DocumentUploadController extends Controller
         } 
     }
 
+    public function allowPrintUser(Request $request){
+
+        DB::beginTransaction();
+        try {
+            
+            $document_user_ids = json_decode($request->document_user_ids);
+            $document_upload = DocumentUpload::where('id',$request->id)->first();
+
+            if($document_user_ids && $document_upload){
+                $count = 0;
+                foreach($document_user_ids as $document_user_id){
+                    
+                    $document_upload_user = [
+                        'can_print'=>1,
+                    ];
+
+                    $check = DocumentUploadUser::where('id',$document_user_id)->first();
+                    if($check){
+                        $check->update($document_upload_user);
+                        $count++;
+                    }
+                }
+
+                DB::commit();
+
+                $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
+                    
+                return $response = [
+                    'status'=>'success',
+                    'count'=> $count,
+                    'document_upload'=>$document_upload,
+                ];
+            }
+
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
+
+    public function allowDownloadUser(Request $request){
+
+        DB::beginTransaction();
+        try {
+            
+            $document_user_ids = json_decode($request->document_user_ids);
+            $document_upload = DocumentUpload::where('id',$request->id)->first();
+
+            if($document_user_ids && $document_upload){
+                $count = 0;
+                foreach($document_user_ids as $document_user_id){
+                    
+                    $document_upload_user = [
+                        'can_download'=>1,
+                    ];
+
+                    $check = DocumentUploadUser::where('id',$document_user_id)->first();
+                    if($check){
+                        $check->update($document_upload_user);
+                        $count++;
+                    }
+                }
+
+                DB::commit();
+
+                $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
+                    
+                return $response = [
+                    'status'=>'success',
+                    'count'=> $count,
+                    'document_upload'=>$document_upload,
+                ];
+            }
+
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
+
     public function saveDocumentUploadUserPrint(Request $request){
 
         DB::beginTransaction();
@@ -392,6 +561,39 @@ class DocumentUploadController extends Controller
             return $reponse = [
                 'status'=>'error'
             ];
+        }
+    }
+
+    public function documentUploadSignedCopy(Request $request){
+        
+        $document_upload = DocumentUpload::with('company_info')->where('id',$request->id)->first();
+
+        if($document_upload){
+
+            $pdf = new Fpdi();
+            $pageCount = $pdf->setSourceFile("storage/document_uploads/".$document_upload->attachment_signed_copy);
+            
+            for($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+
+                $pdf->AddPage('P','Legal');
+
+                $tplIdx = $pdf->importPage(1);
+                $pdf->useTemplate($tplIdx, 0, 0, 210);
+
+                $pageWidth = $pdf->GetPageWidth();
+                $pageHeight = $pdf->GetPageHeight();
+
+                // Assign Stamp
+                if($document_upload->assign_stamp == '1'){
+                    $pdf->Image('storage/stamps/'.$document_upload->company_info->stamp, 10,$pageHeight - 23,50,0,'PNG');
+                }
+
+            }
+            
+            
+
+            $pdf->Output('I', $document_upload->title . '.pdf');
+            exit();
         }
     }
 }

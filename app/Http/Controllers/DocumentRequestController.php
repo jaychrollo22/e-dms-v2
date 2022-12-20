@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\DocumentationRequest;
 use App\User;
+use App\DocumentUpload;
 
 use DB;
 use Storage;
@@ -21,12 +22,31 @@ class DocumentRequestController extends Controller
     {
         return view('pages.document_requests.index');
     }
+    public function userIndex()
+    {
+        return view('pages.document_requests.user_index');
+    }
 
     public function indexData(Request $request){
 
         $limit = $request->limit;
 
-        $document_requests = DocumentationRequest::with('requestor_info','company_info','department_info')->orderBy('created_at','DESC');
+        $document_requests = DocumentationRequest::with('document_upload_info','requestor_info','company_info','department_info')->orderBy('created_at','DESC');
+
+        if(isset($request->search)){
+            $document_requests->where('title', 'LIKE', '%' . $request->search . '%')
+                                ->orWhere('dicr_number', 'LIKE', '%' . $request->search . '%');
+        }
+
+        return $document_requests->paginate($limit);
+    }
+    public function userIndexData(Request $request){
+
+        $limit = $request->limit;
+
+        $document_requests = DocumentationRequest::with('document_upload_info','requestor_info','company_info','department_info')
+                                                    ->where('requestor',Auth::user()->id)
+                                                    ->orderBy('created_at','DESC');
 
         if(isset($request->search)){
             $document_requests->where('title', 'LIKE', '%' . $request->search . '%')
@@ -57,14 +77,25 @@ class DocumentRequestController extends Controller
 
         $user = User::with('department.department_info','company.company_info')->where('id',Auth::user()->id)->first();
 
-        $validate_request = [
-            'title' => 'required',
-            'proposed_effective_date' => 'required',
-            'type_of_request' => 'required',
-            'type_of_documented_information' => 'required',
-            'description_purpose_of_documentation' => 'required',
-            'attachment_file' => 'required|mimes:png,jpg,jpeg,csv,txt,xlx,xls,zip,pdf,docx'
-        ];
+        if($request->type_of_request == 'Discontinuance' || $request->type_of_request == 'Obsolete'){
+            $validate_request = [
+                'title' => 'required',
+                'proposed_effective_date' => 'required',
+                'type_of_request' => 'required',
+                'type_of_documented_information' => 'required',
+                'description_purpose_of_documentation' => 'required',
+            ];
+        }else{
+            $validate_request = [
+                'title' => 'required',
+                'proposed_effective_date' => 'required',
+                'type_of_request' => 'required',
+                'type_of_documented_information' => 'required',
+                'description_purpose_of_documentation' => 'required',
+                'attachment_file' => 'required|mimes:png,jpg,jpeg,csv,txt,xlx,xls,zip,pdf,docx'
+            ];
+        }
+        
 
         $this->validate($request, $validate_request);
 
@@ -87,8 +118,9 @@ class DocumentRequestController extends Controller
 
             if($document_request = DocumentationRequest::create($data)){
                 DB::commit();
+                $dicr_number = $user->company->company_info->company_code . '-' . date('Y'). '-'.str_pad($document_request->id, 3, '0', STR_PAD_LEFT);//DICR Number
                 DocumentationRequest::where('id',$document_request->id)->update([
-                    'dicr_number'=> date('Ymd') . '-' . str_pad($document_request->id, 4, '0', STR_PAD_LEFT) 
+                    'dicr_number'=> $dicr_number
                 ]);
                 return $status_data = [
                     'status'=>'success'
@@ -134,9 +166,51 @@ class DocumentRequestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateApproval(Request $request)
     {
-        //
+        $validate_request = [
+            'status_remarks' => 'required',
+        ];
+
+        $this->validate($request, $validate_request);
+
+        DB::beginTransaction();
+        try {
+            $document_request = DocumentationRequest::where('id',$request->id)->first();
+            if($document_request){
+                $data = $request->all();
+
+                if($document_request->type_of_request == 'Discontinuance'){
+                    if($request->status == 'Approved'){
+                        DocumentUpload::where('id',$document_request->document_upload_id)
+                                    ->update([
+                                        'is_discontinuance'=>1
+                                    ]);
+                    }
+                }
+                if($document_request->type_of_request == 'Obsolete'){
+                    if($request->status == 'Approved'){
+                        DocumentUpload::where('id',$document_request->document_upload_id)
+                                    ->update([
+                                        'is_obsolete'=>1
+                                    ]);
+                    }
+                }
+
+                $document_request->update($data);
+                DB::commit();
+                $document_request = DocumentationRequest::with('document_upload_info','requestor_info','company_info','department_info')->where('id',$document_request->id)->first();
+                return $response = [
+                    'status'=>'success',
+                    'document_request'=>$document_request,
+                ];
+            }
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+
     }
 
     /**

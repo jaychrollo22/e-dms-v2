@@ -24,14 +24,17 @@ Vue.component('table-pagination', require('./components/Common/TablePagination.v
 
 //Document Requests
 Vue.component('document-requests', require('./components/DocumentRequests/Index.vue').default);
+Vue.component('user-document-requests', require('./components/DocumentRequests/UserIndex.vue').default);
 Vue.component('document-request-create', require('./components/DocumentRequests/Create.vue').default);
 
 //Document Copy Requests
 Vue.component('document-copy-requests', require('./components/DocumentCopyRequests/Index.vue').default);
+Vue.component('user-document-copy-requests', require('./components/DocumentCopyRequests/UserIndex.vue').default);
 Vue.component('document-copy-request-create', require('./components/DocumentCopyRequests/Create.vue').default);
 
 //Document Uploads
 Vue.component('document-uploads', require('./components/DocumentUploads/Index.vue').default);
+Vue.component('user-document-uploads', require('./components/DocumentUploads/UserIndex.vue').default);
 
 //User Profile
 Vue.component('user-profile', require('./components/Users/UserProfile.vue').default);
@@ -39,6 +42,10 @@ Vue.component('user-profile', require('./components/Users/UserProfile.vue').defa
 //Access Requests
 Vue.component('access-requests', require('./components/AccessRequests/Index.vue').default);
 Vue.component('access-requests-create', require('./components/AccessRequests/Create.vue').default);
+
+//Home Dashboard
+Vue.component('dashboard', require('./components/Home/Dashboard.vue').default);
+Vue.component('user-dashboard', require('./components/Home/UserDashboard.vue').default);
 
 //Settings
 Vue.component('users', require('./components/Users/Index.vue').default);

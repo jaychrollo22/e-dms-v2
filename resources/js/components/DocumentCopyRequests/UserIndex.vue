@@ -215,7 +215,7 @@ export default {
     mixins: [listFormMixins],
     data() {
         return {
-            endpoint: '/document-copy-requests',
+            endpoint: '/user-document-copy-requests',
             document_requests: [],
             document_copy_request: "",
             disableFields: true,

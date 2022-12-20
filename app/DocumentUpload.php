@@ -24,12 +24,16 @@ class DocumentUpload extends Model implements Auditable
         return $this->belongsTo('App\DocumentCategory','document_category','id')->select('id','tag','category_description');
     }
     public function company_info(){
-        return $this->belongsTo('App\Company','company','id')->select('id','company_name');
+        return $this->belongsTo('App\Company','company','id')->select('id','company_name','stamp');
     }
     public function department_info(){
         return $this->belongsTo('App\Department','department','id')->select('id','department');
     }
     public function process_owner_info(){
         return $this->belongsTo('App\User','process_owner','id')->select('id','name');
+    }
+
+    public function document_copy_requests(){
+        return $this->hasMany('App\DocumentCopyRequest','document_upload_id','id');
     }
 }

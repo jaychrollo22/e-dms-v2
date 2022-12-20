@@ -1,5 +1,4 @@
 @extends('layouts.app_user')
-
 @section('content')
-<document-request-create></document-request-create>
+<user-dashboard></user-dashboard>
 @endsection

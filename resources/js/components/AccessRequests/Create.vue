@@ -13,6 +13,7 @@
                 <input v-model="access_request.name" type="text" name="name"
                     class="form-control form-control-lg border-left-0" id="name" placeholder="Name">
             </div>
+            <span class="text-danger" v-if="errors.name">{{ errors.name[0] }}</span>
         </div>
         <div class="form-group">
             <label for="name">Email</label>
@@ -25,6 +26,7 @@
                 <input v-model="access_request.email" type="text" name="email"
                     class="form-control form-control-lg border-left-0" id="email" placeholder="Email">
             </div>
+            <span class="text-danger" v-if="errors.email">{{ errors.email[0] }}</span>
         </div>
         <div class="form-group">
             <label for="name">Company</label>
@@ -42,6 +44,7 @@
                     </option>
                 </select>
             </div>
+            <span class="text-danger" v-if="errors.company">{{ errors.company[0] }}</span>
         </div>
         <div class="form-group">
             <label for="name">Department</label>
@@ -59,16 +62,21 @@
                     </option>
                 </select>
             </div>
+            <span class="text-danger" v-if="errors.department">{{ errors.department[0] }}</span>
         </div>
         <div class="form-group">
             <label for="name">Remarks</label>
             <textarea v-model="access_request.remarks" class="form-control" cols="30" rows="5"
                 placeholder="Please Indicate (Immediate Superior/Remarks)"></textarea>
         </div>
+        <span class="text-danger" v-if="errors.remarks">{{ errors.remarks[0] }}</span>
 
         <div class="my-3">
-            <button class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" @click="saveUserAccess"
+            <button class="btn btn-block btn-primary btn-md font-weight-medium auth-form-btn" @click="saveUserAccess"
                 :disabled="saveDisable">Save</button>
+            <a href='/login' class="btn btn-block btn-danger btn-md font-weight-medium auth-form-btn"
+                :disabled="saveDisable">Back to
+                Login</a>
         </div>
 
     </div>
@@ -136,7 +144,7 @@ export default {
                                 v.saveDisable = false;
                                 this.clearFields();
                             } else {
-                                Swal.fire('Error: Cannot saved. Please try again.', '', 'error');
+                                Swal.fire('Error: Cannot saved. Please try again.' + response.data.message, '', 'error');
                                 v.saveDisable = false;
                             }
                         })

@@ -347,7 +347,7 @@
                                         <div v-if="view_document.attachment_signed_copy">
                                             <iframe id="frame-signed-copy"
                                                 v-if="validateFileFormat(view_document.attachment_signed_copy)"
-                                                :src="('storage/document_uploads/' + view_document.attachment_signed_copy + '#toolbar=0&navpanes=0&scrollbar=0')"
+                                                :src="('document-uploads-view-signed-copy?id=' + view_document.id + '#toolbar=0&navpanes=0&scrollbar=0')"
                                                 frameborder="1" width="100%" height="600px"></iframe>
                                             <a v-else
                                                 :href="('storage/document_uploads/' + view_document.attachment_signed_copy)"
@@ -419,8 +419,47 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="">For Approval Status</label>
+                                <div class="form-group row">
+                                    <div class="col-sm-3">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input v-model="view_document.status" type="radio"
+                                                    class="form-check-input" id="Approved" value="Approved">
+                                                Approve
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input v-model="view_document.status" type="radio"
+                                                    class="form-check-input" id="Disapproved" value="Disapproved">
+                                                Disapprove
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="text-danger" v-if="errors.status">{{ errors.status[0] }}</span>
+                            </div>
+                            <div class="col-md-12"
+                                v-if="view_document.status == 'Approved' || view_document.status == 'Disapproved'">
+                                <label for="">Status Remarks</label>
+                                <div class="form-group">
+                                    <textarea v-model="view_document.status_remarks" cols="30" rows="5"
+                                        class="form-control" placeholder="Approval Remarks"></textarea>
+                                    <span class="text-danger"
+                                        v-if="errors.status_remarks">{{ errors.status_remarks[0] }}</span>
+                                </div>
+                            </div>
+                        </div>
 
+                        <button class="btn btn-sm btn-primary" @click="updateDocumentUpload"
+                            :disabled="saveDisable">{{ saveDisable ? 'Saving...' : 'Save Changes' }}</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -546,7 +585,7 @@
                                             </div>
                                         </div>
 
-                                        <button v-if="bulkCheckSelectedIds.length > 0" class="btn btn-success btn-md"
+                                        <button v-if="bulkCheckSelectedIds.length > 0" class="btn btn-success btn-sm"
                                             @click="saveAssignUser" :disabled="saveDisable">Save</button>
 
                                     </div>
@@ -564,7 +603,7 @@
                                                                     <input type="checkbox" class="form-check-input"
                                                                         true-value="1" false-value="0" id="remove-all"
                                                                         v-model="isRemoveAll" @change="removeAllUsers">
-                                                                    Remove All ({{ bulkRemoveSelectedIds.length }})
+                                                                    Select All ({{ bulkAssignSelectedIds.length }})
                                                                     <i class="input-helper"></i>
                                                                 </label>
                                                             </div>
@@ -586,7 +625,7 @@
                                                                     <input type="checkbox" title="Selected"
                                                                         :id="assigned_user.id + '-remove'"
                                                                         :value="assigned_user.id"
-                                                                        v-model="bulkRemoveSelectedIds"
+                                                                        v-model="bulkAssignSelectedIds"
                                                                         class="form-check-input">
                                                                     <i class="input-helper"></i>
                                                                 </label>
@@ -643,8 +682,15 @@
                                             </div>
                                         </div>
 
-                                        <button v-if="bulkRemoveSelectedIds.length > 0" class="btn btn-danger btn-md"
-                                            @click="saveRemoveAssignUser" :disabled="saveDisable">Remove</button>
+                                        <button v-if="bulkAssignSelectedIds.length > 0" class="btn btn-danger btn-sm"
+                                            @click="saveRemoveAssignUser" :disabled="saveDisable"><i
+                                                class="ti-trash"></i> Remove</button>
+                                        <button v-if="bulkAssignSelectedIds.length > 0" class="btn btn-success btn-sm"
+                                            @click="saveCanPrintUserAssignUser" :disabled="saveDisable"><i
+                                                class="ti-printer"></i> Allow Print</button>
+                                        <button v-if="bulkAssignSelectedIds.length > 0" class="btn btn-primary btn-sm"
+                                            @click="saveCanDownloadUserAssignUser" :disabled="saveDisable"><i
+                                                class="ti-cloud-down"></i> Allow Download</button>
 
                                     </div>
                                 </div>
@@ -732,7 +778,7 @@ export default {
             bulkCheckSelectedIds: [],
 
             isRemoveAll: 0,
-            bulkRemoveSelectedIds: [],
+            bulkAssignSelectedIds: [],
         }
     },
     created() {
@@ -743,6 +789,56 @@ export default {
         this.fetchUsers();
     },
     methods: {
+        updateDocumentUpload() {
+            let v = this;
+            v.saveDisable = true;
+            Swal.fire({
+                text: "Are you sure you want to save this document request?",
+                icon: "question",
+                showCancelButton: true,
+                buttonsStyling: false,
+                confirmButtonText: "Yes, Save",
+                cancelButtonText: "No, cancel",
+                customClass: {
+                    confirmButton: "btn font-weight-bold btn-primary",
+                    cancelButton: "btn font-weight-bold btn-default"
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let formData = new FormData();
+                    formData.append('id', v.view_document.id ? v.view_document.id : "");
+                    formData.append('status', v.view_document.status ? v.view_document.status : "");
+                    formData.append('status_remarks', v.view_document.status_remarks ? v.view_document.status_remarks : "");
+                    axios.post(`/document-uploads/update-approval`, formData)
+                        .then(response => {
+                            if (response.data.status == "success") {
+                                Swal.fire('Document request has been updated!', '', 'success');
+                                v.saveDisable = false;
+                                var index = this.items.findIndex(item => item.id == v.view_document.id);
+                                this.items.splice(index, 1, response.data.document_upload);
+                                $('#request-view-modal').modal('hide');
+                            } else {
+                                Swal.fire('Error: Cannot saved. Please try again.', '', 'error');
+                                v.saveDisable = false;
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                text: 'Sorry, looks like there are some errors detected, please try again..',
+                                icon: "error",
+                                confirmButtonText: "Ok, got it!"
+                            }).then(okay => {
+                                v.saveDisable = false;
+                                v.errors = error.response.data.errors;
+                            });
+
+                        })
+
+                } else {
+                    v.saveDisable = false;
+                }
+            })
+        },
         canDownload(document_user) {
             let v = this;
             if (document_user) {
@@ -793,6 +889,9 @@ export default {
                 return 'badge badge-primary';
             } else if (status == 'Approved') {
                 return 'badge badge-success';
+            }
+            else if (status == 'Disapproved') {
+                return 'badge badge-danger';
             }
         },
         showCheckUser(item) {
@@ -889,7 +988,7 @@ export default {
                     let formData = new FormData();
                     var postURL = `/document-uploads/remove-user`;
                     formData.append('id', v.view_document.id ? v.view_document.id : "");
-                    formData.append('document_user_ids', v.bulkRemoveSelectedIds.length > 0 ? JSON.stringify(v.bulkRemoveSelectedIds) : "");
+                    formData.append('document_user_ids', v.bulkAssignSelectedIds.length > 0 ? JSON.stringify(v.bulkAssignSelectedIds) : "");
 
                     axios.post(postURL, formData)
                         .then(response => {
@@ -899,12 +998,120 @@ export default {
                                 this.view_document = response.data.document_upload;
                                 this.filterUser();
 
-                                v.bulkRemoveSelectedIds.forEach(function (item) {
+                                v.bulkAssignSelectedIds.forEach(function (item) {
                                     var index = v.documentUploadUsers.findIndex(item2 => item2.id == item);
                                     v.documentUploadUsers.splice(index, 1);
                                 });
 
-                                v.bulkRemoveSelectedIds = [];
+                                v.bulkAssignSelectedIds = [];
+                                v.isRemoveAll = 0;
+                            } else {
+                                Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
+                                v.saveDisable = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            Swal.fire({
+                                text: 'Sorry, looks like there are some errors detected, please try again..',
+                                icon: "error",
+                                confirmButtonText: "Ok, got it!"
+                            }).then(okay => {
+                                v.saveDisable = false;
+                                v.errors = error.response.data.errors;
+                            });
+
+                        })
+                } else {
+                    v.saveDisable = false;
+                }
+            })
+        },
+        saveCanPrintUserAssignUser() {
+            let v = this;
+            v.saveDisable = true;
+            Swal.fire({
+                text: "Are you sure you want to allow print for this document users?",
+                icon: "question",
+                showCancelButton: true,
+                buttonsStyling: false,
+                confirmButtonText: "Yes, Allow",
+                cancelButtonText: "No, cancel",
+                customClass: {
+                    confirmButton: "btn font-weight-bold btn-primary",
+                    cancelButton: "btn font-weight-bold btn-default"
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let formData = new FormData();
+                    var postURL = `/document-uploads/allow-print-user`;
+                    formData.append('id', v.view_document.id ? v.view_document.id : "");
+                    formData.append('document_user_ids', v.bulkAssignSelectedIds.length > 0 ? JSON.stringify(v.bulkAssignSelectedIds) : "");
+
+                    axios.post(postURL, formData)
+                        .then(response => {
+                            if (response.data.status == "success") {
+                                Swal.fire('Users (' + response.data.count + ') has been removed! ', '', 'success');
+                                v.saveDisable = false;
+                                this.view_document = response.data.document_upload;
+                                this.filterUser();
+                                this.getAssignedUsers();
+
+                                v.bulkAssignSelectedIds = [];
+                                v.isRemoveAll = 0;
+                            } else {
+                                Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
+                                v.saveDisable = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            Swal.fire({
+                                text: 'Sorry, looks like there are some errors detected, please try again..',
+                                icon: "error",
+                                confirmButtonText: "Ok, got it!"
+                            }).then(okay => {
+                                v.saveDisable = false;
+                                v.errors = error.response.data.errors;
+                            });
+
+                        })
+                } else {
+                    v.saveDisable = false;
+                }
+            })
+        },
+        saveCanDownloadUserAssignUser() {
+            let v = this;
+            v.saveDisable = true;
+            Swal.fire({
+                text: "Are you sure you want to allow download for this document users?",
+                icon: "question",
+                showCancelButton: true,
+                buttonsStyling: false,
+                confirmButtonText: "Yes, Allow",
+                cancelButtonText: "No, cancel",
+                customClass: {
+                    confirmButton: "btn font-weight-bold btn-primary",
+                    cancelButton: "btn font-weight-bold btn-default"
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let formData = new FormData();
+                    var postURL = `/document-uploads/allow-download-user`;
+                    formData.append('id', v.view_document.id ? v.view_document.id : "");
+                    formData.append('document_user_ids', v.bulkAssignSelectedIds.length > 0 ? JSON.stringify(v.bulkAssignSelectedIds) : "");
+
+                    axios.post(postURL, formData)
+                        .then(response => {
+                            if (response.data.status == "success") {
+                                Swal.fire('Users (' + response.data.count + ') has been removed! ', '', 'success');
+                                v.saveDisable = false;
+                                this.view_document = response.data.document_upload;
+                                this.filterUser();
+                                this.getAssignedUsers();
+
+                                v.bulkAssignSelectedIds = [];
                                 v.isRemoveAll = 0;
                             } else {
                                 Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
@@ -944,12 +1151,12 @@ export default {
         removeAllUsers() {
             let v = this;
             if (v.isRemoveAll == '1') {
-                v.bulkRemoveSelectedIds = [];
+                v.bulkAssignSelectedIds = [];
                 v.documentUploadUsers.forEach(function (item) {
-                    v.bulkRemoveSelectedIds.push(item.id);
+                    v.bulkAssignSelectedIds.push(item.id);
                 });
             } else if (v.isRemoveAll == '0') {
-                v.bulkRemoveSelectedIds = [];
+                v.bulkAssignSelectedIds = [];
             }
         },
         filterUser() {
@@ -1172,6 +1379,8 @@ export default {
                             });
 
                         })
+                } else {
+                    v.saveDisable = false;
                 }
             })
         },

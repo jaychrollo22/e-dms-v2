@@ -1,5 +1,5 @@
 @extends('layouts.app_user')
 
 @section('content')
-<document-copy-request-create></document-copy-request-create>
+<user-document-uploads></user-document-uploads>
 @endsection

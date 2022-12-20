@@ -28,6 +28,9 @@ Route::get('/departments-options', 'DepartmentController@departments');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home-user', 'HomeController@userIndex')->name('home-user');
+Route::get('/dashboard-data', 'HomeController@dashboardData');
+Route::get('/user-dashboard-data', 'HomeController@userDashboardData');
 
 //Document Requests
 Route::get('/document-requests', 'DocumentRequestController@index')->name('document-requests');
@@ -35,7 +38,12 @@ Route::group(['prefix' => 'document-requests'], function () {
     Route::get('/all', 'DocumentRequestController@indexData');
     Route::get('/create', 'DocumentRequestController@create');
     Route::post('/store', 'DocumentRequestController@store');
-    Route::post('/update', 'DocumentRequestController@update');
+    Route::post('/update-approval', 'DocumentRequestController@updateApproval');
+});
+
+Route::get('/user-document-requests', 'DocumentRequestController@userIndex')->name('user-document-requests');
+Route::group(['prefix' => 'user-document-requests'], function () {
+    Route::get('/all', 'DocumentRequestController@userIndexData');
 });
 
 //Document Copy Requests
@@ -47,9 +55,16 @@ Route::group(['prefix' => 'document-copy-requests'], function () {
     Route::post('/update', 'DocumentCopyRequestController@update');
 });
 
+Route::get('/user-document-copy-requests', 'DocumentCopyRequestController@userIndex')->name('user-document-copy-requests');
+Route::group(['prefix' => 'user-document-copy-requests'], function () {
+    Route::get('/all', 'DocumentCopyRequestController@userIndexData');
+});
+
 //Document Uploads
 Route::get('/document-uploads', 'DocumentUploadController@index')->name('document-uploads');
 Route::get('/document-uploads-request-copy-options', 'DocumentUploadController@documentUploadRequestCopyOptions');
+Route::get('/document-uploads-request-options', 'DocumentUploadController@documentUploadRequestOptions');
+Route::get('/document-uploads-view-signed-copy', 'DocumentUploadController@documentUploadSignedCopy');
 Route::group(['prefix' => 'document-uploads'], function () {
     Route::get('/all', 'DocumentUploadController@indexData');
     Route::post('/store', 'DocumentUploadController@store');
@@ -57,12 +72,19 @@ Route::group(['prefix' => 'document-uploads'], function () {
     Route::get('/get-users', 'DocumentUploadController@getUsers');
     Route::post('/store-user', 'DocumentUploadController@storeUser');
     Route::post('/remove-user', 'DocumentUploadController@removeUser');
+    Route::post('/allow-print-user', 'DocumentUploadController@allowPrintUser');
+    Route::post('/allow-download-user', 'DocumentUploadController@allowDownloadUser');
     Route::post('/delete-user', 'DocumentUploadController@deleteUser');
     Route::post('/update', 'DocumentUploadController@update');
+    Route::post('/update-approval', 'DocumentUploadController@updateApproval');
     Route::post('/save-document-upload-user-print', 'DocumentUploadController@saveDocumentUploadUserPrint');
     Route::post('/save-document-upload-user-download', 'DocumentUploadController@saveDocumentUploadUserDownload');
 });
 
+Route::get('/user-document-uploads', 'DocumentUploadController@userIndex')->name('user-document-uploads');
+Route::group(['prefix' => 'user-document-uploads'], function () {   
+    Route::get('/all', 'DocumentUploadController@userIndexData');
+});
 //Access Requests
 Route::get('/access-requests', 'AccessRequestController@index')->name('access-requests');
 Route::group(['prefix' => 'access-requests'], function () {

@@ -84,7 +84,7 @@
                                             <td class="text-center">
                                                 <button type="button" class="btn btn-inverse-info btn-rounded btn-icon"
                                                     title="View Request" @click="viewRequest(request)">
-                                                    <i class="ti-eye"></i>
+                                                    <i class="ti-pencil"></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -256,51 +256,9 @@
                                             <i class="ti-download btn-icon-append"></i>
                                         </a>
                                     </div>
-
                                 </div>
-                                <hr class="mt-3">
-                                <div class="row">
-                                    <div class="col-md-6 ">
-                                        <label for="">For Approval Status</label>
-                                        <div class="form-group row">
-                                            <div class="col-sm-3">
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input v-model="document_request.status" type="radio"
-                                                            class="form-check-input" id="Approved" value="Approved">
-                                                        Approve
-                                                        <i class="input-helper"></i></label>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-3">
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input v-model="document_request.status" type="radio"
-                                                            class="form-check-input" id="Disapproved"
-                                                            value="Disapproved">
-                                                        Disapprove
-                                                        <i class="input-helper"></i></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <span class="text-danger" v-if="errors.status">{{ errors.status[0] }}</span>
-                                    </div>
-                                    <div class="col-md-12"
-                                        v-if="document_request.status == 'Approved' || document_request.status == 'Disapproved'">
-                                        <label for="">Status Remarks</label>
-                                        <div class="form-group">
-                                            <textarea v-model="document_request.status_remarks" cols="30" rows="5"
-                                                class="form-control" placeholder="Approval Remarks"></textarea>
-                                            <span class="text-danger"
-                                                v-if="errors.status_remarks">{{ errors.status_remarks[0] }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-primary" @click="updateDocumentRequest"
-                            :disabled="saveDisable">{{ saveDisable ? 'Saving...' : 'Save Changes' }}</button>
                     </div>
 
                 </div>
@@ -317,7 +275,7 @@ export default {
     mixins: [listFormMixins],
     data() {
         return {
-            endpoint: '/document-requests',
+            endpoint: '/user-document-requests',
             document_requests: [],
             errors: [],
             document_request: '',
@@ -350,7 +308,7 @@ export default {
                     formData.append('id', v.document_request.id ? v.document_request.id : "");
                     formData.append('status', v.document_request.status ? v.document_request.status : "");
                     formData.append('status_remarks', v.document_request.status_remarks ? v.document_request.status_remarks : "");
-                    axios.post(`/document-requests/update-approval`, formData)
+                    axios.post(`/user-document-requests/update`, formData)
                         .then(response => {
                             if (response.data.status == "success") {
                                 Swal.fire('Document request has been updated!', '', 'success');

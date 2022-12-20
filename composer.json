@@ -16,7 +16,9 @@
         "laravel/framework": "^7.29",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^2.4",
-        "owen-it/laravel-auditing": "^13.0"
+        "owen-it/laravel-auditing": "^13.0",
+        "setasign/fpdf": "^1.8",
+        "setasign/fpdi": "^2.3"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
@@ -42,6 +44,9 @@
         "classmap": [
             "database/seeds",
             "database/factories"
+        ],
+        "files": [
+            "app/Helpers/HelperFunctions.php"
         ]
     },
     "autoload-dev": {

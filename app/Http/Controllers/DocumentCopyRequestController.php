@@ -22,12 +22,39 @@ class DocumentCopyRequestController extends Controller
     {
         return view('pages.document_copy_requests.index');
     }
+    public function userIndex()
+    {
+        return view('pages.document_copy_requests.user_index');
+    }
 
     public function indexData(Request $request){
 
         $limit = $request->limit;
 
         $document_copy_requests = DocumentCopyRequest::with('document_upload_info','requestor_info','company_info','department_info')->orderBy('created_at','DESC');
+
+        if(isset($request->search) && $request->search){
+            $document_copy_requests->whereHas('requestor_info',function($q) use($request){
+                $q->where('name', 'LIKE', '%' . $request->search . '%');
+            });
+        }
+        if(isset($request->company)){
+            $document_copy_requests->where('company', $request->company);
+        }
+        if(isset($request->department)){
+            $document_copy_requests->where('department', $request->department);
+        }
+
+        return $document_copy_requests->paginate($limit);
+    }
+
+    public function UserIndexData(Request $request){
+
+        $limit = $request->limit;
+
+        $document_copy_requests = DocumentCopyRequest::with('document_upload_info','requestor_info','company_info','department_info')
+                                                        ->where('requestor',Auth::user()->id)
+                                                        ->orderBy('created_at','DESC');
 
         if(isset($request->search) && $request->search){
             $document_copy_requests->whereHas('requestor_info',function($q) use($request){

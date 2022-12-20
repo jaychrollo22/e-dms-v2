@@ -48,6 +48,7 @@
                                         Keep me signed in
                                     </label>
                                 </div>
+                                <a href="access-requests/create" class="auth-link text-black">Request Access</a>
                                 <a href="{{ route('password.request') }}" class="auth-link text-black">Forgot password?</a>
                             </div>
                             <div class="my-3">
@@ -57,7 +58,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6 login-half-bg d-flex flex-row">
-                    <p class="text-white font-weight-medium text-center flex-grow align-self-end">Copyright &copy; 2022 All rights reserved.</p>
+                    <p class="text-default font-weight-medium text-center flex-grow align-self-end">Copyright &copy; 2022 All rights reserved. Designed and Developed by Obanana Digital Solutions</p>
                 </div>
             </div>
         </div>

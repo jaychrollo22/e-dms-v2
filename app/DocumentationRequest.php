@@ -20,4 +20,9 @@ class DocumentationRequest extends Model implements Auditable
     public function department_info(){
         return $this->belongsTo('App\Department','department','id')->select('id','department');
     }
+
+    public function document_upload_info(){
+        return $this->belongsTo('App\DocumentUpload','document_upload_id','id')->select('id','control_code','title');
+    }
+    
 }

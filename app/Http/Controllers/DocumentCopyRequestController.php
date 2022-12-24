@@ -140,9 +140,34 @@ class DocumentCopyRequestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function update(Request $request)
     {
-        //
+        $validate_request = [
+            'document_upload_id' => 'required',
+            'remarks' => 'required',
+            'file_copy_type' => 'required'
+        ];
+
+        $this->validate($request, $validate_request);
+
+        DB::beginTransaction();
+        try {
+            $document_copy_request = DocumentCopyRequest::where('id',$request->id)->first();
+            if($document_copy_request){
+                $data = $request->all();
+                $document_copy_request->update($data);
+                DB::commit();
+                $document_copy_request = DocumentCopyRequest::with('document_upload_info','requestor_info','company_info','department_info')->where('id',$document_copy_request->id)->first();
+                return $response = [
+                    'status'=>'success',
+                    'document_copy_request'=>$document_copy_request,
+                ];
+            }
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
     }
 
     /**
@@ -152,7 +177,7 @@ class DocumentCopyRequestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function updateApproval(Request $request)
     {
         if($request->status == 'Approved'){
             $validate_request = [

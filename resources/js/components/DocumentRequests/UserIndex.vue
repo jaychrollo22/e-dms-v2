@@ -238,20 +238,35 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12">
-                                    <div class="form-group"
-                                        v-if="document_request.type_of_request == 'Revision' || document_request.type_of_request == 'Discontinuance' || document_request.type_of_request == 'Obsolete'">
-                                        <label for="">Selected Document</label>
-                                        <input type="text"
-                                            :value="document_request.document_upload_info.control_code + ' | ' + document_request.document_upload_info.title"
-                                            class="form-control" :disabled="disableDocumentRequest">
+                                    <div class="form-group" v-if="disableDocumentRequest">
+                                        <input v-if="document_request.document_upload_info" type="text"
+                                            class="form-control" disabled
+                                            v-model="document_request.document_upload_info.title">
                                     </div>
+                                    <div v-else-if="document_request.type_of_request == 'Revision' || document_request.type_of_request == 'Discontinuance' || document_request.type_of_request == 'Obsolete'"
+                                        class="form-group">
+                                        <label for="">Select Document</label>
+                                        <multiselect v-model="document_request.document_upload_id"
+                                            :options="document_uploads" placeholder="Select Document" label="title"
+                                            track-by="id">
+                                        </multiselect>
+                                        <span class="text-danger"
+                                            v-if="errors.attachment_file">{{ errors.attachment_file[0] }}</span>
+                                    </div>
+
+                                    <div class="form-group"
+                                        v-if="document_request.type_of_request == 'New' || document_request.type_of_request == 'Revision'">
+                                        <label for="">Attachment - Draft</label>
+                                        <input @change="uploadAttachment" name="attachment_file" type="file"
+                                            accept="application/*" id="attachment_file" class="form-control"
+                                            :disabled="disableDocumentRequest">
+                                        <span class="text-danger"
+                                            v-if="errors.attachment_file">{{ errors.attachment_file[0] }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
                                     <div v-if="document_request.attachment_file">
-                                        <iframe id="frame-raw-file"
-                                            v-if="validateFileFormat(document_request.attachment_file)"
-                                            :src="('storage/document_requests/' + document_request.attachment_file)"
-                                            frameborder="1" width="100%" height="700px"></iframe>
-                                        <a v-else
-                                            :href="('storage/document_requests/' + document_request.attachment_file)"
+                                        <a :href="('storage/document_requests/' + document_request.attachment_file)"
                                             class="btn btn-outline-info btn-icon-text">View Attachment
                                             <i class="ti-download btn-icon-append"></i>
                                         </a>
@@ -260,18 +275,28 @@
                             </div>
                         </div>
                     </div>
-
+                    <div class="modal-footer">
+                        <button v-if="disableDocumentRequest" disabled class="btn btn-primary btn-md">Save</button>
+                        <button v-else @click="updateDocumentRequest" :disabled="saveDisable"
+                            class="btn btn-primary btn-md">{{ saveDisable ? 'Saving...' : 'Save' }}</button>
+                    </div>
                 </div>
             </div>
         </div>
 
     </div>
 </template>
+<style src="vue-multiselect/dist/vue-multiselect.min.css">
 
+</style>
 <script>
 import listFormMixins from '../../list-form-mixins.vue';
+import Multiselect from 'vue-multiselect'
 import Swal from 'sweetalert2'
 export default {
+    components: {
+        Multiselect
+    },
     mixins: [listFormMixins],
     data() {
         return {
@@ -282,12 +307,34 @@ export default {
             disableDocumentRequest: true,
             document_attachment: '',
             saveDisable: false,
+
+            attachment_file: '',
+
+            document_uploads: []
         }
     },
     created() {
         this.fetchList();
+        this.getDocumentUploads();
     },
     methods: {
+        getDocumentUploads() {
+            let v = this;
+            v.document_uploads = [];
+            axios.get('/document-uploads-request-options')
+                .then(response => {
+                    v.document_uploads = response.data;
+                })
+                .catch(error => {
+                    v.errors = error.response.data.error;
+                })
+        },
+        uploadAttachment(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            this.attachment_file = files[0];
+        },
         updateDocumentRequest() {
             let v = this;
             v.saveDisable = true;
@@ -306,8 +353,19 @@ export default {
                 if (result.isConfirmed) {
                     let formData = new FormData();
                     formData.append('id', v.document_request.id ? v.document_request.id : "");
-                    formData.append('status', v.document_request.status ? v.document_request.status : "");
-                    formData.append('status_remarks', v.document_request.status_remarks ? v.document_request.status_remarks : "");
+
+                    formData.append('title', v.document_request.title ? v.document_request.title : "");
+                    formData.append('proposed_effective_date', v.document_request.proposed_effective_date ? v.document_request.proposed_effective_date : "");
+                    formData.append('type_of_request', v.document_request.type_of_request ? v.document_request.type_of_request : "");
+                    formData.append('type_of_documented_information', v.document_request.type_of_documented_information ? v.document_request.type_of_documented_information : "");
+                    formData.append('type_of_documented_information_others', v.document_request.type_of_documented_information_others ? v.document_request.type_of_documented_information_others : "");
+                    formData.append('description_purpose_of_documentation', v.document_request.description_purpose_of_documentation ? v.document_request.description_purpose_of_documentation : "");
+                    formData.append('document_upload_id', v.document_request.document_upload_id ? v.document_request.document_upload_id.id : "");
+
+                    if (v.attachment_file) {
+                        formData.append('attachment_file', v.attachment_file ? v.attachment_file : "");
+                    }
+
                     axios.post(`/user-document-requests/update`, formData)
                         .then(response => {
                             if (response.data.status == "success") {
@@ -366,7 +424,16 @@ export default {
             }
         },
         viewRequest(request) {
+            if (request.status == 'Approved') {
+                this.disableDocumentRequest = true;
+            } else {
+                this.disableDocumentRequest = false;
+            }
             this.document_request = Object.assign({}, request);
+            if (request.document_upload_info) {
+                this.document_request.document_upload_id = request.document_upload_info;
+            }
+
             $('#request-view-modal').modal('show');
         }
     },

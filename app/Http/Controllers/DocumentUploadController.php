@@ -66,10 +66,15 @@ class DocumentUploadController extends Controller
                                                 'document_upload_info.revisions',
                                                 'user_info'
                                                 )
-                                                ->where('user_id',Auth::user()->id)
                                                 ->where('status','1')
                                                 ->orderBy('created_at','DESC');
-
+    
+        $document_uploads->where('user_id',Auth::user()->id);
+        $document_uploads->where('status','1');
+        $document_uploads->whereHas('document_upload_info',function($q){
+                                        $q->where('is_discussed','1');
+                                    });
+        
         if(isset($request->search)){
             $document_uploads->whereHas('document_upload_info',function($q) use($request){
                 return $q->where('title', 'LIKE', '%' . $request->search . '%')->orWhere('control_code', 'LIKE', '%' . $request->search . '%');
@@ -316,6 +321,42 @@ class DocumentUploadController extends Controller
                 return $status_data = [
                     'status'=>'success',
                     'document_upload'=>$document_upload,
+                ];
+            }else{
+                return $data = [
+                    'status'=>'error'
+                ];
+            }
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
+
+    public function userAcknowledgeDocument(Request $request){
+        DB::beginTransaction();
+        try {
+            $data = $request->all();
+            $document_upload_user = DocumentUploadUser::with(
+                                'document_upload_info.company_info',
+                                'document_upload_info.department_info',
+                                'document_upload_info.document_category_info.tag_info',
+                                'document_upload_info.process_owner_info',
+                                'document_upload_info.revisions',
+                                'user_info'
+                                )
+                                ->where('id',$data['id'])
+                                ->first();
+
+            if($document_upload_user){
+                unset($data['id']);
+                $document_upload_user->update($data);
+                DB::commit();
+               
+                return $status_data = [
+                    'status'=>'success',
+                    'document_upload_user'=>$document_upload_user,
                 ];
             }else{
                 return $data = [
@@ -584,7 +625,7 @@ class DocumentUploadController extends Controller
                 $pageHeight = $pdf->GetPageHeight();
 
                 // Assign Stamp
-                if($document_upload->assign_stamp == '1'){
+                if($document_upload->assign_stamp == '1' && $document_upload->company_info->stamp){
                     $pdf->Image('storage/stamps/'.$document_upload->company_info->stamp, 10,$pageHeight - 23,50,0,'PNG');
                 }
 
@@ -593,6 +634,39 @@ class DocumentUploadController extends Controller
             
 
             $pdf->Output('I', $document_upload->title . '.pdf');
+            exit();
+        }
+    }
+
+    public function downloadDocumentUploadSignedCopy(Request $request){
+        
+        $document_upload = DocumentUpload::with('company_info')->where('id',$request->id)->first();
+
+        if($document_upload){
+
+            $pdf = new Fpdi();
+            $pageCount = $pdf->setSourceFile("storage/document_uploads/".$document_upload->attachment_signed_copy);
+            
+            for($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+
+                $pdf->AddPage('P','Legal');
+
+                $tplIdx = $pdf->importPage(1);
+                $pdf->useTemplate($tplIdx, 0, 0, 210);
+
+                $pageWidth = $pdf->GetPageWidth();
+                $pageHeight = $pdf->GetPageHeight();
+
+                // Assign Stamp
+                if($document_upload->assign_stamp == '1' && $document_upload->company_info->stamp){
+                    $pdf->Image('storage/stamps/'.$document_upload->company_info->stamp, 10,$pageHeight - 23,50,0,'PNG');
+                }
+
+            }
+            
+            
+
+            $pdf->Output('D', $document_upload->title . '.pdf');
             exit();
         }
     }

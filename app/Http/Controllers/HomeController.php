@@ -30,6 +30,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+       
         if(roleValidation()){
             return view('pages.home.dashboard');
         }else{

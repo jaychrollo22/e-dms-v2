@@ -44,6 +44,7 @@ Route::group(['prefix' => 'document-requests'], function () {
 Route::get('/user-document-requests', 'DocumentRequestController@userIndex')->name('user-document-requests');
 Route::group(['prefix' => 'user-document-requests'], function () {
     Route::get('/all', 'DocumentRequestController@userIndexData');
+    Route::post('/update', 'DocumentRequestController@update');
 });
 
 //Document Copy Requests
@@ -52,12 +53,13 @@ Route::group(['prefix' => 'document-copy-requests'], function () {
     Route::get('/all', 'DocumentCopyRequestController@indexData');
     Route::get('/create', 'DocumentCopyRequestController@create');
     Route::post('/store', 'DocumentCopyRequestController@store');
-    Route::post('/update', 'DocumentCopyRequestController@update');
+    Route::post('/update-approval', 'DocumentCopyRequestController@updateApproval');
 });
 
 Route::get('/user-document-copy-requests', 'DocumentCopyRequestController@userIndex')->name('user-document-copy-requests');
 Route::group(['prefix' => 'user-document-copy-requests'], function () {
     Route::get('/all', 'DocumentCopyRequestController@userIndexData');
+    Route::post('/update', 'DocumentCopyRequestController@update');
 });
 
 //Document Uploads
@@ -65,6 +67,7 @@ Route::get('/document-uploads', 'DocumentUploadController@index')->name('documen
 Route::get('/document-uploads-request-copy-options', 'DocumentUploadController@documentUploadRequestCopyOptions');
 Route::get('/document-uploads-request-options', 'DocumentUploadController@documentUploadRequestOptions');
 Route::get('/document-uploads-view-signed-copy', 'DocumentUploadController@documentUploadSignedCopy');
+Route::get('/document-uploads-download-signed-copy', 'DocumentUploadController@downloadDocumentUploadSignedCopy');
 Route::group(['prefix' => 'document-uploads'], function () {
     Route::get('/all', 'DocumentUploadController@indexData');
     Route::post('/store', 'DocumentUploadController@store');
@@ -84,7 +87,9 @@ Route::group(['prefix' => 'document-uploads'], function () {
 Route::get('/user-document-uploads', 'DocumentUploadController@userIndex')->name('user-document-uploads');
 Route::group(['prefix' => 'user-document-uploads'], function () {   
     Route::get('/all', 'DocumentUploadController@userIndexData');
+    Route::post('/acknowledge-document', 'DocumentUploadController@userAcknowledgeDocument');
 });
+
 //Access Requests
 Route::get('/access-requests', 'AccessRequestController@index')->name('access-requests');
 Route::group(['prefix' => 'access-requests'], function () {

@@ -69,7 +69,7 @@
                                             <td class="text-center">
                                                 <button type="button" class="btn btn-inverse-info btn-rounded btn-icon"
                                                     title="View Request" @click="viewCopyRequest(request)">
-                                                    <i class="ti-eye"></i>
+                                                    <i class="ti-pencil"></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -95,17 +95,17 @@
                     <div class="modal-body" v-if="document_copy_request">
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="">Control Code</label>
-                                    <input :value="document_copy_request.document_upload_info.control_code" type="text"
-                                        class="form-control" :disabled="disableFields">
+                                <label for="">Selected Document</label>
+                                <div class="form-group" v-if="disableFields">
+                                    <input v-if="document_copy_request.document_upload_info" type="text"
+                                        class="form-control" disabled
+                                        v-model="document_copy_request.document_upload_info.title">
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="">Document Title</label>
-                                    <input :value="document_copy_request.document_upload_info.title" type="text"
-                                        class="form-control" :disabled="disableFields">
+                                <div v-else class="form-group">
+                                    <multiselect v-model="document_copy_request.document_upload_id"
+                                        :options="document_uploads" placeholder="Select Document" label="title"
+                                        track-by="id">
+                                    </multiselect>
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -143,54 +143,8 @@
                             </div>
                         </div>
                         <hr>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="">For Approval Status</label>
-                                <div class="form-group row">
-                                    <div class="col-sm-3">
-                                        <div class="form-check">
-                                            <label class="form-check-label">
-                                                <input v-model="document_copy_request.status" type="radio"
-                                                    class="form-check-input" id="Approved" value="Approved">
-                                                Approve
-                                                <i class="input-helper"></i></label>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-3">
-                                        <div class="form-check">
-                                            <label class="form-check-label">
-                                                <input v-model="document_copy_request.status" type="radio"
-                                                    class="form-check-input" id="Disapproved" value="Disapproved">
-                                                Disapprove
-                                                <i class="input-helper"></i></label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <span class="text-danger" v-if="errors.status">{{ errors.status[0] }}</span>
-                            </div>
-                            <div class="col-md-6" v-if="document_copy_request.status == 'Approved'">
-                                <label for="">Expiration Date</label>
-                                <div class="form-group">
-                                    <input v-model="document_copy_request.expiration_date" type="date"
-                                        class="form-control">
-                                    <span class="text-danger"
-                                        v-if="errors.expiration_date">{{ errors.expiration_date[0] }}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-12"
-                                v-if="document_copy_request.status == 'Approved' || document_copy_request.status == 'Disapproved'">
-                                <label for="">Status Remarks</label>
-                                <div class="form-group">
-                                    <textarea v-model="document_copy_request.status_remarks" cols="30" rows="5"
-                                        class="form-control" placeholder="Approval Remarks"></textarea>
-                                    <span class="text-danger"
-                                        v-if="errors.status_remarks">{{ errors.status_remarks[0] }}</span>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <button class="btn btn-sm btn-primary" @click="updateDocumentCopyRequest"
+                        <button v-if="disableFields" disabled class="btn btn-primary btn-md">Save</button>
+                        <button v-else class="btn btn-md btn-primary" @click="updateDocumentCopyRequest"
                             :disabled="saveDisable">{{ saveDisable ? 'Saving...' : 'Save Changes' }}</button>
 
                     </div>
@@ -220,13 +174,26 @@ export default {
             document_copy_request: "",
             disableFields: true,
             errors: [],
-            saveDisable: false
+            saveDisable: false,
+            document_uploads: []
         }
     },
     created() {
         this.fetchList();
+        this.getDocumentUploads();
     },
     methods: {
+        getDocumentUploads() {
+            let v = this;
+            v.document_uploads = [];
+            axios.get('/document-uploads-request-copy-options')
+                .then(response => {
+                    v.document_uploads = response.data;
+                })
+                .catch(error => {
+                    v.errors = error.response.data.error;
+                })
+        },
         getStatusStyle(status) {
             if (status == 'New') {
                 return 'badge badge-primary';
@@ -237,7 +204,15 @@ export default {
             }
         },
         viewCopyRequest(request) {
+            if (request.status == 'New') {
+                this.disableFields = false;
+            } else {
+                this.disableFields = true;
+            }
             this.document_copy_request = Object.assign({}, request);
+            if (request.document_upload_info) {
+                this.document_copy_request.document_upload_id = request.document_upload_info;
+            }
             $('#copy-request-view-modal').modal('show');
         },
         updateDocumentCopyRequest() {
@@ -258,15 +233,12 @@ export default {
                 if (result.isConfirmed) {
                     let formData = new FormData();
                     formData.append('id', v.document_copy_request.id ? v.document_copy_request.id : "");
-                    formData.append('status', v.document_copy_request.status ? v.document_copy_request.status : "");
-                    formData.append('status_remarks', v.document_copy_request.status_remarks ? v.document_copy_request.status_remarks : "");
-                    if (v.document_copy_request.status == 'Approved') {
-                        formData.append('expiration_date', v.document_copy_request.expiration_date ? v.document_copy_request.expiration_date : "");
-                        formData.append('is_expired', '0');
-                    } else {
-                        formData.append('expiration_date', "");
-                    }
-                    axios.post(`/document-copy-requests/update`, formData)
+
+                    formData.append('remarks', v.document_copy_request.remarks ? v.document_copy_request.remarks : "");
+                    formData.append('document_upload_id', v.document_copy_request.document_upload_id ? v.document_copy_request.document_upload_id.id : "");
+                    formData.append('file_copy_type', v.document_copy_request.file_copy_type ? v.document_copy_request.file_copy_type : "");
+
+                    axios.post(`/user-document-copy-requests/update`, formData)
                         .then(response => {
                             if (response.data.status == "success") {
                                 Swal.fire('Document copy request has been updated!', '', 'success');

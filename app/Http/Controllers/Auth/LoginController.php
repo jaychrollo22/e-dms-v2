@@ -55,6 +55,7 @@ class LoginController extends Controller
                             ->where('id',$user->id)->first();
         
         $role_ids = [];
+        $roles = [];
         if($user_profile->roles){
             $roles = json_decode($user_profile->roles->roles,true);
             foreach($roles as $k => $item){
@@ -65,6 +66,7 @@ class LoginController extends Controller
         }
         session([
             'user_profile'=>$user_profile,
+            'roles'=>$roles,
             'role_ids'=>$role_ids,
         ]);
 

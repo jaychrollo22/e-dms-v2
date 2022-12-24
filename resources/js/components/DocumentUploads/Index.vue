@@ -707,7 +707,6 @@
             </div>
         </div>
 
-
     </div>
 </template>
 <style src="vue-multiselect/dist/vue-multiselect.min.css">

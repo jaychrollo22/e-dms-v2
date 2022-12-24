@@ -166,6 +166,62 @@ class DocumentRequestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function update(Request $request)
+    {
+        if($request->type_of_request == 'Discontinuance' || $request->type_of_request == 'Obsolete'){
+            $validate_request = [
+                'title' => 'required',
+                'proposed_effective_date' => 'required',
+                'type_of_request' => 'required',
+                'type_of_documented_information' => 'required',
+                'description_purpose_of_documentation' => 'required',
+            ];
+        }else{
+            $validate_request = [
+                'title' => 'required',
+                'proposed_effective_date' => 'required',
+                'type_of_request' => 'required',
+                'type_of_documented_information' => 'required',
+                'description_purpose_of_documentation' => 'required',
+            ];
+        }
+        
+
+        $this->validate($request, $validate_request);
+
+
+        DB::beginTransaction();
+        try {
+            $document_request = DocumentationRequest::where('id',$request->id)->first();
+            if($document_request){
+                $data = $request->all();
+
+                if(isset($request->attachment_file)){
+                    if($request->file('attachment_file')){
+                        $attachment_raw_file = $request->file('attachment_file');   
+                        $original_filename = $attachment_raw_file->getClientOriginalName();
+                        $filename = date('Ymd') . '_'. $original_filename;
+                        $data['attachment_file'] = $filename;
+                        Storage::disk('public')->putFileAs('document_requests', $attachment_raw_file , $filename);
+                    }
+                }
+
+                $document_request->update($data);
+                DB::commit();
+                $document_request = DocumentationRequest::with('document_upload_info','requestor_info','company_info','department_info')->where('id',$document_request->id)->first();
+                return $response = [
+                    'status'=>'success',
+                    'document_request'=>$document_request,
+                ];
+            }
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+
+    }
+
     public function updateApproval(Request $request)
     {
         $validate_request = [

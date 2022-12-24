@@ -266,7 +266,7 @@ export default {
                     } else {
                         formData.append('expiration_date', "");
                     }
-                    axios.post(`/document-copy-requests/update`, formData)
+                    axios.post(`/document-copy-requests/update-approval`, formData)
                         .then(response => {
                             if (response.data.status == "success") {
                                 Swal.fire('Document copy request has been updated!', '', 'success');

@@ -9,7 +9,7 @@
         <li class="nav-item">
             <a class="nav-link" href="/user-document-requests">
                 <i class="icon-folder menu-icon"></i>
-                <span class="menu-title">Requests</span>
+                <span class="menu-title">Requests (DICR)</span>
             </a>
         </li>
         <li class="nav-item">

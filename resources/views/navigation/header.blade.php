@@ -18,6 +18,10 @@
                          <i class="ti-layout text-primary"></i>
                          As User
                      </a>
+                     <a class="dropdown-item" href="/home">
+                         <i class="ti-layout text-primary"></i>
+                         As Administrator
+                     </a>
                      @endif
                      <a class="dropdown-item" href="/user-profile">
                          <i class="ti-user text-primary"></i>

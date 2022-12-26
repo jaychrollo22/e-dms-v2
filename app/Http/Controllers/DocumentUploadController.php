@@ -52,6 +52,13 @@ class DocumentUploadController extends Controller
                                 ->orWhere('control_code', 'LIKE', '%' . $request->search . '%');
         }
 
+        if(isset($request->company)){
+            $document_uploads->where('company',$request->company);
+        }
+        if(isset($request->department)){
+            $document_uploads->where('department',$request->department);
+        }
+
         return $document_uploads->paginate($limit);
     }
     public function userIndexData(Request $request){

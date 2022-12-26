@@ -12,8 +12,16 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <input type="text" class="form-control w-400px" @keyup="searchKeyUp"
-                                            v-model="filterData.search" placeholder="Search Requestor">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-search text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <input v-model="filterData.search" @keyup="searchKeyUp" type="text"
+                                                name="search" class="form-control form-control-lg border-left-0"
+                                                id="search" placeholder="Search Requests">
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -10,10 +10,58 @@
                                 <a href="/document-copy-requests/create" class="btn btn-primary">New Copy Request</a>
                             </div>
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="form-group">
-                                        <input type="text" class="form-control w-400px" @keyup="searchKeyUp"
-                                            v-model="filterData.search" placeholder="Search Requestor">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-search text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <input v-model="filterData.search" @keyup="searchKeyUp" type="text"
+                                                name="search" class="form-control form-control-lg border-left-0"
+                                                id="search" placeholder="Search Requests">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-settings text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <select v-model="filterData.company" @change="searchKeyUp"
+                                                class="form-control form-control-lg border-left-0" name="company"
+                                                id="company">
+                                                <option value="">Choose Company</option>
+                                                <option v-for="(company, index) in companies" :key="index"
+                                                    :value="company.id">
+                                                    {{ company.company_name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-settings text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <select v-model="filterData.department" @change="searchKeyUp"
+                                                class="form-control form-control-lg border-left-0" name="department"
+                                                id="department">
+                                                <option value="">Choose Department</option>
+                                                <option v-for="(department, index) in departments" :key="index"
+                                                    :value="department.id">
+                                                    {{ department.department }}
+                                                </option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -26,9 +74,6 @@
                                             </th>
                                             <th class="pt-1">
                                                 Requestors Name
-                                            </th>
-                                            <th class="pt-1">
-                                                Department
                                             </th>
                                             <th class="pt-1">
                                                 Requested Document
@@ -50,10 +95,9 @@
                                                 {{ request.requested_date }}
                                             </td>
                                             <td>
-                                                {{ request.requestor_info.name }}
-                                            </td>
-                                            <td>
-                                                {{ request.department_info.department }}
+                                                <strong>{{ request.requestor_info.name }} <br></strong>
+                                                <small>{{ request.company_info.company_name }} <br></small>
+                                                <small>{{ request.department_info.department }} <br></small>
                                             </td>
                                             <td>
                                                 {{ request.document_upload_info.title }}
@@ -220,11 +264,19 @@ export default {
             document_copy_request: "",
             disableFields: true,
             errors: [],
-            saveDisable: false
+            saveDisable: false,
+            companies: [],
+            departments: [],
+            filterData: {
+                company: '',
+                department: '',
+            }
         }
     },
     created() {
         this.fetchList();
+        this.fetchCompanies();
+        this.fetchDepartments();
     },
     methods: {
         getStatusStyle(status) {
@@ -295,7 +347,29 @@ export default {
                     v.saveDisable = false;
                 }
             })
-        }
+        },
+        fetchCompanies() {
+            let v = this;
+            v.companies = [];
+            axios.get('/companies-options')
+                .then(response => {
+                    v.companies = response.data;
+                })
+                .catch(error => {
+                    v.errors = error.response.data.error;
+                })
+        },
+        fetchDepartments() {
+            let v = this;
+            v.departments = [];
+            axios.get('/departments-options')
+                .then(response => {
+                    v.departments = response.data;
+                })
+                .catch(error => {
+                    v.errors = error.response.data.error;
+                })
+        },
     },
 }
 </script>

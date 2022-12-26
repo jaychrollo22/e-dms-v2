@@ -37,6 +37,12 @@ class DocumentRequestController extends Controller
             $document_requests->where('title', 'LIKE', '%' . $request->search . '%')
                                 ->orWhere('dicr_number', 'LIKE', '%' . $request->search . '%');
         }
+        if(isset($request->company)){
+            $document_requests->where('company',$request->company);
+        }
+        if(isset($request->department)){
+            $document_requests->where('department',$request->department);
+        }
 
         return $document_requests->paginate($limit);
     }

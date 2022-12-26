@@ -12,10 +12,58 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="form-group">
-                                        <input type="text" class="form-control w-400px" @keyup="searchKeyUp"
-                                            v-model="filterData.search" placeholder="Search Document">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-search text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <input v-model="filterData.search" @keyup="searchKeyUp" type="text"
+                                                name="search" class="form-control form-control-lg border-left-0"
+                                                id="search" placeholder="Search Document">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-settings text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <select v-model="filterData.company" @change="searchKeyUp"
+                                                class="form-control form-control-lg border-left-0" name="company"
+                                                id="company">
+                                                <option value="">Choose Company</option>
+                                                <option v-for="(company, index) in companies" :key="index"
+                                                    :value="company.id">
+                                                    {{ company.company_name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-settings text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <select v-model="filterData.department" @change="searchKeyUp"
+                                                class="form-control form-control-lg border-left-0" name="department"
+                                                id="department">
+                                                <option value="">Choose Department</option>
+                                                <option v-for="(department, index) in departments" :key="index"
+                                                    :value="department.id">
+                                                    {{ department.department }}
+                                                </option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -778,6 +826,11 @@ export default {
 
             isRemoveAll: 0,
             bulkAssignSelectedIds: [],
+
+            filterData: {
+                company: '',
+                department: '',
+            }
         }
     },
     created() {

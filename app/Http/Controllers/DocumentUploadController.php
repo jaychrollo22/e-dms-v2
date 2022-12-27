@@ -61,6 +61,7 @@ class DocumentUploadController extends Controller
 
         return $document_uploads->paginate($limit);
     }
+
     public function userIndexData(Request $request){
 
         $limit = $request->limit;
@@ -89,6 +90,26 @@ class DocumentUploadController extends Controller
         }
 
         return $document_uploads->paginate($limit);
+    }
+
+    public function toDiscussDocuments(Request $request){
+
+        $document_uploads = DocumentUpload::with(
+                                                'company_info',
+                                                'department_info',
+                                                'document_category_info.tag_info',
+                                                'process_owner_info',
+                                                'users.user_info'
+                                                )
+                                                ->orderBy('effective_date','DESC');
+
+        $document_uploads->where('process_owner',Auth::user()->id);
+        $document_uploads->where(function($q){
+                                $q->whereNull('is_discussed')
+                                    ->orWhere('is_discussed','=','');
+        });
+
+        return $document_uploads->get();
     }
 
     public function documentUploadRequestCopyOptions(){
@@ -364,6 +385,41 @@ class DocumentUploadController extends Controller
                 return $status_data = [
                     'status'=>'success',
                     'document_upload_user'=>$document_upload_user,
+                ];
+            }else{
+                return $data = [
+                    'status'=>'error'
+                ];
+            }
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
+
+    public function userIsDiscussDocument(Request $request){
+        DB::beginTransaction();
+        try {
+            $data = $request->all();
+            $document_upload = DocumentUpload::with(
+                                                'company_info',
+                                                'department_info',
+                                                'document_category_info.tag_info',
+                                                'process_owner_info',
+                                                'users.user_info'
+                                                )
+                                                ->where('id',$request->id)
+                                                ->first();
+
+            if($document_upload){
+                unset($data['id']);
+                $document_upload->update($data);
+                DB::commit();
+               
+                return $status_data = [
+                    'status'=>'success',
+                    'document_upload'=>$document_upload,
                 ];
             }else{
                 return $data = [

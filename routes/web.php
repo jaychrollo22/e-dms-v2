@@ -88,6 +88,8 @@ Route::get('/user-document-uploads', 'DocumentUploadController@userIndex')->name
 Route::group(['prefix' => 'user-document-uploads'], function () {   
     Route::get('/all', 'DocumentUploadController@userIndexData');
     Route::post('/acknowledge-document', 'DocumentUploadController@userAcknowledgeDocument');
+    Route::post('/is-discuss-document', 'DocumentUploadController@userIsDiscussDocument');
+    Route::get('/to-discuss-documents', 'DocumentUploadController@toDiscussDocuments');
 });
 
 //Access Requests

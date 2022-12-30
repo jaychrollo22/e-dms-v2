@@ -37,7 +37,7 @@
         </tr>
         <tr>
             <td style="border:1px solid black;padding:3px">
-                {{date('F d, Y H:i A',strtotime($request->created_at)) }}
+                {{date('F d, Y h:i A',strtotime($request->created_at)) }}
             </td>
             <td width="100px" style="border:1px solid black;padding:3px">
                 {{ $request->dicr_number }}

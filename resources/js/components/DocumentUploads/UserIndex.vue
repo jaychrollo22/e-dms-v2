@@ -73,12 +73,22 @@
                                             </td>
                                             <td class="text-center">
                                                 <div
-                                                    v-if="document.is_acknowledge == null || document.is_acknowledge == ''">
-                                                    <button @click="acknowledgeDocument(document)" type="button"
-                                                        class="btn btn-inverse-success btn-rounded btn-icon"
-                                                        title="Acknowledge">
-                                                        <i class="ti-thumb-up"></i>
-                                                    </button>
+                                                    v-if="isValidToAcknowledge(document.document_upload_info.document_category)">
+                                                    <div
+                                                        v-if="(document.is_acknowledge == null || document.is_acknowledge == '')">
+                                                        <button @click="acknowledgeDocument(document)" type="button"
+                                                            class="btn btn-inverse-success btn-rounded btn-icon"
+                                                            title="Acknowledge">
+                                                            <i class="ti-thumb-up"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div v-else>
+                                                        <button @click="viewDocument(document)" type="button"
+                                                            class="btn btn-inverse-primary btn-rounded btn-icon"
+                                                            title="Yes">
+                                                            <i class="ti-eye"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <div v-else>
                                                     <button @click="viewDocument(document)" type="button"
@@ -117,8 +127,14 @@
                         </button>
                         <button v-if="view_document.can_download == '1'" type="button"
                             class="btn btn-inverse-primary btn-rounded btn-icon" title="Download"
-                            @click="downloadDocument('document-uploads-download-signed-copy?id=' + view_document.document_upload_info.id)">
+                            @click="redirectDocument('document-uploads-download-signed-copy?id=' + view_document.document_upload_info.id)">
                             <i class="ti-cloud-down"></i>
+                        </button>
+                        <button
+                            v-if="view_document.can_fill == '1' && view_document.document_upload_info.attachment_fillable_copy"
+                            type="button" class="btn btn-inverse-info btn-rounded btn-icon" title="Fill"
+                            @click="redirectDocument('storage/document_uploads/' + view_document.document_upload_info.attachment_fillable_copy)">
+                            <i class="ti-pencil-alt"></i>
                         </button>
                         <vue-pdf-embed v-if="view_document.document_upload_info.attachment_signed_copy"
                             :source="'document-uploads-view-signed-copy?id=' + view_document.document_upload_info.id"
@@ -150,11 +166,29 @@ export default {
         this.fetchList();
     },
     methods: {
+        isValidToAcknowledge(category) {
+            if (category == '12') {
+                return false;
+            }
+            else if (category == '11') {
+                return false;
+            }
+            else if (category == '6') {
+                return false;
+            } else {
+                return true;
+            }
+        },
         printDocument(src) {
             printJS({ printable: src, type: 'pdf', showModal: true });
         },
-        downloadDocument(src) {
-            window.location = src;
+        redirectDocument(src) {
+            if (src) {
+                window.location = src;
+            } else {
+                alert('Warning: Link is not exist. Please contact Administrator. Thank you.');
+            }
+
         },
         viewDocument(document) {
             this.view_document = document;

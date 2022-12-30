@@ -57,9 +57,8 @@ class LoginController extends Controller
         $role_ids = [];
         $roles = [];
         if($user_profile->roles){
-            $roles = json_decode($user_profile->roles->roles,true);
-            foreach($roles as $k => $item){
-                $role_ids[] = $item['id'];
+            foreach($user_profile->roles as $k => $item){
+                $role_ids[] = $item['role_id'];
             }
         }else{
             $role_ids = [2];

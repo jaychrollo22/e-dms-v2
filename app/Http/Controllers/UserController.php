@@ -241,20 +241,35 @@ class UserController extends Controller
                         ]);
                     }
                 }
+              
                 if($request->roles){
-                    $roles = UserRole::where('user_id',$request->id)
-                                                ->first();
-                    
 
-                    if($roles){
-                        $roles->update([
-                            'roles' => $request->roles
-                        ]);
-                    }else{
-                        UserRole::create([
-                            'user_id'=>$request->id,
-                            'roles' => $request->roles
-                        ]);
+                    $roles = json_decode($request->roles, true);
+                    $role_ids = [];
+                    foreach($roles as $role){
+                        if($role['id']){
+                            $has_role = UserRole::where('user_id',$request->id)->where('role_id',$role['id'])->first();
+                            if(empty($has_role)){
+                                UserRole::create([
+                                    'user_id'=>$request->id,
+                                    'role_id' => $role['id'],
+                                    'roles' => json_encode($role,true)
+                                ]);
+                            }
+                        }
+
+                        $role_ids[] = $role['id'];
+                    }
+
+                    $user_roles = UserRole::where('user_id',$request->id)->get();
+
+                    if($user_roles){
+                        $not_exist_ids = [];
+                        foreach($user_roles as $user_role){
+                            if(!in_array($user_role['role_id'],$role_ids)){ //Check if role is not in array
+                                UserRole::where('user_id',$request->id)->where('role_id',$user_role['role_id'])->delete();
+                            }
+                        }
                     }
                 }
 

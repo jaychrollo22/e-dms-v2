@@ -49,6 +49,6 @@ class User extends Authenticatable implements Auditable
         return $this->hasOne('App\UserCompany');
     }
     public function roles(){
-        return $this->hasOne('App\UserRole');
+        return $this->hasMany('App\UserRole');
     }
 }

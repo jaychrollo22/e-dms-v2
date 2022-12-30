@@ -25,6 +25,9 @@
                                     <thead>
                                         <tr>
                                             <th class="pt-1">
+                                                Company Logo
+                                            </th>
+                                            <th class="pt-1">
                                                 Company Code
                                             </th>
                                             <th class="pt-1">
@@ -36,6 +39,7 @@
                                             <th class="pt-1">
                                                 Stamp
                                             </th>
+
                                             <th class="pt-1">
                                                 Action
                                             </th>
@@ -43,6 +47,10 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(company, index) in items" :key="index">
+                                            <td>
+                                                <img v-if="company.logo" :src="'storage/company_logos/' + company.logo"
+                                                    width="100px">
+                                            </td>
                                             <td>
                                                 {{ company.company_code }}
                                             </td>
@@ -85,6 +93,14 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Logo</label>
+                                    <input v-on:change="logoHandleFileUpload()" type="file" accept="image/*" id="logo"
+                                        ref="file" class="form-control">
+                                    <span class="text-danger" v-if="errors.logo">{{ errors.logo[0] }}</span>
+                                </div>
+                            </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="">Company Code</label>
@@ -152,6 +168,8 @@ export default {
 
             stamp: '',
             stamp_src: '',
+            logo: '',
+            logo_src: '',
         }
     },
     created() {
@@ -203,6 +221,7 @@ export default {
 
 
                     formData.append('stamp', v.stamp ? v.stamp : "");
+                    formData.append('logo', v.logo ? v.logo : "");
 
 
                     axios.post(postURL, formData)
@@ -223,6 +242,7 @@ export default {
                                 v.company.company_code = '';
                                 v.company.company_name = '';
                                 v.stamp = '';
+                                v.logo = '';
 
                             } else {
                                 Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
@@ -238,6 +258,11 @@ export default {
             var photo = document.getElementById("stamp");
             this.stamp_src = window.URL.createObjectURL(photo.files[0]);
             this.stamp = photo.files[0];
+        },
+        logoHandleFileUpload() {
+            var photo = document.getElementById("logo");
+            this.logo_src = window.URL.createObjectURL(photo.files[0]);
+            this.logo = photo.files[0];
         },
     },
 }

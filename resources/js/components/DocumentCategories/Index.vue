@@ -25,6 +25,9 @@
                                     <thead>
                                         <tr>
                                             <th class="pt-1">
+                                                ID
+                                            </th>
+                                            <th class="pt-1">
                                                 Document Category Code
                                             </th>
                                             <th class="pt-1">
@@ -43,6 +46,9 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(category, index) in items" :key="index">
+                                            <td>
+                                                {{ category.id }}
+                                            </td>
                                             <td>
                                                 {{ category.code }}
                                             </td>

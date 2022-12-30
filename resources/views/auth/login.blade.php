@@ -4,7 +4,7 @@
     <div class="container-fluid page-body-wrapper full-page-wrapper">
         <div class="content-wrapper d-flex align-items-stretch auth auth-img-bg">
             <div class="row flex-grow">
-                <div class="col-lg-6 d-flex align-items-center justify-content-center">
+                <div class="col-lg-5 d-flex align-items-center justify-content-center">
                     <div class="auth-form-transparent text-left p-3">
                         <div class="brand-logo">
                             <img src="{{asset('img/app_logo.png')}}" alt="logo">
@@ -57,8 +57,8 @@
                         </form>
                     </div>
                 </div>
-                <div class="col-lg-6 login-half-bg d-flex flex-row">
-                    <p class="text-default font-weight-medium text-center flex-grow align-self-end">Copyright &copy; 2022 All rights reserved. Designed and Developed by Obanana Digital Solutions</p>
+                <div class="col-lg-7 login-half-bg d-flex flex-row">
+                    <p class="text-default font-weight-medium text-center flex-grow align-self-end">Copyright &copy; 2023 All rights reserved. Designed and Developed by Obanana Digital Solutions</p>
                 </div>
             </div>
         </div>

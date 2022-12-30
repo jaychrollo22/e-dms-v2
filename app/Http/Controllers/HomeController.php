@@ -61,12 +61,23 @@ class HomeController extends Controller
 
         $total_document_request = DocumentationRequest::where('status','Pending')->where('requestor',Auth::user()->id)->count();
         $total_document_copy_request = DocumentCopyRequest::where('status','New')->where('requestor',Auth::user()->id)->count();
-        $total_document_upload = DocumentUploadUser::where('status','1')->where('user_id',Auth::user()->id)->count();
-        
+    
+        $total_document_upload = DocumentUploadUser::select('id','user_id','status')->with('document_upload_info',)
+                                                    ->where('status','1');
+
+        $total_document_upload->where('user_id',Auth::user()->id);
+        $total_document_upload->where('status','1');
+        $total_document_upload->whereHas('document_upload_info',function($q){
+            $q->where('is_discussed','1');
+            $q->where('status','Approved');
+            $q->whereDate('effective_date','<=',date('Y-m-d'));
+        });
+        $total_document_upload = $total_document_upload->get();
+
         return [
             'total_document_request'=>$total_document_request,
             'total_document_copy_request'=>$total_document_copy_request,
-            'total_document_upload'=>$total_document_upload,
+            'total_document_upload'=>count($total_document_upload),
         ];
     }
 }

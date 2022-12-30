@@ -48,6 +48,13 @@ class CompanyController extends Controller
                 $data['stamp'] = $filename;
                 Storage::disk('public')->putFileAs('stamps', $stamp , $filename);
             }
+            if($request->file('logo')){
+                $logo = $request->file('logo');   
+                $original_filename = $logo->getClientOriginalName();
+                $filename = $original_filename;
+                $data['logo'] = $filename;
+                Storage::disk('public')->putFileAs('company_logos', $logo , $filename);
+            }
 
             if($company = Company::create($data)){
                 DB::commit();
@@ -85,6 +92,14 @@ class CompanyController extends Controller
                     $filename = $original_filename;
                     $data['stamp'] = $filename;
                     Storage::disk('public')->putFileAs('stamps', $stamp , $filename);
+                }
+
+                if($request->file('logo')){
+                    $logo = $request->file('logo');   
+                    $original_filename = $logo->getClientOriginalName();
+                    $filename = $original_filename;
+                    $data['logo'] = $filename;
+                    Storage::disk('public')->putFileAs('company_logos', $logo , $filename);
                 }
     
 

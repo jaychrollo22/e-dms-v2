@@ -408,7 +408,7 @@
                                             <div class="col-md-6">
                                                 <label>Upload Revision Attachment <a
                                                         v-if="view_document.attachment_signed_copy_revision" :href="'storage/document_uploads/' +
-                                                        view_document.attachment_signed_copy_revision" target="_blank"
+    view_document.attachment_signed_copy_revision" target="_blank"
                                                         class="badge badge-pill badge-success">View</a></label>
                                                 <input @change="uploadSignedCopyRevision"
                                                     name="attachment_signed_copy_revision" type="file"
@@ -696,6 +696,7 @@
                                                                 title="Enable Print" @click="canPrint(assigned_user)">
                                                                 <i class="ti-printer"></i>
                                                             </button>
+
                                                             <button v-if="assigned_user.can_download == '1'"
                                                                 type="button"
                                                                 class="btn btn-inverse-primary btn-rounded btn-icon"
@@ -709,6 +710,16 @@
                                                                 @click="canDownload(assigned_user)">
                                                                 <i class="ti-cloud-down"></i>
                                                             </button>
+
+
+                                                            <button v-if="view_document.document_category == '6'"
+                                                                type="button"
+                                                                :class="getClassCanFill(assigned_user.can_fill)"
+                                                                :title="getTitleCanFill(assigned_user.can_fill)"
+                                                                @click="canFill(assigned_user)">
+                                                                <i class="ti-pencil-alt"></i>
+                                                            </button>
+
                                                         </td>
 
                                                     </tr>
@@ -730,15 +741,27 @@
                                             </div>
                                         </div>
 
-                                        <button v-if="bulkAssignSelectedIds.length > 0" class="btn btn-danger btn-sm"
-                                            @click="saveRemoveAssignUser" :disabled="saveDisable"><i
-                                                class="ti-trash"></i> Remove</button>
-                                        <button v-if="bulkAssignSelectedIds.length > 0" class="btn btn-success btn-sm"
+                                        <button v-if="bulkAssignSelectedIds.length > 0"
+                                            class="btn btn-danger btn-sm text-white" @click="saveRemoveAssignUser"
+                                            :disabled="saveDisable"><i class="ti-trash"></i>
+                                            Remove ({{ bulkAssignSelectedIds.length }})</button>
+                                        <button v-if="bulkAssignSelectedIds.length > 0"
+                                            class="btn btn-success btn-sm text-white"
                                             @click="saveCanPrintUserAssignUser" :disabled="saveDisable"><i
-                                                class="ti-printer"></i> Allow Print</button>
-                                        <button v-if="bulkAssignSelectedIds.length > 0" class="btn btn-primary btn-sm"
+                                                class="ti-printer"></i>
+                                            Allow Print ({{ bulkAssignSelectedIds.length }})</button>
+                                        <button v-if="bulkAssignSelectedIds.length > 0"
+                                            class="btn btn-primary btn-sm text-white"
                                             @click="saveCanDownloadUserAssignUser" :disabled="saveDisable"><i
-                                                class="ti-cloud-down"></i> Allow Download</button>
+                                                class="ti-cloud-down"></i>
+                                            Allow Download ({{ bulkAssignSelectedIds.length }})</button>
+
+
+                                        <button
+                                            v-if="view_document.document_category == '6' && bulkAssignSelectedIds.length > 0"
+                                            class="btn btn-info btn-sm text-white" @click="saveCanFillUserAssignUser"
+                                            :disabled="saveDisable"><i class="ti-pencil-alt"></i>
+                                            Allow Fill ({{ bulkAssignSelectedIds.length }})</button>
 
                                     </div>
                                 </div>
@@ -841,6 +864,17 @@ export default {
         this.fetchUsers();
     },
     methods: {
+        getTitleCanFill(status) {
+            var status_title = status == 1 ? 'Disable' : 'Enable';
+            return status_title + ' Fill';
+        },
+        getClassCanFill(status) {
+            if (status == '1') {
+                return 'btn btn-inverse-info btn-rounded btn-icon';
+            } else {
+                return 'btn btn-inverse-secondary btn-rounded btn-icon';
+            }
+        },
         updateDocumentUpload() {
             let v = this;
             v.saveDisable = true;
@@ -915,6 +949,23 @@ export default {
                 let formData = new FormData();
                 formData.append('id', document_user.id ? document_user.id : "");
                 axios.post(`/document-uploads/save-document-upload-user-print`, formData)
+                    .then(response => {
+                        if (response.data.status == "saved") {
+                            v.documentUploadUsers.splice(index, 1, response.data.document_upload_user);
+                        }
+                    })
+                    .catch(error => {
+                        v.errors = error.response.data.errors;
+                    })
+            }
+        },
+        canFill(document_user) {
+            let v = this;
+            if (document_user) {
+                var index = v.documentUploadUsers.findIndex(item => item.id == document_user.id);
+                let formData = new FormData();
+                formData.append('id', document_user.id ? document_user.id : "");
+                axios.post(`/document-uploads/save-document-upload-user-fill`, formData)
                     .then(response => {
                         if (response.data.status == "saved") {
                             v.documentUploadUsers.splice(index, 1, response.data.document_upload_user);
@@ -1103,7 +1154,7 @@ export default {
                     axios.post(postURL, formData)
                         .then(response => {
                             if (response.data.status == "success") {
-                                Swal.fire('Users (' + response.data.count + ') has been removed! ', '', 'success');
+                                Swal.fire('Users (' + response.data.count + ') has been allowed to print! ', '', 'success');
                                 v.saveDisable = false;
                                 this.view_document = response.data.document_upload;
                                 this.filterUser();
@@ -1157,7 +1208,61 @@ export default {
                     axios.post(postURL, formData)
                         .then(response => {
                             if (response.data.status == "success") {
-                                Swal.fire('Users (' + response.data.count + ') has been removed! ', '', 'success');
+                                Swal.fire('Users (' + response.data.count + ') has been allowed to download! ', '', 'success');
+                                v.saveDisable = false;
+                                this.view_document = response.data.document_upload;
+                                this.filterUser();
+                                this.getAssignedUsers();
+
+                                v.bulkAssignSelectedIds = [];
+                                v.isRemoveAll = 0;
+                            } else {
+                                Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
+                                v.saveDisable = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            Swal.fire({
+                                text: 'Sorry, looks like there are some errors detected, please try again..',
+                                icon: "error",
+                                confirmButtonText: "Ok, got it!"
+                            }).then(okay => {
+                                v.saveDisable = false;
+                                v.errors = error.response.data.errors;
+                            });
+
+                        })
+                } else {
+                    v.saveDisable = false;
+                }
+            })
+        },
+        saveCanFillUserAssignUser() {
+            let v = this;
+            v.saveDisable = true;
+            Swal.fire({
+                text: "Are you sure you want to allow fill for this document users?",
+                icon: "question",
+                showCancelButton: true,
+                buttonsStyling: false,
+                confirmButtonText: "Yes, Allow",
+                cancelButtonText: "No, cancel",
+                customClass: {
+                    confirmButton: "btn font-weight-bold btn-primary",
+                    cancelButton: "btn font-weight-bold btn-default"
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let formData = new FormData();
+                    var postURL = `/document-uploads/allow-fill-user`;
+                    formData.append('id', v.view_document.id ? v.view_document.id : "");
+                    formData.append('document_user_ids', v.bulkAssignSelectedIds.length > 0 ? JSON.stringify(v.bulkAssignSelectedIds) : "");
+
+                    axios.post(postURL, formData)
+                        .then(response => {
+                            if (response.data.status == "success") {
+                                Swal.fire('Users (' + response.data.count + ') has been allowed to fil! ', '', 'success');
                                 v.saveDisable = false;
                                 this.view_document = response.data.document_upload;
                                 this.filterUser();
@@ -1227,7 +1332,10 @@ export default {
                 })
         },
         assignUser(document) {
+            this.isSelectAll = 0;
+            this.isRemoveAll = 0;
             this.bulkCheckSelectedIds = [];
+            this.bulkAssignSelectedIds = [];
             this.filterUser();
             this.view_document = document;
             this.getAssignedUsers();

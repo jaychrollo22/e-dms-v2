@@ -26,6 +26,7 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
+        "exceljs": "^4.3.0",
         "print-js": "^1.6.0",
         "sweetalert2": "^11.6.14",
         "vue-multiselect": "^2.1.6",

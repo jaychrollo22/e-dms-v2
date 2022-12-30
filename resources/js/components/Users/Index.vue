@@ -60,7 +60,9 @@
                                             <td>{{ user.department ? user.department.department_info.department : "" }}
                                             </td>
                                             <td>{{ user.company ? user.company.company_info.company_name : "" }}</td>
-                                            <td>{{ user.roles ? displayRoles(user.roles.roles) : "" }}</td>
+                                            <td>
+                                                {{ user.roles ? displayRoles(user.roles) : "" }}
+                                            </td>
                                             <td>
                                                 {{ user.status }}
                                             </td>
@@ -309,11 +311,11 @@ export default {
             $('#change-password-modal').modal('show');
         },
         displayRoles(roles) {
-            var roles = JSON.parse(roles);
             var roles_arr = [];
             if (roles.length > 0) {
                 roles.forEach(e => {
-                    roles_arr.push(e.name);
+                    var role = JSON.parse(e.roles);
+                    roles_arr.push(role.name);
                 });
                 return roles_arr.join(', ');
             }
@@ -344,7 +346,16 @@ export default {
             v.user.immediate_head = user.immediate_head ? user.immediate_head.user_info : "";
             v.user.department = user.department ? user.department.department_info : "";
             v.user.company = user.company ? user.company.company_info : "";
-            v.user.roles = user.roles ? JSON.parse(user.roles.roles) : [];
+
+            if (user.roles.length > 0) {
+                var roles = [];
+                user.roles.forEach((item) => {
+                    var item_roles = JSON.parse(item.roles);
+                    roles.push(item_roles);
+                })
+                v.user.roles = roles;
+            }
+
             v.user.status = user.status;
             v.action = 'Update';
             $('#user-modal').modal('show');

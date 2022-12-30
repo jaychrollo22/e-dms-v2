@@ -18,8 +18,13 @@ function appFormatFullDate($date) {
 }
 
 function roleValidation(){
-    if(in_array(1,session('role_ids')) || in_array(3,session('role_ids')) || in_array(9,session('role_ids'))){ //Administrator,DCO and ADCO
-        return true;
+    if(session('role_ids'))
+    {
+        if(in_array(1,session('role_ids')) || in_array(3,session('role_ids')) || in_array(9,session('role_ids'))){ //Administrator,DCO and ADCO
+            return true;
+        }else{
+            return false;
+        }
     }else{
         return false;
     }

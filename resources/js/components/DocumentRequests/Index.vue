@@ -7,7 +7,8 @@
                         <div class="card-body">
                             <h4 class="card-title">Document Requests</h4>
                             <div class="d-flex flex-wrap justify-content-end">
-                                <a href="/document-requests/create" class="btn btn-primary">New Request</a>
+                                <button class="btn btn-success btn-circle btn-icon text-white"
+                                    @click="showExportDownload"><i class="ti-cloud-down"></i> </button>
                             </div>
                             <div class="row">
                                 <div class="col-md-3">
@@ -353,15 +354,57 @@
             </div>
         </div>
 
+        <div class="modal fade" id="generate-download-modal" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="col-12 modal-title">Generate Download</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="">Select Company</label>
+                                    <multiselect v-model="generateByCompany" :options="companies" :multiple="true"
+                                        :close-on-select="true" :clear-on-select="true" :preselect-first="true"
+                                        placeholder="Select Company" :preserve-search="true" label="company_name"
+                                        track-by="id">
+                                    </multiselect>
+                                    <span class="text-danger"
+                                        v-if="errors.generateByCompany">{{ errors.generateByCompany[0] }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-md btn-rounded btn-icon btn-primary text-white"
+                            @click="generateFilterDownload"><i class="ti-filter"></i></button>
+                        <button v-if="filteredGenerateRequests.length > 0"
+                            class="btn btn-md btn-rounded btn-icon btn-success text-white" @click="exportRequests"><i
+                                class="ti-cloud-down"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
+<style src="vue-multiselect/dist/vue-multiselect.min.css">
 
+</style>
 <script>
 import listFormMixins from '../../list-form-mixins.vue';
 import Swal from 'sweetalert2'
+import Excel from 'exceljs';
+import FileSaver from 'file-saver';
+import Multiselect from 'vue-multiselect'
 export default {
     props: ['role'],
     mixins: [listFormMixins],
+    components: {
+        Multiselect
+    },
     data() {
         return {
             endpoint: '/document-requests',
@@ -379,7 +422,10 @@ export default {
                 department: '',
             },
             isAllowedToApprove: false,
-            role_ids: []
+            role_ids: [],
+
+            filteredGenerateRequests: [],
+            generateByCompany: [],
         }
     },
     created() {
@@ -503,6 +549,107 @@ export default {
         viewRequest(request) {
             this.document_request = Object.assign({}, request);
             $('#request-view-modal').modal('show');
+        },
+        showExportDownload() {
+            $('#generate-download-modal').modal('show');
+        },
+        generateFilterDownload() {
+            let v = this;
+            v.filteredGenerateRequests = [];
+
+            if (v.generateByCompany.length > 0) {
+
+                var company_ids = [];
+                v.generateByCompany.forEach((item) => {
+                    company_ids.push(item.id);
+                })
+
+                let formData = new FormData();
+                formData.append('company_ids', JSON.stringify(company_ids));
+                axios.post(`/document-requests/generate-filter-requests`, formData)
+                    .then(response => {
+                        v.filteredGenerateRequests = response.data;
+                    })
+                    .catch(error => {
+                        v.errors = error.response.data.error;
+                    })
+            }
+
+        },
+        exportRequests() {
+            let v = this;
+            var workbook = new Excel.Workbook();
+            var worksheet = workbook.addWorksheet('Documentation Requests');
+
+            //Header-------------------------------------------------------------------?
+            worksheet.columns = [{ width: 20 }, { width: 20 }, { width: 20 }, { width: 20 }, { width: 20 }, { width: 50 }];
+
+            worksheet.getCell('A1').value = 'DICR No.';
+            worksheet.getCell('A1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+            worksheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+            worksheet.getCell('B1').value = 'Requestor Name';
+            worksheet.getCell('B1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+            worksheet.getCell('B1').alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+            worksheet.getCell('C1').value = 'Type of Request';
+            worksheet.getCell('C1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+            worksheet.getCell('C1').alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+            worksheet.getCell('D1').value = 'Group / Department';
+            worksheet.getCell('D1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+            worksheet.getCell('D1').alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+            worksheet.getCell('E1').value = 'Document Type';
+            worksheet.getCell('E1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+            worksheet.getCell('E1').alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+            worksheet.getCell('F1').value = 'Document Title';
+            worksheet.getCell('F1').border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+            worksheet.getCell('F1').alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+            //Body---------------------------------------------------------------------------------------------------------------------------------------
+            let worksheet_ctr = 2;
+            v.filteredGenerateRequests.forEach(function (w) {
+
+                //DICR Number
+                worksheet.getCell("A" + worksheet_ctr).value = w.dicr_number;
+                worksheet.getCell("A" + worksheet_ctr).border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+                worksheet.getCell("A" + worksheet_ctr).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+                //Requestor Name
+                worksheet.getCell("B" + worksheet_ctr).value = w.requestor_info.name;
+                worksheet.getCell("B" + worksheet_ctr).border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+                worksheet.getCell("B" + worksheet_ctr).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+                //Type of Request
+                worksheet.getCell("C" + worksheet_ctr).value = w.type_of_request;
+                worksheet.getCell("C" + worksheet_ctr).border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+                worksheet.getCell("C" + worksheet_ctr).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+                //Department
+                worksheet.getCell("D" + worksheet_ctr).value = w.department_info.department;
+                worksheet.getCell("D" + worksheet_ctr).border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+                worksheet.getCell("D" + worksheet_ctr).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+                //Type of Document
+                var type_of_document = w.type_of_documented_information == 'Others' ? 'Others : ' + w.type_of_documented_information_others : w.type_of_documented_information;
+                worksheet.getCell("E" + worksheet_ctr).value = type_of_document;
+                worksheet.getCell("E" + worksheet_ctr).border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+                worksheet.getCell("E" + worksheet_ctr).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+                //Title
+                worksheet.getCell("F" + worksheet_ctr).value = w.title;
+                worksheet.getCell("F" + worksheet_ctr).border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+                worksheet.getCell("F" + worksheet_ctr).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+                worksheet_ctr += 1;
+
+            });
+
+            workbook.xlsx.writeBuffer()
+                .then(buffer => FileSaver.saveAs(new Blob([buffer]), `Document Requests.xlsx`))
+                .catch(err => console.log('Error writing excel export', err));
         }
     },
 }

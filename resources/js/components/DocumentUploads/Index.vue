@@ -8,7 +8,8 @@
                             <h4 class="card-title">Document Uploads</h4>
 
                             <div class="d-flex flex-wrap justify-content-end">
-                                <button class="btn btn-primary" @click="addDocumentUpload">Upload</button>
+                                <button class="btn btn-primary text-white btn-icon" @click="addDocumentUpload"><i
+                                        class="ti-plus"></i> </button>
                             </div>
 
                             <div class="row">
@@ -812,7 +813,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </template>
 <style src="vue-multiselect/dist/vue-multiselect.min.css">

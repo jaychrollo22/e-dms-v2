@@ -47,6 +47,7 @@ class DocumentRequestController extends Controller
 
         return $document_requests->paginate($limit);
     }
+    
     public function userIndexData(Request $request){
 
         $limit = $request->limit;
@@ -61,6 +62,20 @@ class DocumentRequestController extends Controller
         }
 
         return $document_requests->paginate($limit);
+    }
+
+    public function generateFilterRequests(Request $request){
+
+        if($request->company_ids){
+            $company_ids = json_decode($request->company_ids);
+            $document_requests = DocumentationRequest::with('document_upload_info','requestor_info','company_info','department_info')
+                                                    ->whereIn('company',$company_ids)
+                                                    ->orderBy('created_at','DESC')
+                                                    ->get();
+        
+            return $document_requests;
+        }
+        
     }
 
     /**

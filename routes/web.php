@@ -36,6 +36,7 @@ Route::get('/user-dashboard-data', 'HomeController@userDashboardData');
 Route::get('/document-requests', 'DocumentRequestController@index')->name('document-requests');
 Route::group(['prefix' => 'document-requests'], function () {
     Route::get('/all', 'DocumentRequestController@indexData');
+    Route::post('/generate-filter-requests', 'DocumentRequestController@generateFilterRequests');
     Route::get('/create', 'DocumentRequestController@create');
     Route::post('/store', 'DocumentRequestController@store');
     Route::post('/update-approval', 'DocumentRequestController@updateApproval');

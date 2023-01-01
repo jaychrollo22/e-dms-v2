@@ -5,6 +5,13 @@
   */
 
 /*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+
+/*!
  * Sizzle CSS Selector Engine v2.3.6
  * https://sizzlejs.com/
  *
@@ -19,6 +26,13 @@
  * The buffer module from node.js, for the browser.
  *
  * @author   Feross Aboukhadijeh <http://feross.org>
+ * @license  MIT
+ */
+
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
  * @license  MIT
  */
 
@@ -73,6 +87,8 @@
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 /*! no static exports found */
+
+/*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 /*!**********************!*\
   !*** ./src/index.js ***!
@@ -133,6 +149,30 @@
  * Released under MIT license <https://lodash.com/license>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
  * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/**
+ * Character class utilities for XML NS 1.0 edition 3.
+ *
+ * @author Louis-Dominique Dubeau
+ * @license MIT
+ * @copyright Louis-Dominique Dubeau
+ */
+
+/**
+ * Character classes and associated utilities for the 2nd edition of XML 1.1.
+ *
+ * @author Louis-Dominique Dubeau
+ * @license MIT
+ * @copyright Louis-Dominique Dubeau
+ */
+
+/**
+ * Character classes and associated utilities for the 5th edition of XML 1.0.
+ *
+ * @author Louis-Dominique Dubeau
+ * @license MIT
+ * @copyright Louis-Dominique Dubeau
  */
 
 /**!

@@ -7,7 +7,7 @@
                         <div class="card-body">
                             <h4 class="card-title">Document Copy Requests</h4>
                             <div class="d-flex flex-wrap justify-content-end">
-                                <a href="/document-copy-requests/create" class="btn btn-primary">New Copy Request</a>
+                                <!-- <a href="/document-copy-requests/create" class="btn btn-primary">New</a> -->
                             </div>
                             <div class="row">
                                 <div class="col-md-3">

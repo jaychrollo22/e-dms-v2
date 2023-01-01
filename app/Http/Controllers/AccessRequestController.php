@@ -126,13 +126,13 @@ class AccessRequestController extends Controller
             $access_request = AccessRequest::with('immediate_head_info','company_info','department_info')->where('id',$request->id)->first();
             if($access_request){
                 unset($data['id']);
-                $data['status'] = 'Active';
                 if($access_request->update($data)){
                         if($request->status == 'Approved'){
                             $user_data = [
                                 'name'=>$access_request->name,
                                 'email'=>$access_request->email,
                                 'password'=>$access_request->initial_password,
+                                'status'=>'Active',
                             ];
                             $user = User::where('email',$access_request->email)->first();
                             if(empty($user)){
@@ -158,10 +158,19 @@ class AccessRequestController extends Controller
                                     }
 
                                     if($request->roles){
-                                        UserRole::create([
-                                            'user_id'=>$user->id,
-                                            'roles' => $request->roles
-                                        ]);
+                                        $roles = json_decode($request->roles, true);
+                                        foreach($roles as $role){
+                                            if($role['id']){
+                                                $has_role = UserRole::where('user_id',$user->id)->where('role_id',$role['id'])->first();
+                                                if(empty($has_role)){
+                                                    UserRole::create([
+                                                        'user_id'=>$user->id,
+                                                        'role_id' => $role['id'],
+                                                        'roles' => json_encode($role,true)
+                                                    ]);
+                                                }
+                                            }
+                                        }
                                     }
     
                                     DB::commit();

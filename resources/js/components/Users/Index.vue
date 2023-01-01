@@ -59,7 +59,11 @@
                                             <td>{{ user.immediate_head ? user.immediate_head.user_info.name : "" }}</td>
                                             <td>{{ user.department ? user.department.department_info.department : "" }}
                                             </td>
-                                            <td>{{ user.company ? user.company.company_info.company_name : "" }}</td>
+                                            <td>
+                                                <span
+                                                    v-if="user.company">{{ user.company.company_info ? user.company.company_info.company_name : "" }}</span>
+
+                                            </td>
                                             <td>
                                                 {{ user.roles ? displayRoles(user.roles) : "" }}
                                             </td>

@@ -1,5 +1,5 @@
 @extends('layouts.app')
 
 @section('content')
-<document-requests></document-requests>
+<document-requests role="{{$role_ids}}"></document-requests>
 @endsection

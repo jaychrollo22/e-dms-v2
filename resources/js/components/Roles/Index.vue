@@ -20,6 +20,9 @@
                                     <thead>
                                         <tr>
                                             <th class="pt-1">
+                                                ID
+                                            </th>
+                                            <th class="pt-1">
                                                 Name
                                             </th>
                                             <th class="pt-1">
@@ -29,6 +32,9 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="(role, index) in items" :key="index">
+                                            <td>
+                                                {{ role.id }}
+                                            </td>
                                             <td>
                                                 {{ role.name }}
                                             </td>

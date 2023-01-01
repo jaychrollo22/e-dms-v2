@@ -20,7 +20,8 @@ class DocumentRequestController extends Controller
      */
     public function index()
     {
-        return view('pages.document_requests.index');
+        $role_ids = json_encode(session('role_ids'),true);
+        return view('pages.document_requests.index',compact('role_ids'));
     }
     public function userIndex()
     {

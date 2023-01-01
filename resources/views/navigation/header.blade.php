@@ -13,6 +13,10 @@
                      <img src="{{ asset('img/default.png') }}" alt="profile" />
                  </a>
                  <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+                     <a class="dropdown-item" href="/user-profile">
+                         <i class="ti-user text-primary"></i>
+                         User Profile
+                     </a>
                      @if(roleValidation())
                      <a class="dropdown-item" href="/home-user">
                          <i class="ti-layout text-primary"></i>
@@ -23,10 +27,7 @@
                          As Administrator
                      </a>
                      @endif
-                     <a class="dropdown-item" href="/user-profile">
-                         <i class="ti-user text-primary"></i>
-                         User Profile
-                     </a>
+
                      <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                          <i class="ti-power-off text-primary"></i>
                          Logout

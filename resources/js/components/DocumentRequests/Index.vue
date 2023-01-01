@@ -305,7 +305,7 @@
 
                                 </div>
                                 <hr class="mt-3">
-                                <div class="row">
+                                <div class="row" v-if="isAllowedToApprove">
                                     <div class="col-md-6 ">
                                         <label for="">For Approval Status</label>
                                         <div class="form-group row">
@@ -345,7 +345,7 @@
 
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-primary" @click="updateDocumentRequest"
+                        <button v-if="isAllowedToApprove" class="btn btn-sm btn-primary" @click="updateDocumentRequest"
                             :disabled="saveDisable">{{ saveDisable ? 'Saving...' : 'Save Changes' }}</button>
                     </div>
 
@@ -360,6 +360,7 @@
 import listFormMixins from '../../list-form-mixins.vue';
 import Swal from 'sweetalert2'
 export default {
+    props: ['role'],
     mixins: [listFormMixins],
     data() {
         return {
@@ -376,15 +377,30 @@ export default {
             filterData: {
                 company: '',
                 department: '',
-            }
+            },
+            isAllowedToApprove: false,
+            role_ids: []
         }
     },
     created() {
         this.fetchList();
         this.fetchCompanies();
         this.fetchDepartments();
+
+        this.getRole();
     },
     methods: {
+        getRole() {
+            this.role_ids = JSON.parse(this.role);
+            if (this.role_ids.includes(1)) { //Administrator
+                this.isAllowedToApprove = true;
+            }
+            else if (this.role_ids.includes(9)) { //ADCO
+                this.isAllowedToApprove = true;
+            } else {
+                this.isAllowedToApprove = false;
+            }
+        },
         fetchCompanies() {
             let v = this;
             v.companies = [];

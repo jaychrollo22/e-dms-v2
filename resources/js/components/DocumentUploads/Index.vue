@@ -171,9 +171,18 @@
                                 <div class="form-group">
                                     <label for="">Control Code</label>
                                     <input type="text" class="form-control" placeholder="Control Code"
-                                        v-model="document_upload.control_code">
+                                        v-model="document_upload.control_code" :disabled="auto_generate_control_code">
                                     <span class="text-danger" v-if="errors.title">{{ errors.control_code[0] }}</span>
+                                    <div class="form-check"
+                                        v-if="document_upload.control_code == '' || document_upload.control_code == null">
+                                        <label class="form-check-label text-muted">
+                                            <input type="checkbox" v-model="auto_generate_control_code"
+                                                class="form-check-input">
+                                            <a href="#">Generate Control Code</a>
+                                            <i class="input-helper"></i><i class="input-helper"></i></label>
+                                    </div>
                                 </div>
+
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -610,9 +619,11 @@
                                                         </td>
                                                         <td>
                                                             <strong>{{ filter_user.name }}</strong> <br>
-                                                            <small>{{ filter_user.company ? filter_user.company.company_info.company_name : "" }}</small>
+                                                            <small
+                                                                v-if="filter_user.company">{{ filter_user.company.company_info ? filter_user.company.company_info.company_name : "" }}</small>
                                                             <br>
-                                                            <small>{{ filter_user.department ? filter_user.department.department_info.department : "" }}</small>
+                                                            <small
+                                                                v-if="filter_user.department">{{ filter_user.department.department_info ? filter_user.department.department_info.department : "" }}</small>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -681,9 +692,11 @@
                                                         </td>
                                                         <td>
                                                             <strong>{{ assigned_user.user_info.name }}</strong> <br>
-                                                            <small>{{ assigned_user.user_info.company ? assigned_user.user_info.company.company_info.company_name : "" }}</small>
+                                                            <small
+                                                                v-if="assigned_user.user_info.company">{{ assigned_user.user_info.company.company_info ? assigned_user.user_info.company.company_info.company_name : "" }}</small>
                                                             <br>
-                                                            <small>{{ assigned_user.user_info.department ? assigned_user.user_info.department.department_info.department : "" }}</small>
+                                                            <small
+                                                                v-if="assigned_user.user_info.department">{{ assigned_user.user_info.department.department_info ? assigned_user.user_info.department.department_info.department : "" }}</small>
                                                         </td>
                                                         <td class="text-center">
                                                             <button v-if="assigned_user.can_print == '1'" type="button"
@@ -788,6 +801,7 @@ import listFormMixins from '../../list-form-mixins.vue';
 import Swal from 'sweetalert2'
 import Multiselect from 'vue-multiselect'
 export default {
+    props: ['role'],
     mixins: [listFormMixins],
     components: {
         Multiselect
@@ -795,9 +809,9 @@ export default {
     data() {
         return {
             endpoint: '/document-uploads',
+            auto_generate_control_code: false,
             document_upload: {
                 id: '',
-                auto_generate_control_code: '',
                 control_code: '',
                 title: '',
                 effective_date: '',
@@ -853,7 +867,11 @@ export default {
             filterData: {
                 company: '',
                 department: '',
-            }
+            },
+
+            isAllowedToApprove: false,
+            role_ids: [],
+
         }
     },
     created() {
@@ -862,8 +880,21 @@ export default {
         this.fetchDepartments();
         this.fetchDocumentCategories();
         this.fetchUsers();
+
+        this.getRole();
     },
     methods: {
+        getRole() {
+            this.role_ids = JSON.parse(this.role);
+            if (this.role_ids.includes(1)) { //Administrator
+                this.isAllowedToApprove = true;
+            }
+            else if (this.role_ids.includes(3)) { //DCO Holdings
+                this.isAllowedToApprove = true;
+            } else {
+                this.isAllowedToApprove = false;
+            }
+        },
         getTitleCanFill(status) {
             var status_title = status == 1 ? 'Disable' : 'Enable';
             return status_title + ' Fill';
@@ -1499,6 +1530,8 @@ export default {
                     formData.append('department', v.document_upload.department ? v.document_upload.department.id : "");
                     formData.append('process_owner', v.document_upload.process_owner ? v.document_upload.process_owner.id : "");
 
+                    formData.append('auto_generate_control_code', v.auto_generate_control_code ? v.auto_generate_control_code : "");
+
                     if (v.action == "Add") {
                         formData.append('attachment_raw_file', v.attachment_raw_file ? v.attachment_raw_file : "");
                         formData.append('attachment_fillable_copy', v.attachment_fillable_copy ? v.attachment_fillable_copy : "");
@@ -1523,7 +1556,19 @@ export default {
 
                                 this.clearFields();
                                 v.saveDisable = false;
-                            } else {
+                            }
+                            else if (response.data.status == "warning") {
+                                Swal.fire({
+                                    title: 'Control Code has been failed.',
+                                    text: response.data.message,
+                                    icon: "warning",
+                                    confirmButtonText: "Ok, got it!"
+                                }).then(okay => {
+                                    v.saveDisable = false;
+                                    v.errors = error.response.data.errors;
+                                });
+                            }
+                            else {
                                 Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
                                 v.saveDisable = false;
                             }

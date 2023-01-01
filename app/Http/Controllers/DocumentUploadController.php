@@ -7,6 +7,9 @@ use App\DocumentUpload;
 use App\DocumentUploadRevision;
 use App\DocumentUploadUser;
 use App\DocumentCopyRequest;
+use App\Company;
+use App\DocumentCategory;
+use App\Department;
 use App\User;
 use Auth;
 use DB;
@@ -27,7 +30,8 @@ class DocumentUploadController extends Controller
     }
 
     public function index(){
-        return view('pages.document_uploads.index');
+        $role_ids = json_encode(session('role_ids'),true);
+        return view('pages.document_uploads.index',compact('role_ids'));
     }
     public function userIndex(){
         return view('pages.document_uploads.user_index');
@@ -188,9 +192,38 @@ class DocumentUploadController extends Controller
             }
 
             $data['status'] = 'Pending'; // Validate if DCO Holdings, Default in pending
-
+            unset($data['auto_generate_control_code']);
             if($document_upload = DocumentUpload::create($data)){
                 DB::commit();
+
+                if($company->company_code && $document_category->code && $department->code){
+                    $control_code = $company->company_code . '-' . $document_category->code . '-' . $department->code . '-' . $control_code_series_number;
+                    $validate_document_upload = DocumentUpload::where('control_code',$control_code)->first();
+                    if(empty($validate_document_upload)){
+                        $document_upload->update([
+                            'control_code'=>$control_code
+                        ]);
+                        $company->update([
+                            'control_code_series_number'=>$company->control_code_series_number + 1
+                        ]);
+                    }else{
+                        return $status_data = [
+                            'status'=>'warning',
+                            'message'=>'Control Code already exists',
+                            'document_upload'=>$document_upload,
+                        ];
+                    }
+                }else{
+                    $m1 = empty($company->company_code) ? 'Company Code is Missing. ' : '';
+                    $m2 = empty($document_category->code) ? 'Document Category Code is Missing. ' : '';
+                    $m3 = empty($department->code) ? 'Department Code is Missing. ' : '';
+                    return $status_data = [
+                        'status'=>'warning',
+                        'message'=>$m1.$m2.$m3,
+                        'document_upload'=>$document_upload,
+                    ];
+                }
+
                 return $status_data = [
                     'status'=>'success'
                 ];
@@ -316,8 +349,48 @@ class DocumentUploadController extends Controller
             $document_upload = DocumentUpload::where('id',$data['id'])->first();
             if($document_upload){
                 unset($data['id']);
+                unset($data['auto_generate_control_code']);
                 $document_upload->update($data);
                 DB::commit();
+
+                if($request->auto_generate_control_code == 'true'){ //Generate Control Code
+                    $company = Company::where('id',$request->company)->first();
+                    $document_category = DocumentCategory::where('id',$request->document_category)->first();
+                    $department = Department::where('id',$request->department)->first();
+                    $control_code_series_number = str_pad($company->control_code_series_number, 2, '0', STR_PAD_LEFT);
+                    
+                    if($company->company_code && $document_category->code && $department->code){
+                        $control_code = $company->company_code . '-' . $document_category->code . '-' . $department->code . '-' . $control_code_series_number;
+
+                        $validate_document_upload = DocumentUpload::where('control_code',$control_code)->first();
+                        if(empty($validate_document_upload)){
+                            $document_upload->update([
+                                'control_code'=>$control_code
+                            ]);
+                            $company->update([
+                                'control_code_series_number'=>$company->control_code_series_number + 1
+                            ]);
+                        }else{
+                            $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
+                            return $status_data = [
+                                'status'=>'warning',
+                                'message'=>'Control Code already exists',
+                                'document_upload'=>$document_upload,
+                            ];
+                        }
+                    }else{
+                        $m1 = empty($company->company_code) ? 'Company Code is Missing. ' : '';
+                        $m2 = empty($document_category->code) ? 'Document Category Code is Missing. ' : '';
+                        $m3 = empty($department->code) ? 'Department Code is Missing. ' : '';
+                        $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
+                        return $status_data = [
+                            'status'=>'warning',
+                            'message'=>$m1.$m2.$m3,
+                            'document_upload'=>$document_upload,
+                        ];
+                    }
+                }
+
                 $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
                 return $status_data = [
                     'status'=>'success',

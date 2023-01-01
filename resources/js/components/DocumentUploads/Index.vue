@@ -213,6 +213,30 @@
                                         v-if="errors.document_category">{{ errors.document_category[0] }}</span>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input type="checkbox" class="form-check-input" true-value="1"
+                                                false-value="0" v-model="document_upload.is_form">
+                                            Form
+                                            <i class="input-helper"></i>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6" v-if="document_upload.document_category.id == '7'">
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input type="checkbox" class="form-check-input" true-value="1"
+                                                false-value="0" v-model="document_upload.is_procedure_link">
+                                            Link Specific Policy
+                                            <i class="input-helper"></i>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="">Company</label>
@@ -238,7 +262,7 @@
                                     <span class="text-danger"
                                         v-if="errors.attachment_raw_file">{{ errors.attachment_raw_file[0] }}</span>
                                 </div>
-                                <div class="form-group" v-if="document_upload.document_category.id == '6'">
+                                <div class="form-group" v-if="document_upload.is_form == '1'">
                                     <label>Document Attachment (Fillable Copy)</label>
                                     <input @change="uploadFillableCopy" name="attachment_fillable_copy" type="file"
                                         accept="application/*" id="attachment_fillable_copy" class="form-control">
@@ -306,7 +330,7 @@
                                             Raw File
                                         </a>
                                     </li>
-                                    <li class="nav-item" v-if="view_document.document_category == '6'">
+                                    <li class="nav-item" v-if="view_document.is_form == '1'">
                                         <a class="nav-link" id="fillable-copy-tab-vertical" data-bs-toggle="tab"
                                             href="#fillable-copy" role="tab" aria-controls="fillable-copy"
                                             aria-selected="false">
@@ -364,7 +388,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div :class="view_document.document_category == '6' ? 'tab-pane fade' : 'tab-pane fade'"
+                                    <div :class="view_document.is_form == '1' ? 'tab-pane fade' : 'tab-pane fade'"
                                         class="tab-pane fade" id="fillable-copy" role="tabpanel"
                                         aria-labelledby="fillable-copy-tab-vertical">
                                         <h5>Document Attachment (Fillable Copy)</h5>
@@ -725,8 +749,7 @@
                                                             </button>
 
 
-                                                            <button v-if="view_document.document_category == '6'"
-                                                                type="button"
+                                                            <button v-if="view_document.is_form == '1'" type="button"
                                                                 :class="getClassCanFill(assigned_user.can_fill)"
                                                                 :title="getTitleCanFill(assigned_user.can_fill)"
                                                                 @click="canFill(assigned_user)">
@@ -770,8 +793,7 @@
                                             Allow Download ({{ bulkAssignSelectedIds.length }})</button>
 
 
-                                        <button
-                                            v-if="view_document.document_category == '6' && bulkAssignSelectedIds.length > 0"
+                                        <button v-if="view_document.is_form == '1' && bulkAssignSelectedIds.length > 0"
                                             class="btn btn-info btn-sm text-white" @click="saveCanFillUserAssignUser"
                                             :disabled="saveDisable"><i class="ti-pencil-alt"></i>
                                             Allow Fill ({{ bulkAssignSelectedIds.length }})</button>
@@ -1526,6 +1548,8 @@ export default {
                     formData.append('title', v.document_upload.title ? v.document_upload.title : "");
                     formData.append('effective_date', v.document_upload.effective_date ? v.document_upload.effective_date : "");
                     formData.append('document_category', v.document_upload.document_category ? v.document_upload.document_category.id : "");
+                    formData.append('is_form', v.document_upload.is_form ? v.document_upload.is_form : "");
+                    formData.append('is_procedure_link', v.document_upload.is_procedure_link ? v.document_upload.is_procedure_link : "");
                     formData.append('company', v.document_upload.company ? v.document_upload.company.id : "");
                     formData.append('department', v.document_upload.department ? v.document_upload.department.id : "");
                     formData.append('process_owner', v.document_upload.process_owner ? v.document_upload.process_owner.id : "");

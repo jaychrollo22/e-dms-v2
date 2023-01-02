@@ -79,6 +79,12 @@ class DocumentUploadController extends Controller
                                                 'user_info'
                                                 )
                                                 ->where('status','1')
+                                                ->whereHas('document_upload_info',function($q){
+                                                    $q->where('is_discontinuance','=',"")->orWhereNull('is_discontinuance');
+                                                })
+                                                ->whereHas('document_upload_info',function($q){
+                                                    $q->where('is_obsolete','=',"")->orWhereNull('is_obsolete');
+                                                })
                                                 ->orderBy('created_at','DESC');
     
         $document_uploads->where('user_id',Auth::user()->id);

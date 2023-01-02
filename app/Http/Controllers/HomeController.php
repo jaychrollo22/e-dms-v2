@@ -72,6 +72,15 @@ class HomeController extends Controller
             $q->where('status','Approved');
             $q->whereDate('effective_date','<=',date('Y-m-d'));
         });
+        
+        $total_document_upload->whereHas('document_upload_info',function($q){
+            $q->where('is_discontinuance','=',"")->orWhereNull('is_discontinuance');
+        });
+
+        $total_document_upload->whereHas('document_upload_info',function($q){
+            $q->where('is_obsolete','=',"")->orWhereNull('is_obsolete');
+        });
+
         $total_document_upload = $total_document_upload->get();
 
         return [

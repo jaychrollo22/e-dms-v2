@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
+use App\DocumentUpload;
 class AutoDocumentRevisionImplementation extends Command
 {
     /**
@@ -37,6 +38,31 @@ class AutoDocumentRevisionImplementation extends Command
      */
     public function handle()
     {
-        return 0;
+        $revisions = $this->revisions();
+
+        return $this->info($revisions);
+    }
+
+    public function revisions(){
+
+        $documents = DocumentUpload::whereDate('implementation_date','=',date('Y-m-d'))->get();
+
+        if($documents){
+            $count = 0;
+            foreach($documents as $document){
+                if($document->attachment_signed_copy_revision){
+                    //Update from Revision
+                    DocumentUpload::where('id',$document->id)
+                                ->update([
+                                    'attachment_signed_copy'=>$document->attachment_signed_copy_revision,
+                                    'attachment_signed_copy_revision'=>null,
+                                    'implementation_date'=>null,
+                                ]);
+                    $count++;;
+                }
+            }
+
+            return $count;
+        }
     }
 }

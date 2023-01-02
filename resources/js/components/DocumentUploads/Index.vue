@@ -129,6 +129,14 @@
                                                 <div :class="getStatus(document.status)">
                                                     {{ document.status }}
                                                 </div>
+                                                <br>
+                                                <div v-if="document.is_discontinuance == '1'"
+                                                    class="badge badge-warning mt-1">
+                                                    Discontinuance
+                                                </div> <br>
+                                                <div v-if="document.is_obsolete == '1'" class="badge badge-danger mt-1">
+                                                    Obsolete
+                                                </div>
                                             </td>
                                             <td class="text-center">
                                                 <button type="button"

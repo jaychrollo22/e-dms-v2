@@ -255,8 +255,8 @@
                                         class="form-group">
                                         <label for="">Select Document</label>
                                         <multiselect v-model="document_request.document_upload_id"
-                                            :options="document_uploads" placeholder="Select Document" label="title"
-                                            track-by="id">
+                                            :custom-label="customLabelDocument" :options="document_uploads"
+                                            placeholder="Select Document" label="title" track-by="id">
                                         </multiselect>
                                         <span class="text-danger"
                                             v-if="errors.attachment_file">{{ errors.attachment_file[0] }}</span>
@@ -286,7 +286,7 @@
                     <div class="modal-footer">
                         <button v-if="disableDocumentRequest" disabled class="btn btn-primary btn-md">Save</button>
                         <button v-else @click="updateDocumentRequest" :disabled="saveDisable"
-                            class="btn btn-primary btn-md">{{ saveDisable ? 'Saving...' : 'Save' }}</button>
+                            class="btn btn-primary btn-md">{{ saveDisable? 'Saving...': 'Save' }}</button>
                     </div>
                 </div>
             </div>
@@ -326,6 +326,11 @@ export default {
         this.getDocumentUploads();
     },
     methods: {
+        customLabelDocument(item) {
+            if (item) {
+                return `${item.document_upload_info.control_code}` + ' | ' + `${item.document_upload_info.title}`;
+            }
+        },
         getDocumentUploads() {
             let v = this;
             v.document_uploads = [];

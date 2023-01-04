@@ -44,6 +44,12 @@ class DocumentRequestController extends Controller
         if(isset($request->department)){
             $document_requests->where('department',$request->department);
         }
+        if(isset($request->type_of_request)){
+            $document_requests->where('type_of_request',$request->type_of_request);
+        }
+        if(isset($request->status)){
+            $document_requests->where('status',$request->status);
+        }
 
         return $document_requests->paginate($limit);
     }

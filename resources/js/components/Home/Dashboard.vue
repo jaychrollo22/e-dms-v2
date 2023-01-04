@@ -7,8 +7,7 @@
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                             <h3 class="font-weight-bold">Welcome to E-DMS</h3>
-                            <h6 class="font-weight-normal mb-0">All systems are running smoothly! You have <span
-                                    class="text-primary">3 unread alerts!</span></h6>
+                            <h6 class="font-weight-normal mb-0">All systems are running smoothly!</h6>
                         </div>
                     </div>
                     <div class="row mt-4">
@@ -18,7 +17,7 @@
                                     <p class="mb-4">Pending Requests</p>
                                     <p class="fs-30 mb-2" style="cursor:pointer"
                                         @click="redirectTo('/document-requests?status=Pending')">
-                                        {{ dashboardData ? dashboardData.new_document_request : "0" }}
+                                        {{ dashboardData? dashboardData.new_document_request : "0" }}
                                     </p>
                                     <p>as of Today</p>
                                 </div>
@@ -30,7 +29,7 @@
                                     <p class="mb-4">New Copy Requests</p>
                                     <p class="fs-30 mb-2" style="cursor:pointer"
                                         @click="redirectTo('/document-copy-requests?status=New')">
-                                        {{ dashboardData ? dashboardData.new_document_copy_request : "0" }}
+                                        {{ dashboardData? dashboardData.new_document_copy_request : "0" }}
                                     </p>
                                     <p>as of Today</p>
                                 </div>
@@ -42,7 +41,7 @@
                                     <p class="mb-4">New Access Requests</p>
                                     <p class="fs-30 mb-2" style="cursor:pointer"
                                         @click="redirectTo('/access-requests?status=New')">
-                                        {{ dashboardData ? dashboardData.new_access_request : "0" }}
+                                        {{ dashboardData? dashboardData.new_access_request : "0" }}
                                     </p>
                                     <p>as of Today</p>
                                 </div>
@@ -54,12 +53,13 @@
                                     <p class="mb-4">Pending Document Uploads</p>
                                     <p class="fs-30 mb-2" style="cursor:pointer"
                                         @click="redirectTo('/document-uploads?status=Pending')">
-                                        {{ dashboardData ? dashboardData.new_document_upload : "0" }}
+                                        {{ dashboardData? dashboardData.new_document_upload : "0" }}
                                     </p>
                                     <p>as of Today</p>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>

@@ -143,8 +143,8 @@
                                         v-if="document_request.type_of_request == 'Revision' || document_request.type_of_request == 'Discontinuance' || document_request.type_of_request == 'Obsolete'">
                                         <label for="">Select Document</label>
                                         <multiselect v-model="document_request.document_upload_id"
-                                            :options="document_uploads" placeholder="Select Document" label="title"
-                                            track-by="id">
+                                            :custom-label="customLabelDocument" :options="document_uploads"
+                                            placeholder="Select Document" label="title" track-by="id">
                                         </multiselect>
                                         <span class="text-danger"
                                             v-if="errors.attachment_file">{{ errors.attachment_file[0] }}</span>
@@ -162,7 +162,7 @@
                         </div>
                         <div class="card-footer">
                             <button class="btn btn-primary btn-md" @click="saveDocumentRequest"
-                                :disabled="saveDisable">{{ saveDisable ? 'Saving...' : 'Save' }}</button>
+                                :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save' }}</button>
                         </div>
                     </div>
                 </div>
@@ -203,6 +203,11 @@ export default {
         this.getDocumentUploads();
     },
     methods: {
+        customLabelDocument(item) {
+            if (item) {
+                return `${item.document_upload_info.control_code}` + ' | ' + `${item.document_upload_info.title}`;
+            }
+        },
         getDocumentUploads() {
             let v = this;
             v.document_uploads = [];
@@ -254,7 +259,11 @@ export default {
                     formData.append('type_of_documented_information', v.document_request.type_of_documented_information ? v.document_request.type_of_documented_information : "");
                     formData.append('type_of_documented_information_others', v.document_request.type_of_documented_information_others ? v.document_request.type_of_documented_information_others : "");
                     formData.append('description_purpose_of_documentation', v.document_request.description_purpose_of_documentation ? v.document_request.description_purpose_of_documentation : "");
-                    formData.append('document_upload_id', v.document_request.document_upload_id ? v.document_request.document_upload_id.id : "");
+                    if (v.document_request.type_of_request == 'New') {
+                        formData.append('document_upload_id', "");
+                    } else {
+                        formData.append('document_upload_id', v.document_request.document_upload_id ? v.document_request.document_upload_id.document_upload_info.id : "");
+                    }
 
                     formData.append('attachment_file', v.attachment_file ? v.attachment_file : "");
 

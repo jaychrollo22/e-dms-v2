@@ -314,7 +314,7 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-primary btn-md" @click="saveDocumentUpload"
-                            :disabled="saveDisable">{{ saveDisable ? 'Saving...' : 'Save' }}</button>
+                            :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save' }}</button>
                     </div>
                 </div>
             </div>
@@ -450,7 +450,7 @@
                                             <div class="col-md-6">
                                                 <label>Upload Revision Attachment <a
                                                         v-if="view_document.attachment_signed_copy_revision" :href="'storage/document_uploads/' +
-    view_document.attachment_signed_copy_revision" target="_blank"
+                                                        view_document.attachment_signed_copy_revision" target="_blank"
                                                         class="badge badge-pill badge-success">View</a></label>
                                                 <input @change="uploadSignedCopyRevision"
                                                     name="attachment_signed_copy_revision" type="file"
@@ -548,7 +548,7 @@
                         </div>
 
                         <button class="btn btn-sm btn-primary" @click="updateDocumentUpload"
-                            :disabled="saveDisable">{{ saveDisable ? 'Saving...' : 'Save Changes' }}</button>
+                            :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save Changes' }}</button>
                     </div>
                 </div>
             </div>
@@ -614,6 +614,16 @@
                                     <!-- Filtered Users -->
                                     <div class="tab-pane fade active show" id="filtered-user" role="tabpanel"
                                         aria-labelledby="filtered-user-tab">
+                                        <div class="mb-2">
+                                            Show
+                                            <select v-model="itemsPerPageFilteredUser" @change="showPageFilteredUser">
+                                                <option value="5">5</option>
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                            </select>
+                                        </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered">
                                                 <thead>
@@ -684,7 +694,16 @@
                                     <!-- Assigned Users -->
                                     <div class="tab-pane fade" id="assigned-user" role="tabpanel"
                                         aria-labelledby="assigned-user-tab">
-
+                                        <div class="mb-2">
+                                            Show
+                                            <select v-model="itemsPerPageAssignedUser" @change="showPageAssignedUser">
+                                                <option value="5">5</option>
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                            </select>
+                                        </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered">
                                                 <thead>
@@ -757,6 +776,17 @@
                                                                 <i class="ti-cloud-down"></i>
                                                             </button>
 
+                                                            <button v-if="assigned_user.can_edit == '1'" type="button"
+                                                                class="btn btn-inverse-warning btn-rounded btn-icon"
+                                                                title="Disable Edit" @click="canEdit(assigned_user)">
+                                                                <i class="ti-pencil"></i>
+                                                            </button>
+                                                            <button v-else type="button"
+                                                                class="btn btn-inverse-secondary btn-rounded btn-icon"
+                                                                title="Enable Edit" @click="canEdit(assigned_user)">
+                                                                <i class="ti-pencil"></i>
+                                                            </button>
+
 
                                                             <button v-if="view_document.is_form == '1'" type="button"
                                                                 :class="getClassCanFill(assigned_user.can_fill)"
@@ -800,6 +830,10 @@
                                             @click="saveCanDownloadUserAssignUser" :disabled="saveDisable"><i
                                                 class="ti-cloud-down"></i>
                                             Allow Download ({{ bulkAssignSelectedIds.length }})</button>
+                                        <button v-if="bulkAssignSelectedIds.length > 0"
+                                            class="btn btn-warning btn-sm text-white" @click="saveCanEditUserAssignUser"
+                                            :disabled="saveDisable"><i class="ti-pencil"></i>
+                                            Allow Edit ({{ bulkAssignSelectedIds.length }})</button>
 
 
                                         <button v-if="view_document.is_form == '1' && bulkAssignSelectedIds.length > 0"
@@ -809,8 +843,6 @@
 
                                     </div>
                                 </div>
-
-
 
                             </div>
                         </div>
@@ -886,7 +918,7 @@ export default {
 
             documentUploadUsers: [],
             currentPageAssignedUser: 0,
-            itemsPerPageAssignedUser: 10,
+            itemsPerPageAssignedUser: 5,
 
             isSelectAll: 0,
             bulkCheckSelectedIds: [],
@@ -914,6 +946,12 @@ export default {
         this.getRole();
     },
     methods: {
+        showPageFilteredUser() {
+            this.currentPageFilteredUser = 0;
+        },
+        showPageAssignedUser() {
+            this.currentPageAssignedUser = 0;
+        },
         getRole() {
             this.role_ids = JSON.parse(this.role);
             if (this.role_ids.includes(1)) { //Administrator
@@ -1027,6 +1065,23 @@ export default {
                 let formData = new FormData();
                 formData.append('id', document_user.id ? document_user.id : "");
                 axios.post(`/document-uploads/save-document-upload-user-fill`, formData)
+                    .then(response => {
+                        if (response.data.status == "saved") {
+                            v.documentUploadUsers.splice(index, 1, response.data.document_upload_user);
+                        }
+                    })
+                    .catch(error => {
+                        v.errors = error.response.data.errors;
+                    })
+            }
+        },
+        canEdit(document_user) {
+            let v = this;
+            if (document_user) {
+                var index = v.documentUploadUsers.findIndex(item => item.id == document_user.id);
+                let formData = new FormData();
+                formData.append('id', document_user.id ? document_user.id : "");
+                axios.post(`/document-uploads/save-document-upload-user-edit`, formData)
                     .then(response => {
                         if (response.data.status == "saved") {
                             v.documentUploadUsers.splice(index, 1, response.data.document_upload_user);
@@ -1317,6 +1372,60 @@ export default {
                 if (result.isConfirmed) {
                     let formData = new FormData();
                     var postURL = `/document-uploads/allow-fill-user`;
+                    formData.append('id', v.view_document.id ? v.view_document.id : "");
+                    formData.append('document_user_ids', v.bulkAssignSelectedIds.length > 0 ? JSON.stringify(v.bulkAssignSelectedIds) : "");
+
+                    axios.post(postURL, formData)
+                        .then(response => {
+                            if (response.data.status == "success") {
+                                Swal.fire('Users (' + response.data.count + ') has been allowed to fil! ', '', 'success');
+                                v.saveDisable = false;
+                                this.view_document = response.data.document_upload;
+                                this.filterUser();
+                                this.getAssignedUsers();
+
+                                v.bulkAssignSelectedIds = [];
+                                v.isRemoveAll = 0;
+                            } else {
+                                Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
+                                v.saveDisable = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            Swal.fire({
+                                text: 'Sorry, looks like there are some errors detected, please try again..',
+                                icon: "error",
+                                confirmButtonText: "Ok, got it!"
+                            }).then(okay => {
+                                v.saveDisable = false;
+                                v.errors = error.response.data.errors;
+                            });
+
+                        })
+                } else {
+                    v.saveDisable = false;
+                }
+            })
+        },
+        saveCanEditUserAssignUser() {
+            let v = this;
+            v.saveDisable = true;
+            Swal.fire({
+                text: "Are you sure you want to allow edit for this document users?",
+                icon: "question",
+                showCancelButton: true,
+                buttonsStyling: false,
+                confirmButtonText: "Yes, Allow",
+                cancelButtonText: "No, cancel",
+                customClass: {
+                    confirmButton: "btn font-weight-bold btn-primary",
+                    cancelButton: "btn font-weight-bold btn-default"
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let formData = new FormData();
+                    var postURL = `/document-uploads/allow-edit-user`;
                     formData.append('id', v.view_document.id ? v.view_document.id : "");
                     formData.append('document_user_ids', v.bulkAssignSelectedIds.length > 0 ? JSON.stringify(v.bulkAssignSelectedIds) : "");
 
@@ -1724,11 +1833,11 @@ export default {
             });
         },
         totalPagesFilteredUser() {
-            return Math.ceil(Object.values(this.filteredUsers).length / this.itemsPerPageFilteredUser)
+            return Math.ceil(Object.values(this.filteredUsers).length / Number(this.itemsPerPageFilteredUser))
         },
         filteredQueues() {
-            var index = this.currentPageFilteredUser * this.itemsPerPageFilteredUser;
-            var queues_array = this.filteredUsers.slice(index, index + this.itemsPerPageFilteredUser);
+            var index = this.currentPageFilteredUser * Number(this.itemsPerPageFilteredUser);
+            var queues_array = this.filteredUsers.slice(index, index + Number(this.itemsPerPageFilteredUser));
 
             if (this.currentPageFilteredUser >= this.totalPagesFilteredUser) {
                 this.currentPageFilteredUser = this.totalPagesFilteredUser - 1
@@ -1752,11 +1861,11 @@ export default {
 
         },
         totalPagesAssignedUser() {
-            return Math.ceil(Object.values(this.assignedUsers).length / this.itemsPerPageAssignedUser)
+            return Math.ceil(Object.values(this.assignedUsers).length / Number(this.itemsPerPageAssignedUser))
         },
         assignedQueues() {
-            var index = this.currentPageAssignedUser * this.itemsPerPageAssignedUser;
-            var queues_array = this.assignedUsers.slice(index, index + this.itemsPerPageAssignedUser);
+            var index = this.currentPageAssignedUser * Number(this.itemsPerPageAssignedUser);
+            var queues_array = this.assignedUsers.slice(index, index + Number(this.itemsPerPageAssignedUser));
 
             if (this.currentPageAssignedUser >= this.totalPagesAssignedUser) {
                 this.currentPageAssignedUser = this.totalPagesAssignedUser - 1

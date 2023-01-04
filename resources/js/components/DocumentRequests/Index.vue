@@ -11,7 +11,7 @@
                                     @click="showExportDownload"><i class="ti-cloud-down"></i> </button>
                             </div>
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <div class="input-group">
                                             <div class="input-group-prepend bg-transparent">
@@ -25,6 +25,8 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <div class="input-group">
@@ -61,6 +63,49 @@
                                                     :value="department.id">
                                                     {{ department.department }}
                                                 </option>
+                                            </select>
+                                        </div>
+                                        <span class="text-danger"
+                                            v-if="errors.department">{{ errors.department[0] }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-settings text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <select v-model="filterData.type_of_request" @change="searchKeyUp"
+                                                class="form-control form-control-lg border-left-0" name="department"
+                                                id="department">
+                                                <option value="">Choose Type of Request</option>
+                                                <option value="New">New</option>
+                                                <option value="Revision">Revision</option>
+                                                <option value="Discontinuance">Discontinuance</option>
+                                                <option value="Obsolete">Obsolete</option>
+                                            </select>
+                                        </div>
+                                        <span class="text-danger"
+                                            v-if="errors.department">{{ errors.department[0] }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-settings text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <select v-model="filterData.status" @change="searchKeyUp"
+                                                class="form-control form-control-lg border-left-0" name="department"
+                                                id="department">
+                                                <option value="">Choose Status</option>
+                                                <option value="Pending">Pending</option>
+                                                <option value="Approved">Approved</option>
+                                                <option value="Disapproved">Disapproved</option>
                                             </select>
                                         </div>
                                         <span class="text-danger"
@@ -347,7 +392,7 @@
                             </div>
                         </div>
                         <button v-if="isAllowedToApprove" class="btn btn-sm btn-primary" @click="updateDocumentRequest"
-                            :disabled="saveDisable">{{ saveDisable ? 'Saving...' : 'Save Changes' }}</button>
+                            :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save Changes' }}</button>
                     </div>
 
                 </div>
@@ -420,6 +465,8 @@ export default {
             filterData: {
                 company: '',
                 department: '',
+                type_of_request: '',
+                status: '',
             },
             isAllowedToApprove: false,
             role_ids: [],

@@ -78,6 +78,7 @@ Route::group(['prefix' => 'document-uploads'], function () {
     Route::post('/remove-user', 'DocumentUploadController@removeUser');
     Route::post('/allow-print-user', 'DocumentUploadController@allowPrintUser');
     Route::post('/allow-download-user', 'DocumentUploadController@allowDownloadUser');
+    Route::post('/allow-edit-user', 'DocumentUploadController@allowEditUser');
     Route::post('/allow-fill-user', 'DocumentUploadController@allowFillUser');
     Route::post('/delete-user', 'DocumentUploadController@deleteUser');
     Route::post('/update', 'DocumentUploadController@update');
@@ -85,6 +86,7 @@ Route::group(['prefix' => 'document-uploads'], function () {
     Route::post('/save-document-upload-user-print', 'DocumentUploadController@saveDocumentUploadUserPrint');
     Route::post('/save-document-upload-user-download', 'DocumentUploadController@saveDocumentUploadUserDownload');
     Route::post('/save-document-upload-user-fill', 'DocumentUploadController@saveDocumentUploadUserFill');
+    Route::post('/save-document-upload-user-edit', 'DocumentUploadController@saveDocumentUploadUserEdit');
 });
 
 Route::get('/user-document-uploads', 'DocumentUploadController@userIndex')->name('user-document-uploads');

@@ -62,7 +62,7 @@ class DocumentUploadController extends Controller
         if(isset($request->department)){
             $document_uploads->where('department',$request->department);
         }
-
+        
         return $document_uploads->paginate($limit);
     }
 
@@ -149,10 +149,10 @@ class DocumentUploadController extends Controller
 
     public function documentUploadRequestOptions(){
         $user = User::with('company')->where('id',Auth::user()->id)->first();
-        return DocumentUpload::select('id','control_code','title')
-                                ->where('company',$user->company->company_id)
-                                ->where('status','Approved')
-                                ->orderBy('title','ASC')
+        return DocumentUploadUser::with('document_upload_info')
+                                ->where('can_edit','1')
+                                ->where('status','1')
+                                ->where('user_id','1')
                                 ->get();
 
     }
@@ -771,6 +771,47 @@ class DocumentUploadController extends Controller
         } 
     }
 
+    public function allowEditUser(Request $request){
+
+        DB::beginTransaction();
+        try {
+            
+            $document_user_ids = json_decode($request->document_user_ids);
+            $document_upload = DocumentUpload::where('id',$request->id)->first();
+
+            if($document_user_ids && $document_upload){
+                $count = 0;
+                foreach($document_user_ids as $document_user_id){
+                    
+                    $document_upload_user = [
+                        'can_edit'=>1,
+                    ];
+
+                    $check = DocumentUploadUser::where('id',$document_user_id)->first();
+                    if($check){
+                        $check->update($document_upload_user);
+                        $count++;
+                    }
+                }
+
+                DB::commit();
+
+                $document_upload = DocumentUpload::with('company_info','department_info','document_category_info.tag_info','process_owner_info','revisions','users')->where('id',$document_upload->id)->first();
+                    
+                return $response = [
+                    'status'=>'success',
+                    'count'=> $count,
+                    'document_upload'=>$document_upload,
+                ];
+            }
+
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
+
     public function saveDocumentUploadUserPrint(Request $request){
 
         DB::beginTransaction();
@@ -858,6 +899,35 @@ class DocumentUploadController extends Controller
         }
     }
 
+    public function saveDocumentUploadUserEdit(Request $request){
+
+        DB::beginTransaction();
+        try {
+
+            $document_upload_user = DocumentUploadUser::with('user_info.department.department_info','user_info.company.company_info')->where('id',$request->id)->first();
+
+            if($document_upload_user){
+
+                $data['can_edit'] = $document_upload_user->can_edit == '1' ? 0 : 1;
+
+                $document_upload_user->update($data);
+                DB::commit();
+
+                return $response = [
+                    'status'=>'saved',
+                    'document_upload_user'=>$document_upload_user
+                ];
+
+            }
+
+        }catch (Exception $e) {
+            DB::rollBack();
+            return $reponse = [
+                'status'=>'error'
+            ];
+        }
+    }
+
     public function documentUploadSignedCopy(Request $request){
         
         $document_upload = DocumentUpload::with('company_info')->where('id',$request->id)->first();
@@ -884,8 +954,6 @@ class DocumentUploadController extends Controller
 
             }
             
-            
-
             $pdf->Output('I', $document_upload->title . '.pdf');
             exit();
         }

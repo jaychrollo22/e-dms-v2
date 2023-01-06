@@ -136,6 +136,7 @@ class AccessRequestController extends Controller
                             ];
                             $user = User::where('email',$access_request->email)->first();
                             if(empty($user)){
+                                $user_data['password'] = Hash::make($access_request->initial_password);
                                 if($user = User::create($user_data)){
                                     if($request->immediate_head){
                                         UserImmediateHead::create([

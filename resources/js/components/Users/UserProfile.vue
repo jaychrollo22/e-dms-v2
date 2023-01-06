@@ -19,7 +19,7 @@
                                     {{ user_profile.immediate_head ? 'Immediate Head : ' + user_profile.immediate_head.user_info.name : "" }}
                                 </p>
                                 <p class="text-muted mb-0">
-                                    {{ user_profile.roles ? 'Roles : ' + displayRoles(user_profile.roles.roles) : "" }}
+                                    {{ user_profile.roles ? 'Roles : ' + displayRoles(user_profile.roles) : "" }}
                                 </p>
                             </div>
 
@@ -126,11 +126,11 @@ export default {
             $('#change-password-modal').modal('show');
         },
         displayRoles(roles) {
-            var roles = JSON.parse(roles);
             var roles_arr = [];
             if (roles.length > 0) {
                 roles.forEach(e => {
-                    roles_arr.push(e.name);
+                    var role = JSON.parse(e.roles);
+                    roles_arr.push(role.name);
                 });
                 return roles_arr.join(', ');
             }

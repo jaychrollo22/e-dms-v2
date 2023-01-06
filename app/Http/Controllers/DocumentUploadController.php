@@ -78,7 +78,6 @@ class DocumentUploadController extends Controller
                                                 'document_upload_info.revisions',
                                                 'user_info'
                                                 )
-                                                ->where('status','1')
                                                 ->whereHas('document_upload_info',function($q){
                                                     $q->where('is_discontinuance','=',"")->orWhereNull('is_discontinuance');
                                                 })
@@ -148,11 +147,21 @@ class DocumentUploadController extends Controller
     }
 
     public function documentUploadRequestOptions(){
-        $user = User::with('company')->where('id',Auth::user()->id)->first();
         return DocumentUploadUser::with('document_upload_info')
                                 ->where('can_edit','1')
                                 ->where('status','1')
-                                ->where('user_id','1')
+                                ->where('user_id',Auth::user()->id)
+                                ->whereHas('document_upload_info',function($q){
+                                    $q->where('is_discontinuance','=',"")->orWhereNull('is_discontinuance');
+                                })
+                                ->whereHas('document_upload_info',function($q){
+                                    $q->where('is_obsolete','=',"")->orWhereNull('is_obsolete');
+                                })
+                                ->whereHas('document_upload_info',function($q){
+                                    $q->where('is_discussed','1');
+                                    $q->where('status','Approved');
+                                    $q->whereDate('effective_date','<=',date('Y-m-d'));
+                                })
                                 ->get();
 
     }

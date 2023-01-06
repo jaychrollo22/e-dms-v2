@@ -283,11 +283,20 @@ export default {
         }
     },
     created() {
+        this.getURLFilter();
         this.fetchList();
         this.fetchCompanies();
         this.fetchDepartments();
     },
     methods: {
+        getURLFilter() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            var status = urlParams.get('status');
+            if (status) {
+                this.filterData.status = status;
+            }
+        },
         getStatusStyle(status) {
             if (status == 'New') {
                 return 'badge badge-primary';

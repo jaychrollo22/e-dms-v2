@@ -970,6 +970,7 @@ export default {
         }
     },
     created() {
+        this.getURLFilter();
         this.fetchList();
         this.fetchCompanies();
         this.fetchDepartments();
@@ -979,6 +980,15 @@ export default {
         this.getRole();
     },
     methods: {
+        getURLFilter() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            var status = urlParams.get('status');
+
+            if (status) {
+                this.filterData.status = status;
+            }
+        },
         showPageFilteredUser() {
             this.currentPageFilteredUser = 0;
         },

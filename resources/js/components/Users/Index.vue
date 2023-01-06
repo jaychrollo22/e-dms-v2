@@ -51,7 +51,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(user, index) in items" :key="index">
+                                        <tr v-if="isProcessing">
+                                            <td colspan="7">
+                                                <div class="dot-opacity-loader">
+                                                    <span></span>
+                                                    <span></span>
+                                                    <span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr v-else v-for="(user, index) in items" :key="index">
                                             <td>
                                                 {{ user.name }}
                                             </td>

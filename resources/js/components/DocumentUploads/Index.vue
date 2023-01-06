@@ -103,7 +103,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(document, index) in items" :key="index">
+                                        <tr v-if="isProcessing">
+                                            <td colspan="12">
+                                                <div class="dot-opacity-loader">
+                                                    <span></span>
+                                                    <span></span>
+                                                    <span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr v-else v-for="(document, index) in items" :key="index">
                                             <td>
                                                 {{ document.control_code }}
                                             </td>
@@ -155,6 +164,7 @@
                                                 </button>
                                             </td>
                                         </tr>
+
                                     </tbody>
                                 </table>
                             </div>

@@ -53,7 +53,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(request, index) in items" :key="index">
+                                        <tr v-if="isProcessing">
+                                            <td colspan="6">
+                                                <div class="dot-opacity-loader">
+                                                    <span></span>
+                                                    <span></span>
+                                                    <span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr v-else v-for="(request, index) in items" :key="index">
                                             <td>
                                                 {{ request.requested_date }}
                                             </td>

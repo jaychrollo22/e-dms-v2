@@ -53,7 +53,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(request, index) in items" :key="index">
+                                        <tr v-if="isProcessing">
+                                            <td colspan="7">
+                                                <div class="dot-opacity-loader">
+                                                    <span></span>
+                                                    <span></span>
+                                                    <span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr v-else v-for="(request, index) in items" :key="index">
                                             <td>
                                                 {{ request.requested_date }}
                                             </td>
@@ -153,7 +162,7 @@
                         <hr>
                         <button v-if="disableFields" disabled class="btn btn-primary btn-md">Save</button>
                         <button v-else class="btn btn-md btn-primary" @click="updateDocumentCopyRequest"
-                            :disabled="saveDisable">{{ saveDisable ? 'Saving...' : 'Save Changes' }}</button>
+                            :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save Changes' }}</button>
 
                     </div>
 

@@ -52,7 +52,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(document, index) in items" :key="index">
+                                        <tr v-if="isProcessing">
+                                            <td colspan="7">
+                                                <div class="dot-opacity-loader">
+                                                    <span></span>
+                                                    <span></span>
+                                                    <span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr v-else v-for="(document, index) in items" :key="index">
                                             <td>
                                                 {{ document.document_upload_info.control_code }}
                                             </td>
@@ -116,7 +125,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="col-12 modal-title">
-                            {{ view_document ? view_document.document_upload_info.title : "" }}
+                            {{ view_document? view_document.document_upload_info.title : "" }}
                         </h5>
                     </div>
                     <div class="modal-body" v-if="view_document">

@@ -62,6 +62,9 @@ class DocumentUploadController extends Controller
         if(isset($request->department)){
             $document_uploads->where('department',$request->department);
         }
+        if(isset($request->status)){
+            $document_uploads->where('status',$request->status);
+        }
         
         return $document_uploads->paginate($limit);
     }

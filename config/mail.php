@@ -84,7 +84,7 @@ return [
     */
 
     'from' => [
-        'address' => 'arjay.lumagdong@gmail.com',
+        'address' => 'adminportal@premiummegastructures.com',
         'name' => 'E-DMS'
     ],
 

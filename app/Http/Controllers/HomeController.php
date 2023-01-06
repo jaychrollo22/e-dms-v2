@@ -9,6 +9,7 @@ use App\DocumentCopyRequest;
 use App\AccessRequest;
 use App\DocumentUploadUser;
 
+use DB;
 use Auth;
 
 class HomeController extends Controller
@@ -49,11 +50,14 @@ class HomeController extends Controller
         $new_document_upload = DocumentUpload::where('status','Pending')->count();
         $new_access_request = AccessRequest::where('status','New')->count();
 
+        $document_per_company = DocumentUpload::select('company', DB::raw('count(*) as total'))->with('company_info')->groupBy('company')->orderBy('company','ASC')->get();
+
         return [
             'new_document_request'=>$new_document_request,
             'new_document_copy_request'=>$new_document_copy_request,
             'new_document_upload'=>$new_document_upload,
             'new_access_request'=>$new_access_request,
+            'document_per_company'=>$document_per_company,
         ];
     }
 

@@ -69,7 +69,7 @@
                                                 {{ document.document_upload_info.title }}
                                             </td>
                                             <td>
-                                                {{ document.document_upload_info.company_info ? document.document_upload_info.company_info.company_name : "" }}
+                                                {{ document.document_upload_info.company_info ? document.document_upload_info.company_info.company_code : "" }}
                                             </td>
                                             <td>
                                                 {{ document.document_upload_info.department_info ? document.document_upload_info.department_info.department : "" }}

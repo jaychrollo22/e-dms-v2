@@ -61,6 +61,18 @@
                         </div>
 
                     </div>
+                    <div class="row mt-4">
+                        <div class="col-md-12 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-title">
+                                    <h3 class="font-weight-bold">Document per Company</h3>
+                                </div>
+                                <div class="card-body">
+                                    <bar-chart :chart-data="document_per_company_chart" :height="120" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -69,11 +81,29 @@
 </template>
 
 <script>
+import BarChart from '../Charts/BarChart.js';
 export default {
+    components: {
+        BarChart
+    },
     data() {
         return {
             dashboardData: '',
             errors: '',
+
+            document_per_company_chart: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Document Per Company',
+                        backgroundColor: [],
+                        pointBackgroundColor: 'white',
+                        borderWidth: 1,
+                        pointBorderColor: 'rgb(78,195,239)',
+                        data: []
+                    },
+                ]
+            },
         }
     },
     created() {
@@ -89,11 +119,38 @@ export default {
             axios.get('/dashboard-data')
                 .then(response => {
                     v.dashboardData = response.data;
+                    this.perLocationData();
                 })
                 .catch(error => {
                     v.errors = error.response.data.error;
                 })
-        }
+        },
+        perLocationData() {
+            let v = this;
+            var counts = [];
+            var names = [];
+
+            v.dashboardData.document_per_company.forEach(entry => {
+                names.push(entry.company_info.company_code);
+                counts.push(entry.total);
+            });
+
+            v.document_per_company_chart = {
+                labels: names,
+                datasets: [
+                    {
+                        label: 'Document Per Company',
+                        backgroundColor: 'rgb(125,160,250)',
+                        pointBackgroundColor: 'white',
+                        borderWidth: 1,
+                        pointBorderColor: 'rgb(125,160,250)',
+                        data: counts
+                    },
+                ]
+            };
+
+
+        },
     },
 
 }

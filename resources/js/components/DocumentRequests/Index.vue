@@ -100,16 +100,15 @@
                                                 </span>
                                             </div>
                                             <select v-model="filterData.status" @change="searchKeyUp"
-                                                class="form-control form-control-lg border-left-0" name="department"
-                                                id="department">
+                                                class="form-control form-control-lg border-left-0" name="status"
+                                                id="status">
                                                 <option value="">Choose Status</option>
                                                 <option value="Pending">Pending</option>
                                                 <option value="Approved">Approved</option>
                                                 <option value="Disapproved">Disapproved</option>
                                             </select>
                                         </div>
-                                        <span class="text-danger"
-                                            v-if="errors.department">{{ errors.department[0] }}</span>
+                                        <span class="text-danger" v-if="errors.status">{{ errors.status[0] }}</span>
                                     </div>
                                 </div>
                             </div>

@@ -24,7 +24,7 @@ class DocumentUpload extends Model implements Auditable
         return $this->belongsTo('App\DocumentCategory','document_category','id')->select('id','tag','category_description');
     }
     public function company_info(){
-        return $this->belongsTo('App\Company','company','id')->select('id','company_name','stamp');
+        return $this->belongsTo('App\Company','company','id')->select('id','company_name','company_code','stamp');
     }
     public function department_info(){
         return $this->belongsTo('App\Department','department','id')->select('id','department');

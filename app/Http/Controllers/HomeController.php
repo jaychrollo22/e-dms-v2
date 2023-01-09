@@ -45,6 +45,7 @@ class HomeController extends Controller
     }
 
     public function dashboardData(){
+
         $new_document_request = DocumentationRequest::where('status','Pending')->count();
         $new_document_copy_request = DocumentCopyRequest::where('status','New')->count();
         $new_document_upload = DocumentUpload::where('status','Pending')->count();
@@ -63,8 +64,8 @@ class HomeController extends Controller
 
     public function userDashboardData(){
 
-        $total_document_request = DocumentationRequest::where('status','Pending')->where('requestor',Auth::user()->id)->count();
-        $total_document_copy_request = DocumentCopyRequest::where('status','New')->where('requestor',Auth::user()->id)->count();
+        $total_document_request = DocumentationRequest::where('requestor',Auth::user()->id)->count();
+        $total_document_copy_request = DocumentCopyRequest::where('requestor',Auth::user()->id)->count();
     
         $total_document_upload = DocumentUploadUser::select('id','user_id','status')->with('document_upload_info',)
                                                     ->where('status','1');

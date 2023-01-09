@@ -188,9 +188,18 @@ export default {
             v.company.company_code = '';
             v.company.company_name = '';
             v.company.control_code_series_number = '';
+
+            v.company.stamp = '';
+            v.company.stamp_src = '';
+            v.company.logo = '';
+            v.company.logo_src = '';
+
+            document.getElementById("stamp").value = '';
+            document.getElementById("logo").value = '';
         },
         editCompany(company) {
             let v = this;
+            v.clearFields();
             v.errors = [];
             v.company.id = company.id;
             v.company.company_code = company.company_code;

@@ -13,36 +13,36 @@
                         <div class="col-md-3 mb-4 stretch-card transparent">
                             <div class="card card-tale">
                                 <div class="card-body">
-                                    <p class="mb-4">Total Requests</p>
+                                    <p class="mb-4">Document Requests</p>
                                     <p class="fs-30 mb-2" style="cursor:pointer"
                                         @click="redirectTo('/user-document-requests')">
-                                        {{ dashboardData ? dashboardData.total_document_request : "0" }}
+                                        {{ dashboardData? dashboardData.total_document_request : "0" }}
                                     </p>
-                                    <p>as of Today</p>
+                                    <p>Total</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3 mb-4 stretch-card transparent">
                             <div class="card card-dark-blue">
                                 <div class="card-body">
-                                    <p class="mb-4">Total Copy Requests</p>
+                                    <p class="mb-4">Document Copy Requests</p>
                                     <p class="fs-30 mb-2" style="cursor:pointer"
                                         @click="redirectTo('/user-document-copy-requests')">
-                                        {{ dashboardData ? dashboardData.total_document_copy_request : "0" }}
+                                        {{ dashboardData? dashboardData.total_document_copy_request : "0" }}
                                     </p>
-                                    <p>as of Today</p>
+                                    <p>Total</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3 mb-4 stretch-card transparent">
                             <div class="card card-light-blue">
                                 <div class="card-body">
-                                    <p class="mb-4">Total Documents</p>
+                                    <p class="mb-4">Documents</p>
                                     <p class="fs-30 mb-2" style="cursor:pointer"
                                         @click="redirectTo('/user-document-uploads')">
-                                        {{ dashboardData ? dashboardData.total_document_upload : "0" }}
+                                        {{ dashboardData? dashboardData.total_document_upload : "0" }}
                                     </p>
-                                    <p>as of Today</p>
+                                    <p>Total</p>
                                 </div>
                             </div>
                         </div>

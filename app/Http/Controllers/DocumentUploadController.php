@@ -217,6 +217,7 @@ class DocumentUploadController extends Controller
                 $company = Company::where('id',$request->company)->first();
                 $document_category = DocumentCategory::where('id',$request->document_category)->first();
                 $department = Department::where('id',$request->department)->first();
+                $control_code_series_number = str_pad($company->control_code_series_number, 2, '0', STR_PAD_LEFT);
 
                 if($company->company_code && $document_category->code && $department->code){
 
@@ -224,14 +225,12 @@ class DocumentUploadController extends Controller
                         // $form = DocumentCategory::where('id','6')->first();
                         // $form_code = str_pad($form->id, 2, '0', STR_PAD_LEFT);
                         $form_code = '06';
-                        $control_code_series_number = str_pad($company->control_code_series_number, 2, '0', STR_PAD_LEFT);
                         $control_code = $company->company_code . '-' . $document_category->code . '-' . $department->code . '-' . $form_code . 'F' . $control_code_series_number;
                     }
                     else if($document_upload->is_procedure_link == '1'){ //IF Forms        
                         // $procedure = DocumentCategory::where('id','7')->first();
                         // $procedure_code = str_pad($procedure->id, 2, '0', STR_PAD_LEFT);
                         $procedure_code = '07';
-                        $control_code_series_number = str_pad($company->control_code_series_number, 2, '0', STR_PAD_LEFT);
                         $control_code = $company->company_code . '-' . $document_category->code . '-' . $department->code . '-' . $procedure_code . 'SP' . $control_code_series_number;
                     }else{
                         $control_code = $company->company_code . '-' . $document_category->code . '-' . $department->code . '-' . $control_code_series_number;
@@ -252,6 +251,8 @@ class DocumentUploadController extends Controller
                             'document_upload'=>$document_upload,
                         ];
                     }
+
+
                 }else{
                     $m1 = empty($company->company_code) ? 'Company Code is Missing. ' : '';
                     $m2 = empty($document_category->code) ? 'Document Category Code is Missing. ' : '';

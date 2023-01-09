@@ -44,6 +44,9 @@ class DocumentCopyRequestController extends Controller
         if(isset($request->department)){
             $document_copy_requests->where('department', $request->department);
         }
+        if(isset($request->status)){
+            $document_copy_requests->where('status', $request->status);
+        }
 
         return $document_copy_requests->paginate($limit);
     }

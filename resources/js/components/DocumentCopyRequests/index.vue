@@ -10,7 +10,7 @@
                                 <!-- <a href="/document-copy-requests/create" class="btn btn-primary">New</a> -->
                             </div>
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <div class="input-group">
                                             <div class="input-group-prepend bg-transparent">
@@ -24,6 +24,8 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <div class="input-group">
@@ -62,6 +64,26 @@
                                                 </option>
                                             </select>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-settings text-primary"></i>
+                                                </span>
+                                            </div>
+                                            <select v-model="filterData.status" @change="searchKeyUp"
+                                                class="form-control form-control-lg border-left-0" name="status"
+                                                id="status">
+                                                <option value="">Choose Status</option>
+                                                <option value="New">New</option>
+                                                <option value="Approved">Approved</option>
+                                                <option value="Disapproved">Disapproved</option>
+                                            </select>
+                                        </div>
+                                        <span class="text-danger" v-if="errors.status">{{ errors.status[0] }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -279,6 +301,7 @@ export default {
             filterData: {
                 company: '',
                 department: '',
+                status: '',
             }
         }
     },

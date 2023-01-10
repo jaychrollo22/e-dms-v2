@@ -24,6 +24,7 @@
                 <span class="menu-title">Copy Requests</span>
             </a>
         </li>
+        @if(roleValidationAsAdministrator())
         <li class="nav-item">
             <a class="nav-link" href="/access-requests">
                 <i class="icon-key menu-icon"></i>
@@ -48,5 +49,6 @@
                 </ul>
             </div>
         </li>
+        @endif
     </ul>
 </nav>

@@ -29,3 +29,15 @@ function roleValidation(){
         return false;
     }
 }
+function roleValidationAsAdministrator(){
+    if(session('role_ids'))
+    {
+        if(in_array(1,session('role_ids'))){ //Administrator,DCO and ADCO
+            return true;
+        }else{
+            return false;
+        }
+    }else{
+        return false;
+    }
+}

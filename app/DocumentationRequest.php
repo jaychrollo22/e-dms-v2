@@ -12,7 +12,7 @@ class DocumentationRequest extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
 
     public function requestor_info(){
-        return $this->belongsTo('App\User','requestor','id')->select('id','name');
+        return $this->belongsTo('App\User','requestor','id')->select('id','name','email');
     }
     public function company_info(){
         return $this->belongsTo('App\Company','company','id')->select('id','company_name');

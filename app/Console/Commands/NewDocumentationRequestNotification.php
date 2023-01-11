@@ -16,7 +16,7 @@ class NewDocumentationRequestNotification extends Command
      *
      * @var string
      */
-    protected $signature = 'command:new_documentation_request_notiifcation';
+    protected $signature = 'command:new_documentation_request_notification';
 
     /**
      * The console command description.

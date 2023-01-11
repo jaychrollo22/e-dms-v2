@@ -77,6 +77,26 @@
                                                     <i class="ti-settings text-primary"></i>
                                                 </span>
                                             </div>
+                                            <select v-model="filterData.document_category" @change="searchKeyUp"
+                                                class="form-control form-control-lg border-left-0"
+                                                name="document_category" id="document_category">
+                                                <option value="">Choose Document Category</option>
+                                                <option v-for="(document_category, index) in document_categories"
+                                                    :key="index" :value="document_category.id">
+                                                    {{ document_category.category_description }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend bg-transparent">
+                                                <span class="input-group-text bg-transparent border-right-0">
+                                                    <i class="ti-settings text-primary"></i>
+                                                </span>
+                                            </div>
                                             <select v-model="filterData.status" @change="searchKeyUp"
                                                 class="form-control form-control-lg border-left-0" name="status"
                                                 id="status">
@@ -962,6 +982,7 @@ export default {
                 company: '',
                 department: '',
                 status: '',
+                document_category: '',
             },
 
             isAllowedToApprove: false,

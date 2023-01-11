@@ -62,6 +62,9 @@ class DocumentUploadController extends Controller
         if(isset($request->department)){
             $document_uploads->where('department',$request->department);
         }
+        if(isset($request->document_category)){
+            $document_uploads->where('document_category',$request->document_category);
+        }
         if(isset($request->status)){
             $document_uploads->where('status',$request->status);
         }
@@ -99,9 +102,19 @@ class DocumentUploadController extends Controller
         
         if(isset($request->search)){
             $document_uploads->whereHas('document_upload_info',function($q) use($request){
-                return $q->where('title', 'LIKE', '%' . $request->search . '%')->orWhere('control_code', 'LIKE', '%' . $request->search . '%');
-            });                 
+                return $q->where('title', 'LIKE', '%' . $request->search . '%')
+                            ->orWhere('control_code', 'LIKE', '%' . $request->search . '%')
+                            ->orWhere('document_category',$request->document_category);
+            });  
         }
+        
+        if(isset($request->document_category)){
+            $document_uploads->whereHas('document_upload_info',function($q) use($request){
+                return $q->Where('document_category',$request->document_category);
+            });  
+        }
+                       
+        
 
         return $document_uploads->paginate($limit);
     }

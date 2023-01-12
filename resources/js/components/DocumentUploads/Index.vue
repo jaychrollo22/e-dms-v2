@@ -565,7 +565,14 @@
                             </div>
                         </div>
                         <hr>
-                        <div class="row">
+                        <div v-if="view_document.status == 'Approved'" class="row">
+                            <div class="col-md-6">
+                                <div :class="getStatus(view_document.status)" :title="view_document.remarks">
+                                    {{ view_document.status }}
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="row">
                             <div class="col-md-6">
                                 <label for="">For Approval Status</label>
                                 <div class="form-group row">
@@ -602,11 +609,14 @@
                                         v-if="errors.status_remarks">{{ errors.status_remarks[0] }}</span>
                                 </div>
                             </div>
+                            <div class="col-md-2">
+                                <button v-if="isAllowedToApprove == true" class="btn btn-sm btn-primary"
+                                    @click="updateDocumentUpload"
+                                    :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save Changes' }}</button>
+                            </div>
                         </div>
 
-                        <button v-if="isAllowedToApprove == true" class="btn btn-sm btn-primary"
-                            @click="updateDocumentUpload"
-                            :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save Changes' }}</button>
+
                     </div>
                 </div>
             </div>

@@ -94,7 +94,8 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <div :class="getStatusStyle(request.status)">
+                                                <div :class="getStatusStyle(request.status)"
+                                                    :title="request.status == 'Disapproved' ? 'Remarks: ' + request.status_remarks : ''">
                                                     {{ request.status }}
                                                 </div>
                                             </td>

@@ -359,8 +359,16 @@
 
                                 </div>
                                 <hr class="mt-3">
-                                <div class="row" v-if="isAllowedToApprove">
-                                    <div class="col-md-6 ">
+                                <div v-if="document_request.status == 'Approved'" class="row">
+                                    <div class="col-md-6">
+                                        <div :class="getStatusStyle(document_request.status)"
+                                            :title="document_request.remarks">
+                                            {{ document_request.status }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else class="row">
+                                    <div v-if="isAllowedToApprove" class="col-md-6 ">
                                         <label for="">For Approval Status</label>
                                         <div class="form-group row">
                                             <div class="col-sm-3">
@@ -386,7 +394,7 @@
                                         <span class="text-danger" v-if="errors.status">{{ errors.status[0] }}</span>
                                     </div>
                                     <div class="col-md-12"
-                                        v-if="document_request.status == 'Approved' || document_request.status == 'Disapproved'">
+                                        v-if="isAllowedToApprove && document_request.status == 'Disapproved'">
                                         <label for="">Status Remarks</label>
                                         <div class="form-group">
                                             <textarea v-model="document_request.status_remarks" cols="30" rows="5"
@@ -395,12 +403,16 @@
                                                 v-if="errors.status_remarks">{{ errors.status_remarks[0] }}</span>
                                         </div>
                                     </div>
+                                    <div v-if="isAllowedToApprove" class="col-md-2">
+                                        <button class="btn btn-sm btn-primary" @click="updateDocumentRequest"
+                                            :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save Changes' }}</button>
+                                    </div>
+
                                 </div>
 
                             </div>
                         </div>
-                        <button v-if="isAllowedToApprove" class="btn btn-sm btn-primary" @click="updateDocumentRequest"
-                            :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save Changes' }}</button>
+
                     </div>
 
                 </div>

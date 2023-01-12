@@ -359,15 +359,8 @@
 
                                 </div>
                                 <hr class="mt-3">
-                                <div v-if="document_request.status == 'Approved'" class="row">
-                                    <div class="col-md-6">
-                                        <div :class="getStatusStyle(document_request.status)"
-                                            :title="document_request.remarks">
-                                            {{ document_request.status }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div v-else class="row">
+
+                                <div class="row">
                                     <div v-if="isAllowedToApprove" class="col-md-6 ">
                                         <label for="">For Approval Status</label>
                                         <div class="form-group row">

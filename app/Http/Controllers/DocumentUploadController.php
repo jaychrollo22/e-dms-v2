@@ -226,8 +226,6 @@ class DocumentUploadController extends Controller
             $data['status'] = 'Pending'; // Validate if DCO Holdings, Default in pending
             unset($data['auto_generate_control_code']);
             if($document_upload = DocumentUpload::create($data)){
-                DB::commit();
-
                 $company = Company::where('id',$request->company)->first();
                 $document_category = DocumentCategory::where('id',$request->document_category)->first();
                 $department = Department::where('id',$request->department)->first();
@@ -258,7 +256,9 @@ class DocumentUploadController extends Controller
                         $company->update([
                             'control_code_series_number'=>$company->control_code_series_number + 1
                         ]);
+                        DB::commit();
                     }else{
+                        DB::commit();
                         return $status_data = [
                             'status'=>'warning',
                             'message'=>'Control Code already exists',

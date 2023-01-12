@@ -202,7 +202,10 @@
                                                 <button type="button"
                                                     class="btn btn-inverse-success btn-rounded btn-icon"
                                                     title="Assign Users" @click="assignUser(document)">
-                                                    <i class="ti-user"></i>
+                                                    <span v-if="document.users.length > 0">({{
+                                                        document.users.length
+                                                    }})</span>
+                                                    <i v-else class="ti-user"></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -570,7 +573,8 @@
                                         <div class="form-check">
                                             <label class="form-check-label">
                                                 <input v-model="view_document.status" type="radio"
-                                                    class="form-check-input" id="Approved" value="Approved">
+                                                    class="form-check-input" id="Approved" value="Approved"
+                                                    :disabled="isAllowedToApproveDisable">
                                                 Approve
                                                 <i class="input-helper"></i></label>
                                         </div>
@@ -579,7 +583,8 @@
                                         <div class="form-check">
                                             <label class="form-check-label">
                                                 <input v-model="view_document.status" type="radio"
-                                                    class="form-check-input" id="Disapproved" value="Disapproved">
+                                                    class="form-check-input" id="Disapproved" value="Disapproved"
+                                                    :disabled="isAllowedToApproveDisable">
                                                 Disapprove
                                                 <i class="input-helper"></i></label>
                                         </div>
@@ -587,19 +592,20 @@
                                 </div>
                                 <span class="text-danger" v-if="errors.status">{{ errors.status[0] }}</span>
                             </div>
-                            <div class="col-md-12"
-                                v-if="view_document.status == 'Approved' || view_document.status == 'Disapproved'">
+                            <div class="col-md-12">
                                 <label for="">Status Remarks</label>
                                 <div class="form-group">
                                     <textarea v-model="view_document.status_remarks" cols="30" rows="5"
-                                        class="form-control" placeholder="Approval Remarks"></textarea>
+                                        class="form-control" placeholder="Approval Remarks"
+                                        :disabled="isAllowedToApproveDisable"></textarea>
                                     <span class="text-danger"
                                         v-if="errors.status_remarks">{{ errors.status_remarks[0] }}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <button class="btn btn-sm btn-primary" @click="updateDocumentUpload"
+                        <button v-if="isAllowedToApprove == true" class="btn btn-sm btn-primary"
+                            @click="updateDocumentUpload"
                             :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save Changes' }}</button>
                     </div>
                 </div>
@@ -986,6 +992,7 @@ export default {
             },
 
             isAllowedToApprove: false,
+            isAllowedToApproveDisable: false,
             role_ids: [],
 
         }
@@ -1020,11 +1027,14 @@ export default {
             this.role_ids = JSON.parse(this.role);
             if (this.role_ids.includes(1)) { //Administrator
                 this.isAllowedToApprove = true;
+                this.isAllowedToApproveDisable = false;
             }
             else if (this.role_ids.includes(3)) { //DCO Holdings
                 this.isAllowedToApprove = true;
+                this.isAllowedToApproveDisable = false;
             } else {
                 this.isAllowedToApprove = false;
+                this.isAllowedToApproveDisable = true;
             }
         },
         getTitleCanFill(status) {
@@ -1659,7 +1669,6 @@ export default {
         viewDocumentUpload(document) {
             this.view_document = '';
             this.view_document = document;
-
             $('#document-view-modal').modal('show');
         },
         usersDocumentUpload() {

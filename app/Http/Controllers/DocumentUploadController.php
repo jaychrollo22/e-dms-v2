@@ -33,6 +33,7 @@ class DocumentUploadController extends Controller
         $role_ids = json_encode(session('role_ids'),true);
         return view('pages.document_uploads.index',compact('role_ids'));
     }
+    
     public function userIndex(){
         return view('pages.document_uploads.user_index');
     }
@@ -338,6 +339,8 @@ class DocumentUploadController extends Controller
                         $filename = 'RF-'. $revision_raw_file_count . '-' .date('Ymd') . '_'. $original_filename;
                         $data['attachment_raw_file'] = $filename;
                         Storage::disk('public')->putFileAs('document_uploads', $attachment_raw_file , $filename);
+
+                        $data['status'] = 'Pending'; // Validate if DCO Holdings, Default in pending
                     }
                     
                     if($request->file('attachment_fillable_copy')){
@@ -346,6 +349,8 @@ class DocumentUploadController extends Controller
                         $filename = 'FC-'. $revision_fillable_copy_count . '-' . date('Ymd') . '_'. $original_filename;
                         $data['attachment_fillable_copy'] = $filename;
                         Storage::disk('public')->putFileAs('document_uploads', $attachment_fillable_copy , $filename);
+
+                        $data['status'] = 'Pending'; // Validate if DCO Holdings, Default in pending
                     }
         
                     if($request->file('attachment_signed_copy_revision')){
@@ -354,12 +359,14 @@ class DocumentUploadController extends Controller
                         $filename = 'SC-' . $revision_signed_copy_count . '-' . date('Ymd') . '_'. $original_filename;
                         $data['attachment_signed_copy_revision'] = $filename;
                         Storage::disk('public')->putFileAs('document_uploads', $attachment_signed_copy_revision , $filename);
+
+                        // $data['status'] = 'Pending'; // Validate if DCO Holdings, Default in pending
                     }
                     
                     unset($data['id']);
                     unset($data['file_type']);
                     
-                    $data['status'] = 'Pending'; // Validate if DCO Holdings, Default in pending
+                    
 
                     $document_upload->update($data);
 

@@ -57,8 +57,9 @@ class AutoDocumentRevisionImplementation extends Command
                                     'attachment_signed_copy'=>$document->attachment_signed_copy_revision,
                                     'attachment_signed_copy_revision'=>null,
                                     'implementation_date'=>null,
+                                    'status'=>'Pending',
                                 ]);
-                    $count++;;
+                    $count++;
                 }
             }
 

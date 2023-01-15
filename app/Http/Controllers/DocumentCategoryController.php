@@ -33,7 +33,11 @@ class DocumentCategoryController extends Controller
     }
 
     public function document_categories(){
-        return DocumentCategory::select('id','category_description')->orderBy('category_description','ASC')->get();
+        return DocumentCategory::select('id','category_description')
+                                    ->whereHas('tag_info',function($q){
+                                        $q->where('id','1');
+                                    })            
+                                    ->orderBy('category_description','ASC')->get();
     }
 
     /**

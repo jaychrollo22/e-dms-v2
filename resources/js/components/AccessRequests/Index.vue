@@ -36,6 +36,9 @@
                                                 Requestors Name
                                             </th>
                                             <th class="pt-1">
+                                                Position
+                                            </th>
+                                            <th class="pt-1">
                                                 Email
                                             </th>
                                             <th class="pt-1">
@@ -68,6 +71,9 @@
                                             </td>
                                             <td>
                                                 {{ request.name }}
+                                            </td>
+                                            <td>
+                                                {{ request.position }}
                                             </td>
                                             <td>
                                                 {{ request.email }}
@@ -123,6 +129,21 @@
                                         <input v-model="access_request.name" type="text" name="name"
                                             class="form-control form-control-lg border-left-0" id="name"
                                             placeholder="Name" :disabled="viewDisable">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">Position</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend bg-transparent">
+                                            <span class="input-group-text bg-transparent border-right-0">
+                                                <i class="ti-user text-primary"></i>
+                                            </span>
+                                        </div>
+                                        <input v-model="access_request.position" type="text" name="position"
+                                            class="form-control form-control-lg border-left-0" id="position"
+                                            placeholder="Position" :disabled="viewDisable">
                                     </div>
                                 </div>
                             </div>

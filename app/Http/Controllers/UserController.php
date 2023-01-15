@@ -100,6 +100,7 @@ class UserController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
+            'position' => 'required',
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'immediate_head'=>  'required',
@@ -187,6 +188,7 @@ class UserController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
+            'position' => 'required',
             'email' => ['required', 'string', 'email', 'max:255'],
         ]);
         DB::beginTransaction();

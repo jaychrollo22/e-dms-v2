@@ -359,8 +359,15 @@
 
                                 </div>
                                 <hr class="mt-3">
-
-                                <div class="row">
+                                <div v-if="document_request_status == 'Approved'" class="row">
+                                    <div class="col-md-6">
+                                        <div :class="getStatusStyle(document_request.status)"
+                                            :title="document_request.remarks">
+                                            {{ document_request.status }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else class="row">
                                     <div v-if="isAllowedToApprove" class="col-md-6 ">
                                         <label for="">For Approval Status</label>
                                         <div class="form-group row">
@@ -386,8 +393,7 @@
                                         </div>
                                         <span class="text-danger" v-if="errors.status">{{ errors.status[0] }}</span>
                                     </div>
-                                    <div class="col-md-12"
-                                        v-if="isAllowedToApprove && document_request.status == 'Disapproved'">
+                                    <div class="col-md-12" v-if="isAllowedToApprove">
                                         <label for="">Status Remarks</label>
                                         <div class="form-group">
                                             <textarea v-model="document_request.status_remarks" cols="30" rows="5"
@@ -486,6 +492,8 @@ export default {
 
             filteredGenerateRequests: [],
             generateByCompany: [],
+
+            document_request_status: '',
         }
     },
     created() {
@@ -617,6 +625,7 @@ export default {
         },
         viewRequest(request) {
             this.document_request = Object.assign({}, request);
+            this.document_request_status = request.status;
             $('#request-view-modal').modal('show');
         },
         showExportDownload() {

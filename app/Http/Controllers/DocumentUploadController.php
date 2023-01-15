@@ -132,13 +132,13 @@ class DocumentUploadController extends Controller
                                                 ->orderBy('effective_date','DESC');
 
         $document_uploads->where('process_owner',Auth::user()->id);
-        $document_uploads->where(function($q){
-                                $q->whereNull('is_discussed')
-                                    ->orWhere('is_discussed','=','');
-        });
+        // $document_uploads->where(function($q){
+        //                         $q->whereNull('is_discussed')
+        //                             ->orWhere('is_discussed','=','');
+        // });
         $document_uploads->where('status','Approved');
 
-        return $document_uploads->get();
+        return $document_uploads->get()->take(5);
     }
 
     public function documentUploadRequestCopyOptions(){
@@ -236,7 +236,7 @@ class DocumentUploadController extends Controller
                     if($document_upload->is_form == '1'){ //IF Forms        
                         // $form = DocumentCategory::where('id','6')->first();
                         // $form_code = str_pad($form->id, 2, '0', STR_PAD_LEFT);
-                        $form_code = '06';
+                        $form_code = $document_category->id;
                         $control_code = $company->company_code . '-' . $document_category->code . '-' . $department->code . '-' . $form_code . 'F' . $control_code_series_number;
                     }
                     else if($document_upload->is_procedure_link == '1'){ //IF Forms        

@@ -9,17 +9,20 @@
                                 <img v-if="user_photo_src" :src="user_photo_src" class="img-lg rounded-circle mb-2">
                                 <h4>{{ user_profile.name }}</h4>
                                 <p class="text-muted mb-0">{{ 'Email : ' + user_profile.email }}</p>
-                                <p class="text-muted mb-0">
-                                    {{ user_profile.company ? 'Company : ' + user_profile.company.company_info.company_name : "" }}
+                                <p v-if="user_profile.position" class="text-muted mb-0">
+                                    {{ 'Position : ' + user_profile.position }}
                                 </p>
-                                <p class="text-muted mb-0">
-                                    {{ user_profile.department ? 'Department : ' + user_profile.department.department_info.department : "" }}
+                                <p v-if="user_profile.company" class="text-muted mb-0">
+                                    {{ 'Company : ' + user_profile.company.company_info.company_name }}
                                 </p>
-                                <p class="text-muted mb-0">
-                                    {{ user_profile.immediate_head ? 'Immediate Head : ' + user_profile.immediate_head.user_info.name : "" }}
+                                <p v-if="user_profile.department" class="text-muted mb-0">
+                                    {{ 'Department : ' + user_profile.department.department_info.department }}
                                 </p>
-                                <p class="text-muted mb-0">
-                                    {{ user_profile.roles ? 'Roles : ' + displayRoles(user_profile.roles) : "" }}
+                                <p v-if="user_profile.immediate_head" class="text-muted mb-0">
+                                    {{ 'Immediate Head : ' + user_profile.immediate_head.user_info.name }}
+                                </p>
+                                <p v-if="user_profile.roles" class="text-muted mb-0">
+                                    {{ 'Roles : ' + displayRoles(user_profile.roles) }}
                                 </p>
                             </div>
 

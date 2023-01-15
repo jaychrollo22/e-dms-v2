@@ -30,7 +30,7 @@ class DocumentUpload extends Model implements Auditable
         return $this->belongsTo('App\Department','department','id')->select('id','department');
     }
     public function process_owner_info(){
-        return $this->belongsTo('App\User','process_owner','id')->select('id','name');
+        return $this->belongsTo('App\User','process_owner','id')->select('id','name','email');
     }
 
     public function document_copy_requests(){

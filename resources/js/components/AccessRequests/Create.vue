@@ -16,6 +16,19 @@
             <span class="text-danger" v-if="errors.name">{{ errors.name[0] }}</span>
         </div>
         <div class="form-group">
+            <label for="position">Position</label>
+            <div class="input-group">
+                <div class="input-group-prepend bg-transparent">
+                    <span class="input-group-text bg-transparent border-right-0">
+                        <i class="ti-user text-primary"></i>
+                    </span>
+                </div>
+                <input v-model="access_request.position" type="text" name="position"
+                    class="form-control form-control-lg border-left-0" id="name" placeholder="Position">
+            </div>
+            <span class="text-danger" v-if="errors.position">{{ errors.position[0] }}</span>
+        </div>
+        <div class="form-group">
             <label for="name">Email</label>
             <div class="input-group">
                 <div class="input-group-prepend bg-transparent">
@@ -132,6 +145,7 @@ export default {
                     let formData = new FormData();
 
                     formData.append('name', v.access_request.name ? v.access_request.name : "");
+                    formData.append('position', v.access_request.position ? v.access_request.position : "");
                     formData.append('email', v.access_request.email ? v.access_request.email : "");
                     formData.append('company', v.access_request.company ? v.access_request.company : "");
                     formData.append('department', v.access_request.department ? v.access_request.department : "");

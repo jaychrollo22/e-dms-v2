@@ -97,15 +97,16 @@
                                                         {{ document.effective_date }}
                                                     </td>
                                                     <td>
-                                                        <button v-if="document.is_discussed == '1'" type="button"
+                                                        <button v-if="document.is_discussed == '1'"
+                                                            @click="viewDocument(document)" type="button"
                                                             class="btn btn-inverse-success btn-rounded btn-icon"
-                                                            title="Discussed">
+                                                            title="Tag as Discussed">
                                                             <i class="ti-check"></i>
                                                         </button>
-                                                        <button v-else type="button"
+                                                        <button v-else @click="viewDocument(document)" type="button"
                                                             class="btn btn-inverse-primary btn-rounded btn-icon"
-                                                            title="Tag as Discussed" @click="tagAsDiscuss(document)">
-                                                            <i class="ti-help-alt"></i>
+                                                            title="View Document">
+                                                            <i class="ti-eye"></i>
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -120,16 +121,46 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="document-view-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog modal-md modal-document-view" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="col-12 modal-title">
+                            {{ view_document? view_document.control_code + ' | ' + view_document.title : "" }}
+                        </h5>
+
+
+                    </div>
+                    <div class="modal-body" v-if="view_document">
+                        <vue-pdf-embed v-if="view_document.attachment_signed_copy"
+                            :source="'document-uploads-view-signed-copy?id=' + view_document.id" class="src-pdf mt-2" />
+                    </div>
+                    <div class="modal-footer">
+                        <button v-if="view_document.is_discussed == '' || view_document.is_discussed == null"
+                            type="button" class="btn btn-md btn-primary btn-rounded" title="Tag as Discussed"
+                            @click="tagAsDiscuss(view_document)">
+                            Tag as Discussed
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
+import Swal from 'sweetalert2'
+import VuePdfEmbed from 'vue-pdf-embed/dist/vue2-pdf-embed'
 export default {
+    components: {
+        VuePdfEmbed,
+    },
     data() {
         return {
             dashboardData: '',
             errors: '',
-
+            view_document: '',
             toDiscussDocuments: [],
         }
     },
@@ -138,6 +169,10 @@ export default {
         this.getToDiscussDocuments();
     },
     methods: {
+        viewDocument(document) {
+            this.view_document = document;
+            $('#document-view-modal').modal('show');
+        },
         redirectTo(url) {
             window.location.href = url;
         },
@@ -163,6 +198,10 @@ export default {
                         if (response.data.status == "success") {
                             var index = v.toDiscussDocuments.findIndex(item => item.id == document.id);
                             v.toDiscussDocuments.splice(index, 1, response.data.document_upload);
+                            Swal.fire('Document request has been tag as discussed.', '', 'success');
+
+                            $('#document-view-modal').modal('hide');
+                            this.view_document = '';
                         }
                     })
                     .catch(error => {

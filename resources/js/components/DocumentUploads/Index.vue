@@ -237,14 +237,14 @@
                                     <input type="text" class="form-control" placeholder="Control Code"
                                         v-model="document_upload.control_code" :disabled="auto_generate_control_code">
                                     <span class="text-danger" v-if="errors.title">{{ errors.control_code[0] }}</span>
-                                    <div class="form-check"
+                                    <!-- <div class="form-check"
                                         v-if="document_upload.control_code == '' || document_upload.control_code == null">
                                         <label class="form-check-label text-muted">
                                             <input type="checkbox" v-model="auto_generate_control_code"
                                                 class="form-check-input">
                                             <a href="#">Generate Control Code</a>
                                             <i class="input-helper"></i><i class="input-helper"></i></label>
-                                    </div>
+                                    </div> -->
                                 </div>
 
                             </div>
@@ -277,7 +277,7 @@
                                         v-if="errors.document_category">{{ errors.document_category[0] }}</span>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <!-- <div class="col-md-6">
                                 <div class="form-group">
                                     <div class="form-check">
                                         <label class="form-check-label">
@@ -288,8 +288,8 @@
                                         </label>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6" v-if="document_upload.document_category.id == '7'">
+                            </div> -->
+                            <!-- <div class="col-md-6" v-if="document_upload.document_category.id == '7'">
                                 <div class="form-group">
                                     <div class="form-check">
                                         <label class="form-check-label">
@@ -300,7 +300,7 @@
                                         </label>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="">Company</label>
@@ -565,7 +565,7 @@
                             </div>
                         </div>
                         <hr>
-                        <div v-if="view_document.status == 'Approved'" class="row">
+                        <div v-if="view_document_status == 'Approved'" class="row">
                             <div class="col-md-6">
                                 <div :class="getStatus(view_document.status)" :title="view_document.remarks">
                                     {{ view_document.status }}
@@ -1004,7 +1004,7 @@ export default {
             isAllowedToApprove: false,
             isAllowedToApproveDisable: false,
             role_ids: [],
-
+            view_document_status: ''
         }
     },
     created() {
@@ -1679,6 +1679,7 @@ export default {
         viewDocumentUpload(document) {
             this.view_document = '';
             this.view_document = document;
+            this.view_document_status = document.status;
             $('#document-view-modal').modal('show');
         },
         usersDocumentUpload() {

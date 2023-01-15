@@ -65,6 +65,7 @@ class AccessRequestController extends Controller
             $validate_request = [
                 'email' => 'required|unique:access_requests,email',
                 'name' => 'required',
+                'position' => 'required',
                 'department' => 'required',
                 'company' => 'required'
             ];
@@ -131,6 +132,7 @@ class AccessRequestController extends Controller
                         if($request->status == 'Approved'){
                             $user_data = [
                                 'name'=>$access_request->name,
+                                'position'=>$access_request->position,
                                 'email'=>$access_request->email,
                                 'password'=>$access_request->initial_password,
                                 'status'=>'Active',

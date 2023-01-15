@@ -63,8 +63,11 @@ class DocumentRequestController extends Controller
                                                     ->orderBy('created_at','DESC');
 
         if(isset($request->search)){
-            $document_requests->where('title', 'LIKE', '%' . $request->search . '%')
-                                ->orWhere('dicr_number', 'LIKE', '%' . $request->search . '%');
+            $document_requests->where(function($q) use($request){
+                $q->where('title', 'LIKE', '%' . $request->search . '%')
+                    ->orWhere('dicr_number', 'LIKE', '%' . $request->search . '%');
+            });
+                                
         }
 
         return $document_requests->paginate($limit);

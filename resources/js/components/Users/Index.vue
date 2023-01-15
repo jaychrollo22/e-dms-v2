@@ -121,6 +121,11 @@
                                     <span class="text-danger" v-if="errors.name">{{ errors.name[0] }}</span>
                                 </div>
                                 <div class="form-group">
+                                    <label for="">Position</label>
+                                    <input type="text" class="form-control" placeholder="User" v-model="user.position">
+                                    <span class="text-danger" v-if="errors.position">{{ errors.position[0] }}</span>
+                                </div>
+                                <div class="form-group">
                                     <label for="">Email</label>
                                     <input type="text" class="form-control" placeholder="Email" v-model="user.email">
                                     <span class="text-danger" v-if="errors.email">{{ errors.email[0] }}</span>
@@ -245,6 +250,7 @@ export default {
             user: {
                 id: '',
                 name: '',
+                position: '',
                 email: '',
                 immediate_head: '',
                 department: '',
@@ -337,6 +343,7 @@ export default {
             let v = this;
             v.user.id = '';
             v.user.name = '';
+            v.user.position = '';
             v.user.email = '';
             v.user.password = '';
             v.user.password_confirmation = '';
@@ -355,6 +362,7 @@ export default {
             v.errors = [];
             v.user.id = user.id;
             v.user.name = user.name;
+            v.user.position = user.position;
             v.user.email = user.email;
             v.user.immediate_head = user.immediate_head ? user.immediate_head.user_info : "";
             v.user.department = user.department ? user.department.department_info : "";
@@ -394,6 +402,7 @@ export default {
                         formData.append('password_confirmation', v.user.password_confirmation ? v.user.password_confirmation : "");
                     }
                     formData.append('name', v.user.name ? v.user.name : "");
+                    formData.append('position', v.user.position ? v.user.position : "");
                     formData.append('email', v.user.email ? v.user.email : "");
                     formData.append('immediate_head', v.user.immediate_head ? v.user.immediate_head.id : "");
                     formData.append('department', v.user.department ? v.user.department.id : "");

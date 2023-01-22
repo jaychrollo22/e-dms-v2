@@ -31,6 +31,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/home-user', 'HomeController@userIndex')->name('home-user');
 Route::get('/dashboard-data', 'HomeController@dashboardData');
 Route::get('/user-dashboard-data', 'HomeController@userDashboardData');
+Route::get('/immediate-heads-for-approval-copy-requests', 'HomeController@immediateHeadsForApprovalCopyRequest');
 
 //Document Requests
 Route::get('/document-requests', 'DocumentRequestController@index')->name('document-requests');
@@ -55,7 +56,11 @@ Route::group(['prefix' => 'document-copy-requests'], function () {
     Route::get('/create', 'DocumentCopyRequestController@create');
     Route::post('/store', 'DocumentCopyRequestController@store');
     Route::post('/update-approval', 'DocumentCopyRequestController@updateApproval');
+    Route::post('/update-immediate-head-approval', 'DocumentCopyRequestController@updateImmediateHeadApproval');
 });
+
+Route::get('/copy-request-view-document/{copy_request}', 'DocumentCopyRequestController@viewDocument');
+
 
 Route::get('/user-document-copy-requests', 'DocumentCopyRequestController@userIndex')->name('user-document-copy-requests');
 Route::group(['prefix' => 'user-document-copy-requests'], function () {

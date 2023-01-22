@@ -45,6 +45,9 @@
                                                 File Copy Type
                                             </th>
                                             <th class="pt-1">
+                                                Immediate Head Approval
+                                            </th>
+                                            <th class="pt-1">
                                                 Status
                                             </th>
                                             <th class="pt-1">
@@ -79,14 +82,25 @@
                                                 {{ request.file_copy_type }}
                                             </td>
                                             <td>
+                                                <div :class="getStatusStyle(request.immediate_head_approval)">
+                                                    {{ request.immediate_head_approval }}
+                                                </div>
+                                            </td>
+                                            <td>
                                                 <div :class="getStatusStyle(request.status)">
                                                     {{ request.status }}
                                                 </div>
                                             </td>
-                                            <td class="text-center">
+                                            <td>
                                                 <button type="button" class="btn btn-inverse-info btn-rounded btn-icon"
                                                     title="View Request" @click="viewCopyRequest(request)">
                                                     <i class="ti-pencil"></i>
+                                                </button>
+                                                <button v-if="request.status == 'Approved'" type="button"
+                                                    class="btn btn-inverse-success btn-rounded btn-icon"
+                                                    title="View Document"
+                                                    @click="redirectTo('/copy-request-view-document/' + request.document_upload_info.id)">
+                                                    <i class="ti-file"></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -192,7 +206,7 @@ export default {
             disableFields: true,
             errors: [],
             saveDisable: false,
-            document_uploads: []
+            document_uploads: [],
         }
     },
     created() {
@@ -200,6 +214,9 @@ export default {
         this.getDocumentUploads();
     },
     methods: {
+        redirectTo(url) {
+            window.location.href = url;
+        },
         getDocumentUploads() {
             let v = this;
             v.document_uploads = [];
@@ -221,7 +238,7 @@ export default {
             }
         },
         viewCopyRequest(request) {
-            if (request.status == 'New') {
+            if (request.status == 'New' && request.immediate_head_approval == 'Pending') {
                 this.disableFields = false;
             } else {
                 this.disableFields = true;

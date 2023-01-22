@@ -31,6 +31,7 @@ Vue.component('document-request-create', require('./components/DocumentRequests/
 Vue.component('document-copy-requests', require('./components/DocumentCopyRequests/Index.vue').default);
 Vue.component('user-document-copy-requests', require('./components/DocumentCopyRequests/UserIndex.vue').default);
 Vue.component('document-copy-request-create', require('./components/DocumentCopyRequests/Create.vue').default);
+Vue.component('view-document-copy-requests', require('./components/DocumentCopyRequests/ViewDocumentCopyRequest.vue').default);
 
 //Document Uploads
 Vue.component('document-uploads', require('./components/DocumentUploads/Index.vue').default);

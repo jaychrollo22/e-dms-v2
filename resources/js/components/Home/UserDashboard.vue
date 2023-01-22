@@ -117,10 +117,54 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-12 grid-margin stretch-card"
+                            v-if="immediateHeadCopyRequetsForApproval.length > 0">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title" title="For Process Owner">Document Copy Request For Approval
+                                    </h4>
+
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <th class="pt-1">
+                                                    Requestor
+                                                </th>
+                                                <th class="pt-1">
+                                                    Details
+                                                </th>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(document, index) in immediateHeadCopyRequetsForApproval"
+                                                    :key="index">
+                                                    <td>
+                                                        {{ document.user_details_info ? document.user_details_info.name : "" }}
+                                                    </td>
+                                                    <td>
+                                                        <div class="mt-2"
+                                                            v-for="(copy_request, x) in document.pending_copy_requests"
+                                                            :key="x">
+                                                            Document : {{ copy_request.document_upload_info.title }} |
+                                                            Remarks : {{ copy_request.remarks }}
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-outline-warning btn-fw"
+                                                                @click="viewCopyRequest(copy_request)">{{ copy_request.immediate_head_approval }}</button>
+                                                        </div>
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- View Document -->
         <div class="modal fade" id="document-view-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-md modal-document-view" role="document">
@@ -146,6 +190,63 @@
                 </div>
             </div>
         </div>
+        <!-- View Copy Request -->
+        <div class="modal fade" id="copy-request-view-modal" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog modal-md" role="document">
+                <div class="modal-content" v-if="view_copy_request">
+                    <div class="modal-header">
+                        <h5 class="col-12 modal-title">
+                            {{ view_copy_request.document_upload_info.title }}
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="">For Approval</label>
+                                <div class="form-group row">
+                                    <div class="col-sm-3">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input v-model="view_copy_request.immediate_head_approval" type="radio"
+                                                    class="form-check-input" id="Approved" value="Approved">
+                                                Approve
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input v-model="view_copy_request.immediate_head_approval" type="radio"
+                                                    class="form-check-input" id="Disapproved" value="Disapproved">
+                                                Disapprove
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="text-danger" v-if="errors.status">{{ errors.status[0] }}</span>
+                            </div>
+                            <div class="col-md-12">
+                                <label for="">Status Remarks</label>
+                                <div class="form-group">
+                                    <textarea v-model="view_copy_request.immediate_head_approval_remarks" cols="30"
+                                        rows="5" class="form-control" placeholder="Approval Remarks"></textarea>
+                                    <span class="text-danger"
+                                        v-if="errors.immediate_head_approval_remarks">{{ errors.immediate_head_approval_remarks[0] }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-md btn-primary btn-rounded"
+                            :disabled="saveDisableCopyRequest" title="Approve"
+                            @click="submitApprovalCopyRequest(view_copy_request)">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -162,13 +263,45 @@ export default {
             errors: '',
             view_document: '',
             toDiscussDocuments: [],
+            immediateHeadCopyRequetsForApproval: [],
+            view_copy_request: '',
+            saveDisableCopyRequest: false,
         }
     },
     created() {
         this.getDashboardData();
         this.getToDiscussDocuments();
+        this.getImmediateHeadCopyRequestsForApproval();
     },
     methods: {
+        submitApprovalCopyRequest(copy_request) {
+            let v = this;
+            v.saveDisableCopyRequest = true;
+            if (copy_request) {
+                let formData = new FormData();
+                formData.append('id', copy_request.id ? copy_request.id : "");
+                formData.append('immediate_head_approval', copy_request.immediate_head_approval ? copy_request.immediate_head_approval : "");
+                formData.append('immediate_head_approval_remarks', copy_request.immediate_head_approval_remarks ? copy_request.immediate_head_approval_remarks : "");
+                axios.post(`/document-copy-requests/update-immediate-head-approval`, formData)
+                    .then(response => {
+                        v.saveDisableCopyRequest = false;
+                        if (response.data.status == "success") {
+                            this.getImmediateHeadCopyRequestsForApproval();
+                            Swal.fire('Document copy request has been ' + copy_request.immediate_head_approval, '', 'success');
+                            $('#copy-request-view-modal').modal('hide');
+                            this.copy_request = '';
+                        }
+                    })
+                    .catch(error => {
+                        v.errors = error.response.data.errors;
+                        v.saveDisableCopyRequest = false
+                    })
+            }
+        },
+        viewCopyRequest(copy_request) {
+            this.view_copy_request = Object.assign({}, copy_request);
+            $('#copy-request-view-modal').modal('show');
+        },
         viewDocument(document) {
             this.view_document = document;
             $('#document-view-modal').modal('show');
@@ -215,6 +348,17 @@ export default {
             axios.get('/user-document-uploads/to-discuss-documents')
                 .then(response => {
                     v.toDiscussDocuments = response.data;
+                })
+                .catch(error => {
+
+                })
+        },
+        getImmediateHeadCopyRequestsForApproval() {
+            let v = this;
+            v.immediateHeadCopyRequetsForApproval = [];
+            axios.get('/immediate-heads-for-approval-copy-requests')
+                .then(response => {
+                    v.immediateHeadCopyRequetsForApproval = response.data;
                 })
                 .catch(error => {
 

@@ -8,6 +8,7 @@ use App\DocumentUpload;
 use App\DocumentCopyRequest;
 use App\AccessRequest;
 use App\DocumentUploadUser;
+use App\UserImmediateHead;
 
 use DB;
 use Auth;
@@ -93,5 +94,13 @@ class HomeController extends Controller
             'total_document_copy_request'=>$total_document_copy_request,
             'total_document_upload'=>count($total_document_upload),
         ];
+    }
+
+    public function immediateHeadsForApprovalCopyRequest(){
+
+        return $user_immediate_heads = UserImmediateHead::with('user_details_info','pending_copy_requests.document_upload_info')
+                                                    ->where('immediate_head',Auth::user()->id)
+                                                    ->whereHas('pending_copy_requests')
+                                                    ->get();
     }
 }

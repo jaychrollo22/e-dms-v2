@@ -104,6 +104,9 @@
                                                 File Copy Type
                                             </th>
                                             <th class="pt-1">
+                                                Immediate Head Approval
+                                            </th>
+                                            <th class="pt-1">
                                                 Status
                                             </th>
                                             <th class="pt-1">
@@ -113,7 +116,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-if="isProcessing">
-                                            <td colspan="6">
+                                            <td colspan="7">
                                                 <div class="dot-opacity-loader">
                                                     <span></span>
                                                     <span></span>
@@ -135,6 +138,11 @@
                                             </td>
                                             <td>
                                                 {{ request.file_copy_type }}
+                                            </td>
+                                            <td>
+                                                <div :class="getStatusStyle(request.immediate_head_approval)">
+                                                    {{ request.immediate_head_approval }}
+                                                </div>
                                             </td>
                                             <td>
                                                 <div :class="getStatusStyle(request.status)">
@@ -218,8 +226,8 @@
                             </div>
                         </div>
                         <hr>
-                        <div class="row">
-                            <div class="col-md-6">
+                        <div class="row" v-if="document_copy_request.immediate_head_approval == 'Approved'">
+                            <div class="col-md-12">
                                 <label for="">For Approval Status</label>
                                 <div class="form-group row">
                                     <div class="col-sm-3">
@@ -243,7 +251,7 @@
                                 </div>
                                 <span class="text-danger" v-if="errors.status">{{ errors.status[0] }}</span>
                             </div>
-                            <div class="col-md-6" v-if="document_copy_request.status == 'Approved'">
+                            <div class="col-md-12" v-if="document_copy_request.status == 'Approved'">
                                 <label for="">Expiration Date</label>
                                 <div class="form-group">
                                     <input v-model="document_copy_request.expiration_date" type="date"
@@ -263,10 +271,13 @@
                                 </div>
 
                             </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-sm btn-primary" @click="updateDocumentCopyRequest"
+                                    :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save Changes' }}</button>
+                            </div>
                         </div>
 
-                        <button class="btn btn-sm btn-primary" @click="updateDocumentCopyRequest"
-                            :disabled="saveDisable">{{ saveDisable? 'Saving...': 'Save Changes' }}</button>
+
 
                     </div>
 
@@ -327,6 +338,8 @@ export default {
                 return 'badge badge-success';
             } else if (status == 'Disapproved') {
                 return 'badge badge-danger';
+            } else {
+                return 'badge badge-warning';
             }
         },
         viewCopyRequest(request) {

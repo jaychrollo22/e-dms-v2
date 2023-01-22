@@ -31,7 +31,8 @@ class DocumentCopyRequestController extends Controller
 
         $limit = $request->limit;
 
-        $document_copy_requests = DocumentCopyRequest::with('document_upload_info','requestor_info','company_info','department_info')->orderBy('created_at','DESC');
+        $document_copy_requests = DocumentCopyRequest::with('document_upload_info','requestor_info','company_info','department_info')
+                                                        ->orderBy('created_at','DESC');
 
         if(isset($request->search) && $request->search){
             $document_copy_requests->whereHas('requestor_info',function($q) use($request){
@@ -74,6 +75,21 @@ class DocumentCopyRequestController extends Controller
         return $document_copy_requests->paginate($limit);
     }
 
+    public function viewDocument(DocumentCopyRequest $copy_request){
+
+        // return $copy_request;
+        $date_today = date('Y-m-d');
+        $expiration_date = date('Y-m-d',strtotime($copy_request->expiration_date));
+        if($copy_request->requestor == Auth::user()->id && $expiration_date >= $date_today){
+            $copy_request = DocumentCopyRequest::with('document_upload_info')->where('id',$copy_request->id)->first();
+            return view('pages.document_copy_requests.view_document_copy_request',compact('copy_request'));
+        }
+        else{
+            return 'This page is not available. Please contact administrator. Thank you.';
+        }
+        
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -109,6 +125,7 @@ class DocumentCopyRequestController extends Controller
             $data['company'] = $user->company->company_id;
             $data['department'] = $user->department->department_id;
             $data['status'] = 'New';
+            $data['immediate_head_approval'] = 'For Approval';
             if($document_upload = DocumentCopyRequest::create($data)){
                 DB::commit();
                 return $status_data = [
@@ -204,6 +221,26 @@ class DocumentCopyRequestController extends Controller
                 return $response = [
                     'status'=>'success',
                     'document_copy_request'=>$document_copy_request,
+                ];
+            }
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
+
+    public function updateImmediateHeadApproval(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $document_copy_request = DocumentCopyRequest::where('id',$request->id)->first();
+            if($document_copy_request){
+                $data = $request->all();
+                $document_copy_request->update($data);
+                DB::commit();
+                return $response = [
+                    'status'=>'success',
                 ];
             }
         }

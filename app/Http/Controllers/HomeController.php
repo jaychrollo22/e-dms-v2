@@ -97,7 +97,6 @@ class HomeController extends Controller
     }
 
     public function immediateHeadsForApprovalCopyRequest(){
-
         return $user_immediate_heads = UserImmediateHead::with('user_details_info','pending_copy_requests.document_upload_info')
                                                     ->where('immediate_head',Auth::user()->id)
                                                     ->whereHas('pending_copy_requests')

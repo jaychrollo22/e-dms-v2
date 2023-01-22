@@ -132,10 +132,10 @@ class DocumentUploadController extends Controller
                                                 ->orderBy('effective_date','DESC');
 
         $document_uploads->where('process_owner',Auth::user()->id);
-        // $document_uploads->where(function($q){
-        //                         $q->whereNull('is_discussed')
-        //                             ->orWhere('is_discussed','=','');
-        // });
+        $document_uploads->where(function($q){
+                                $q->whereNull('is_discussed')
+                                    ->orWhere('is_discussed','=','');
+        });
         $document_uploads->where('status','Approved');
 
         return $document_uploads->get()->take(5);

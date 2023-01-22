@@ -99,7 +99,7 @@
                                                 <button v-if="request.status == 'Approved'" type="button"
                                                     class="btn btn-inverse-success btn-rounded btn-icon"
                                                     title="View Document"
-                                                    @click="redirectTo('/copy-request-view-document/' + request.document_upload_info.id)">
+                                                    @click="redirectTo('/copy-request-view-document/' + request.id)">
                                                     <i class="ti-file"></i>
                                                 </button>
                                             </td>

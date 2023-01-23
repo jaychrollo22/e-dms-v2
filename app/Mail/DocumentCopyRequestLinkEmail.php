@@ -18,7 +18,7 @@ class DocumentCopyRequestLinkEmail extends Mailable
      */
     public function __construct($data)
     {
-        $this->document_data = $data;  
+        $this->request_data = $data;  
     }
 
     /**
@@ -31,7 +31,7 @@ class DocumentCopyRequestLinkEmail extends Mailable
         return $this->subject('E-DMS - Document Copy Request Link')
         ->view('email.document_copy_request_link_email')
         ->with([
-            'document'  =>  $this->document_data
+            'request'  =>  $this->request_data
         ]);
     }
 }

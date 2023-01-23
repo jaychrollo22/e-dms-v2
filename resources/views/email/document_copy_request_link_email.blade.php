@@ -3,7 +3,7 @@
 <p>
     Please be notified that your <strong> Documentation Copy Request </strong> has been <strong>{{$request->status}}</strong> with Remarks : {{$request->status_remarks}}.
 
-    To view your Document Copy, Just click <a href="">here</a>.
+    To view your Copy, Just click <a href="http://e-dms-v2.local/copy-request-view-document/{{$request->id}}">here</a>.
 </p>
 
 <p>

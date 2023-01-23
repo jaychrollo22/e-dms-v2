@@ -12,7 +12,7 @@ class DocumentCopyRequest extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
 
     public function requestor_info(){
-        return $this->belongsTo('App\User','requestor','id')->select('id','name');
+        return $this->belongsTo('App\User','requestor','id')->select('id','name','email');
     }
     public function document_upload_info(){
         return $this->belongsTo('App\DocumentUpload','document_upload_id','id')->select('id','control_code','title');

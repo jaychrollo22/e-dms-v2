@@ -183,7 +183,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary btn-md" @click="saveUser">Save</button>
+                        <button class="btn btn-primary btn-md" :disabled="saveDisable" @click="saveUser">Save</button>
                     </div>
                 </div>
             </div>
@@ -266,6 +266,8 @@ export default {
             departments: [],
             roles: [],
             immediate_heads: [],
+
+            saveDisable: false,
         }
     },
     created() {
@@ -383,6 +385,7 @@ export default {
         },
         saveUser() {
             let v = this;
+            v.saveDisable = true;
             Swal.fire({
                 title: 'Are you sure you want to save this user?',
                 icon: 'question',
@@ -412,6 +415,7 @@ export default {
                     axios.post(postURL, formData)
                         .then(response => {
                             if (response.data.status == "success") {
+                                v.saveDisable = false;
                                 if (v.action == 'Update') {
                                     var index = this.items.findIndex(item => item.id == v.user.id);
                                     this.items.splice(index, 1, response.data.user);
@@ -425,13 +429,17 @@ export default {
 
                                 this.clearFields();
                             } else {
+                                v.saveDisable = false;
                                 Swal.fire('Error: Cannot changed. Please try again.', '', 'error');
                             }
                         })
                         .catch(error => {
+                            v.saveDisable = false;
                             // console.log(error);
                             this.errors = error.response.data.errors;
                         })
+                } else {
+                    v.saveDisable = false;
                 }
             })
         },

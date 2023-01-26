@@ -229,7 +229,7 @@ export default {
                 })
         },
         getStatusStyle(status) {
-            if (status == 'New') {
+            if (status == 'New' || status == 'For Approval') {
                 return 'badge badge-primary';
             } else if (status == 'Approved') {
                 return 'badge badge-success';

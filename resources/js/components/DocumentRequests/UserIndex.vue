@@ -52,6 +52,9 @@
                                                 Type of Request
                                             </th>
                                             <th class="pt-1">
+                                                Immediate Head Approval
+                                            </th>
+                                            <th class="pt-1">
                                                 Status
                                             </th>
                                             <th class="pt-1">
@@ -91,6 +94,12 @@
                                             <td>
                                                 <div :class="getTypeStyle(request.type_of_request)">
                                                     {{ request.type_of_request }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div :class="getStatusStyle(request.immediate_head_approval)"
+                                                    :title="request.immediate_head_approval == 'Disapproved' ? 'Remarks: ' + request.immediate_head_approval_remarks : ''">
+                                                    {{ request.immediate_head_approval }}
                                                 </div>
                                             </td>
                                             <td>
@@ -431,7 +440,7 @@ export default {
             }
         },
         getStatusStyle(type) {
-            if (type == 'Pending') {
+            if (type == 'Pending' || type == 'For Approval') {
                 return 'badge badge-info';
             } else if (type == 'Approved') {
                 return 'badge badge-success';

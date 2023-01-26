@@ -147,6 +147,14 @@ class DocumentRequestController extends Controller
                 Storage::disk('public')->putFileAs('document_requests', $attachment_raw_file , $filename);
             }
 
+            if($request->type_of_request == 'Discontinuance'){
+                $data['immediate_head_approval'] = 'For Approval';
+            }
+            
+            if($request->type_of_request == 'Obsolete'){
+                $data['immediate_head_approval'] = 'For Approval';
+            }
+
             if($document_request = DocumentationRequest::create($data)){
                 DB::commit();
                 $dicr_number = $user->company->company_info->company_code . '-' . date('Y'). '-'.str_pad($document_request->id, 3, '0', STR_PAD_LEFT);//DICR Number
@@ -300,6 +308,25 @@ class DocumentRequestController extends Controller
 
     }
 
+
+    public function updateDiscontinuanceImmediateHeadApproval(Request $request){
+        DB::beginTransaction();
+        try {
+            $document_request = DocumentationRequest::where('id',$request->id)->first();
+            if($document_request){
+                $data = $request->all();
+                $document_request->update($data);
+                DB::commit();
+                return $response = [
+                    'status'=>'success',
+                ];
+            }
+        }
+        catch (Exception $e) {
+            DB::rollBack();
+            return 'error';
+        } 
+    }
     /**
      * Remove the specified resource from storage.
      *

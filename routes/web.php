@@ -32,6 +32,7 @@ Route::get('/home-user', 'HomeController@userIndex')->name('home-user');
 Route::get('/dashboard-data', 'HomeController@dashboardData');
 Route::get('/user-dashboard-data', 'HomeController@userDashboardData');
 Route::get('/immediate-heads-for-approval-copy-requests', 'HomeController@immediateHeadsForApprovalCopyRequest');
+Route::get('/immediate-heads-for-approval-discontinuance-requests', 'HomeController@immediateHeadsForApprovalDiscontinuanceRequest');
 
 //Document Requests
 Route::get('/document-requests', 'DocumentRequestController@index')->name('document-requests');
@@ -41,7 +42,10 @@ Route::group(['prefix' => 'document-requests'], function () {
     Route::get('/create', 'DocumentRequestController@create');
     Route::post('/store', 'DocumentRequestController@store');
     Route::post('/update-approval', 'DocumentRequestController@updateApproval');
+    Route::post('/update-discontinuance-immediate-head-approval', 'DocumentRequestController@updateDiscontinuanceImmediateHeadApproval');
 });
+
+
 
 Route::get('/user-document-requests', 'DocumentRequestController@userIndex')->name('user-document-requests');
 Route::group(['prefix' => 'user-document-requests'], function () {

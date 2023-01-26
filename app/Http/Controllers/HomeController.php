@@ -102,4 +102,15 @@ class HomeController extends Controller
                                                     ->whereHas('pending_copy_requests')
                                                     ->get();
     }
+    public function immediateHeadsForApprovalDiscontinuanceRequest(){
+        return $user_immediate_heads = UserImmediateHead::with('user_details_info',
+                                                        'discontinuance_requests.requestor_info',
+                                                        'discontinuance_requests.document_upload_info',
+                                                        'discontinuance_requests.company_info',
+                                                        'discontinuance_requests.department_info',
+                                                    )
+                                                    ->where('immediate_head',Auth::user()->id)
+                                                    ->whereHas('discontinuance_requests')
+                                                    ->get();
+    }
 }

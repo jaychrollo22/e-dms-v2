@@ -136,6 +136,9 @@
                                                 Type of Request
                                             </th>
                                             <th class="pt-1">
+                                                Immediate Head Approval
+                                            </th>
+                                            <th class="pt-1">
                                                 Status
                                             </th>
                                             <th class="pt-1">
@@ -145,7 +148,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-if="isProcessing">
-                                            <td colspan="7">
+                                            <td colspan="9">
                                                 <div class="dot-opacity-loader">
                                                     <span></span>
                                                     <span></span>
@@ -174,6 +177,11 @@
                                             <td>
                                                 <div :class="getTypeStyle(request.type_of_request)">
                                                     {{ request.type_of_request }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div :class="getStatusStyle(request.immediate_head_approval)">
+                                                    {{ request.immediate_head_approval }}
                                                 </div>
                                             </td>
                                             <td>
@@ -368,7 +376,8 @@
                                     </div>
                                 </div>
                                 <div v-else class="row">
-                                    <div v-if="isAllowedToApprove" class="col-md-6 ">
+                                    <div v-if="isAllowedToApprove && document_request.immediate_head_approval == 'Approved'"
+                                        class="col-md-6 ">
                                         <label for="">For Approval Status</label>
                                         <div class="form-group row">
                                             <div class="col-sm-3">
@@ -608,7 +617,7 @@ export default {
             }
         },
         getStatusStyle(type) {
-            if (type == 'Pending') {
+            if (type == 'Pending' || type == 'For Approval') {
                 return 'badge badge-info';
             } else if (type == 'Approved') {
                 return 'badge badge-success';

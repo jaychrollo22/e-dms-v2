@@ -23,4 +23,7 @@ class UserImmediateHead extends Model implements Auditable
     public function pending_copy_requests(){
         return $this->hasMany('App\DocumentCopyRequest','requestor','user_id')->where('immediate_head_approval','For Approval');
     }
+    public function discontinuance_requests(){
+        return $this->hasMany('App\DocumentationRequest','requestor','user_id')->where('immediate_head_approval','For Approval');
+    }
 }

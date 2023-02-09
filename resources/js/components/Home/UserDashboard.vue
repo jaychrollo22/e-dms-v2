@@ -146,11 +146,20 @@
                                                         <div class="mt-2"
                                                             v-for="(copy_request, x) in document.pending_copy_requests"
                                                             :key="x">
-                                                            Document : {{ copy_request.document_upload_info.title }} |
+                                                            Document :
+                                                            {{ copy_request.document_upload_info.control_code + ' ' + copy_request.document_upload_info.title }}
+                                                            |
                                                             Remarks : {{ copy_request.remarks }}
                                                             <button type="button"
                                                                 class="btn btn-sm btn-outline-warning btn-fw"
                                                                 @click="viewCopyRequest(copy_request)">{{ copy_request.immediate_head_approval }}</button>
+                                                            <!-- <button
+                                                                @click="viewDocument(copy_request.document_upload_info)"
+                                                                type="button"
+                                                                class="btn btn-inverse-primary btn-rounded btn-icon"
+                                                                title="View Document">
+                                                                <i class="ti-eye"></i>
+                                                            </button> -->
                                                         </div>
                                                     </td>
 
@@ -192,12 +201,20 @@
                                                         <div class="mt-2"
                                                             v-for="(request, x) in discontinuance_request.discontinuance_requests"
                                                             :key="x">
-                                                            Document : {{ request.document_upload_info.title }} |
+                                                            Document :
+                                                            {{ request.document_upload_info.control_code + ' - ' + request.document_upload_info.title }}
+                                                            |
                                                             Title :
                                                             {{ request.title }}
                                                             <button type="button"
                                                                 class="btn btn-sm btn-outline-warning btn-fw"
                                                                 @click="viewDiscontinuanceRequest(request)">{{ request.immediate_head_approval }}</button>
+                                                            <!-- <button @click="viewDocument(request.document_upload_info)"
+                                                                type="button"
+                                                                class="btn btn-inverse-primary btn-rounded btn-icon"
+                                                                title="View Document">
+                                                                <i class="ti-eye"></i>
+                                                            </button> -->
                                                         </div>
                                                     </td>
 
@@ -357,6 +374,27 @@
                 </div>
             </div>
         </div>
+
+        <!-- View Document -->
+        <div class="modal fade" id="view-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog modal-md modal-document-view" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="col-12 modal-title">
+                            {{ view_document? view_document.control_code + ' | ' + view_document.title : "" }}
+                        </h5>
+
+
+                    </div>
+                    <div class="modal-body" v-if="view_document">
+                        <vue-pdf-embed v-if="view_document.attachment_signed_copy"
+                            :source="'document-uploads-view-signed-copy?id=' + view_document.id" class="src-pdf mt-2" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
 

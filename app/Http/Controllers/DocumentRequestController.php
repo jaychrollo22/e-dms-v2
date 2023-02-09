@@ -123,7 +123,7 @@ class DocumentRequestController extends Controller
                 'type_of_request' => 'required',
                 'type_of_documented_information' => 'required',
                 'description_purpose_of_documentation' => 'required',
-                'attachment_file' => 'required|mimes:png,jpg,jpeg,csv,txt,xlx,xls,zip,pdf,docx'
+                'attachment_file' => 'required'
             ];
         }
         
